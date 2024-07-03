@@ -1,0 +1,4 @@
+[conventional-commit-lsp]2024/07/03 21:31:49 main.go:17: Starting server
+[conventional-commit-lsp]2024/07/03 21:31:49 main.go:36: Received message with method: initialize
+[conventional-commit-lsp]2024/07/03 21:31:49 messagehandler.go:29: Connected to client: Neovim 0.10.0-dev+dirty
+[conventional-commit-lsp]2024/07/03 21:31:49 main.go:36: Received message with method: initialized
