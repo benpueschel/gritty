@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 /// The remote module provides an interface for interacting with remote repositories.
 /// To acquire a remote, use the [create_remote] function.
 /// The [Remote] trait provides a common interface for interacting with remotes.
+pub mod github;
 
 /// The supported providers for remotes.
 /// Each provider has its own implementation of the [Remote] trait.
@@ -81,7 +82,9 @@ pub trait Remote {
 }
 
 pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Box<dyn Remote> {
+    use Provider::*;
     match provider {
+        GitHub => Box::new(github::GitHubRemote::new(config).await),
         _ => unimplemented!(),
     }
 }
