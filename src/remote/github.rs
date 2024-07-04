@@ -1,7 +1,4 @@
-use std::{
-    fmt::Debug,
-    io::{Error, ErrorKind},
-};
+use std::io::{Error, ErrorKind};
 
 use async_trait::async_trait;
 use chrono::DateTime;
@@ -123,17 +120,13 @@ impl Remote for GitHubRemote {
     }
 
     async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
-        let url = format!(
-            "git@{}/{}:{}.git",
-            self.config.url, self.config.username, name
-        );
+        let url = format!("git@github.com/{}:{}.git", self.config.username, name);
 
         let status = std::process::Command::new("git")
             .arg("clone")
             .arg(url)
             .arg(path)
-            .status()
-            .map_err(map_error)?;
+            .status()?;
 
         if !status.success() {
             return Err(Error::new(
