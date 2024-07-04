@@ -1,4 +1,4 @@
-use std::io::Error;
+use std::{fmt::Debug, io::{Error, ErrorKind}};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -88,3 +88,8 @@ pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Box<dyn
         _ => unimplemented!(),
     }
 }
+
+fn map_error(e: impl ToString + Debug) -> Error {
+    Error::new(ErrorKind::Other, format!("{:?}", e))
+}
+

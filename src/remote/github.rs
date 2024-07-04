@@ -8,7 +8,7 @@ use chrono::DateTime;
 use octocrab::{models::repos::CommitAuthor, Octocrab};
 use serde::{Deserialize, Serialize};
 
-use super::{Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
+use super::{map_error, Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
 
 pub struct GitHubRemote {
     config: RemoteConfig,
@@ -137,8 +137,4 @@ impl Remote for GitHubRemote {
 
         Ok(())
     }
-}
-
-fn map_error(e: impl ToString + Debug) -> Error {
-    Error::new(ErrorKind::Other, format!("{:?}", e))
 }
