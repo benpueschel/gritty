@@ -5,7 +5,10 @@ use std::{
 
 use async_trait::async_trait;
 use chrono::DateTime;
-use octocrab::{models::repos::CommitAuthor, Octocrab};
+use octocrab::{
+    models::repos::{CommitAuthor, GitUserTime},
+    Octocrab,
+};
 use serde::{Deserialize, Serialize};
 
 use super::{map_error, Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
@@ -81,15 +84,19 @@ impl Remote for GitHubRemote {
             .items
             .into_iter()
             .map(|c| {
-                let author = c.commit.author.unwrap_or(CommitAuthor {
-                    name: String::default(),
-                    email: String::default(),
+                let author = c.commit.author.unwrap_or(GitUserTime {
                     date: Some(DateTime::default()),
+                    username: None,
+                    user: CommitAuthor {
+                        date: None,
+                        name: "unknown".to_string(),
+                        email: "unknown".to_string(),
+                    },
                 });
                 Commit {
                     sha: c.sha,
                     message: c.commit.message,
-                    author: author.name,
+                    author: author.user.name,
                     date: author.date.unwrap_or_default().to_rfc2822(),
                 }
             })
