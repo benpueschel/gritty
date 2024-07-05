@@ -48,6 +48,7 @@ pub enum ConfigErrorKind {
     ConfigParseError,
     RemoteNotFound,
     AuthNotFound,
+    SecretsFileNotFound,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -65,13 +66,14 @@ pub struct GitRemoteConfig {
     pub username: String,
 }
 
+type InlineSecrets = HashMap<String, AuthConfig>;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Secrets {
     /// Use the system keyring to store secrets.
     /// This works on Linux, macOS, Windows, and probably on BSD variants.
     Keyring,
     SecretsFile(String),
-    Plaintext(HashMap<String, AuthConfig>),
+    Plaintext(InlineSecrets),
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
@@ -144,45 +146,60 @@ impl Config {
         })
     }
     pub fn get_auth(&self, name: &str) -> Result<Auth> {
-        match &self.secrets {
-            Secrets::Plaintext(secrets) => {
-                if let Some(auth) = secrets.get(name) {
-                    if let Some(token) = &auth.token {
-                        return Ok(Auth::Token {
-                            token: token.clone(),
-                        });
-                    }
-                    // The user didn't provide a token, so we'll try to use the username and
-                    // password.
-                    if let Some(username) = &auth.username {
-                        return Ok(Auth::Basic {
-                            username: username.clone(),
-                            password: auth.password.clone().unwrap_or_default(),
-                        });
-                    }
-                    return Err(ConfigError {
-                        message: format!(
-                            r#"Could not find auth for remote '{name}'.
-                            Did you forget to add it to the config?
-                            You need to set either a username/password combination,
-                            or an api token. "#
-                        ),
-                        kind: ConfigErrorKind::AuthNotFound,
-                    });
-                }
-            }
-            _ => unimplemented!(),
-        }
-        Err(ConfigError {
-            message: format!(
-                r#"Could not find auth for remote '{name}'.
-                Did you forget to add it to the config?"#
-            ),
-            kind: ConfigErrorKind::AuthNotFound,
-        })
+        get_auth(&self.secrets, name)
     }
 }
 
+pub fn get_auth(secrets: &Secrets, name: &str) -> Result<Auth> {
+    match secrets {
+        Secrets::Plaintext(secrets) => {
+            if let Some(auth) = secrets.get(name) {
+                if let Some(token) = &auth.token {
+                    return Ok(Auth::Token {
+                        token: token.clone(),
+                    });
+                }
+                // The user didn't provide a token, so we'll try to use the username and
+                // password.
+                if let Some(username) = &auth.username {
+                    return Ok(Auth::Basic {
+                        username: username.clone(),
+                        password: auth.password.clone().unwrap_or_default(),
+                    });
+                }
+                return Err(ConfigError {
+                    message: format!(
+                        r#"Could not find auth for remote '{name}'.
+                                 Did you forget to add it to the config?
+                                 You need to set either a username/password combination,
+                                 or an api token. "#
+                    ),
+                    kind: ConfigErrorKind::AuthNotFound,
+                });
+            }
+        }
+        Secrets::SecretsFile(file) => {
+            let file = file.replace('~', env::var("HOME").unwrap().as_str());
+            if !Path::new(&file).exists() {
+                return Err(ConfigError {
+                    message: format!("Could not find secrets file '{file}'."),
+                    kind: ConfigErrorKind::SecretsFileNotFound,
+                });
+            }
+            let contents = fs::read_to_string(file)?;
+            let secrets: InlineSecrets = toml::from_str(&contents)?;
+            return get_auth(&Secrets::Plaintext(secrets), name);
+        }
+        _ => unimplemented!(),
+    }
+    Err(ConfigError {
+        message: format!(
+            r#"Could not find auth for remote '{name}'.
+                     Did you forget to add it to the config?"#
+        ),
+        kind: ConfigErrorKind::AuthNotFound,
+    })
+}
 impl Default for Config {
     fn default() -> Self {
         Self {
