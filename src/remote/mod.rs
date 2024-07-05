@@ -1,8 +1,12 @@
-use std::{fmt::Debug, io::{Error, ErrorKind}};
+use std::{
+    fmt::Debug,
+    io::{Error, ErrorKind},
+};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
+pub mod gitea;
 /// The remote module provides an interface for interacting with remote repositories.
 /// To acquire a remote, use the [create_remote] function.
 /// The [Remote] trait provides a common interface for interacting with remotes.
@@ -50,7 +54,6 @@ pub struct Commit {
     pub date: String,
 }
 
-
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RepoCreateInfo {
     /// The name of the repository.
@@ -85,11 +88,11 @@ pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Box<dyn
     use Provider::*;
     match provider {
         GitHub => Box::new(github::GitHubRemote::new(config).await),
-        _ => unimplemented!(),
+        Gitea => Box::new(gitea::GiteaRemote::new(config).await),
+        GitLab => unimplemented!("GitLab not implemented"),
     }
 }
 
-fn map_error(e: impl ToString + Debug) -> Error {
+fn map_error(e: impl Debug) -> Error {
     Error::new(ErrorKind::Other, format!("{:?}", e))
 }
-
