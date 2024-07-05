@@ -158,7 +158,49 @@ impl Config {
             kind: ConfigErrorKind::RemoteNotFound,
         })
     }
+    pub fn store_token(&mut self, name: &str, token: &str) -> Result<()> {
+        if !self.remotes.contains_key(name) {
+            return Err(ConfigError {
+                message: format!("Could not find remote '{name}'"),
+                kind: ConfigErrorKind::RemoteNotFound,
+            });
+        }
 
+        match &mut self.secrets {
+            Secrets::Keyring => {
+                let entry = Entry::new(&self.path, name)?;
+                entry.set_password(token)?;
+                Ok(())
+            }
+            Secrets::Plaintext(secrets) => {
+                let auth = AuthConfig {
+                    token: Some(token.to_string()),
+                    ..Default::default()
+                };
+                secrets
+                    .entry(name.to_string())
+                    .and_modify(|x| *x = auth.clone())
+                    .or_insert(auth);
+                Ok(())
+            }
+            Secrets::SecretsFile(file) => {
+                let file = file.replace('~', env::var("HOME").unwrap().as_str());
+                let path = Path::new(&file);
+                fs::create_dir_all(path.parent().unwrap())?;
+
+                let contents = fs::read_to_string(&file)?;
+                let mut secrets: InlineSecrets = toml::from_str(&contents)?;
+                secrets.insert(name.to_string(), AuthConfig {
+                    token: Some(token.to_string()),
+                    ..Default::default()
+                });
+
+                let toml = toml::to_string(&secrets)?;
+                fs::write(&file, toml)?;
+                Ok(())
+            }
+        }
+    }
     pub fn get_auth(&self, secrets: &Secrets, name: &str) -> Result<Auth> {
         match secrets {
             Secrets::Plaintext(secrets) => {
