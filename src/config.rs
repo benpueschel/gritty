@@ -71,7 +71,14 @@ pub enum Secrets {
     /// This works on Linux, macOS, Windows, and probably on BSD variants.
     Keyring,
     SecretsFile(String),
-    Plaintext(HashMap<String, Auth>),
+    Plaintext(HashMap<String, AuthConfig>),
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AuthConfig {
+    pub username: Option<String>,
+    pub password: Option<String>,
+    pub token: Option<String>,
 }
 
 impl Config {
@@ -140,7 +147,28 @@ impl Config {
         match &self.secrets {
             Secrets::Plaintext(secrets) => {
                 if let Some(auth) = secrets.get(name) {
-                    return Ok(auth.clone());
+                    if let Some(token) = &auth.token {
+                        return Ok(Auth::Token {
+                            token: token.clone(),
+                        });
+                    }
+                    // The user didn't provide a token, so we'll try to use the username and
+                    // password.
+                    if let Some(username) = &auth.username {
+                        return Ok(Auth::Basic {
+                            username: username.clone(),
+                            password: auth.password.clone().unwrap_or_default(),
+                        });
+                    }
+                    return Err(ConfigError {
+                        message: format!(
+                            r#"Could not find auth for remote '{name}'.
+                            Did you forget to add it to the config?
+                            You need to set either a username/password combination,
+                            or an api token. "#
+                        ),
+                        kind: ConfigErrorKind::AuthNotFound,
+                    });
                 }
             }
             _ => unimplemented!(),
@@ -179,14 +207,16 @@ impl Default for Config {
             secrets: Secrets::Plaintext(HashMap::from([
                 (
                     "gitea".to_string(),
-                    Auth::Token {
-                        token: "gitea-token".to_string(),
+                    AuthConfig {
+                        token: Some("gitea-token".to_string()),
+                        ..Default::default()
                     },
                 ),
                 (
                     "github".to_string(),
-                    Auth::Token {
-                        token: "github-token".to_string(),
+                    AuthConfig {
+                        token: Some("github-token".to_string()),
+                        ..Default::default()
                     },
                 ),
             ])),
