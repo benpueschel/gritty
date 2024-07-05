@@ -15,13 +15,14 @@ pub mod github;
 /// The supported providers for remotes.
 /// Each provider has its own implementation of the [Remote] trait.
 /// The [create_remote] function will return a remote for the given provider.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Provider {
     GitHub,
     GitLab,
     Gitea,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Auth {
     /// Authenticate using a username and password.
     Basic { username: String, password: String },
@@ -29,7 +30,7 @@ pub enum Auth {
     Token { token: String },
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RemoteConfig {
     pub username: String,
     pub url: String,
