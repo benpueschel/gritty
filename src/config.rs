@@ -67,6 +67,7 @@ pub struct Config {
     /// Maps the remote name to the remote configuration.
     pub remotes: HashMap<String, GitRemoteConfig>,
     pub secrets: Secrets,
+    #[serde(skip)]
     pub path: String,
 }
 
@@ -97,13 +98,13 @@ pub struct AuthConfig {
 impl Config {
     pub fn save_default() -> Result<()> {
         let config = Config::default();
-        let toml = toml::to_string(&config)?;
-        let home = env::var("HOME").unwrap();
-        let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
-        let config_path = format!("{xdg_config}/gitrc-rs/config.toml");
-        fs::create_dir_all(Path::new(&config_path).parent().unwrap())?;
-        fs::write(&config_path, toml)?;
-        println!("Saved default config to '{config_path}'");
+        config.save()
+    }
+    pub fn save(&self) -> Result<()> {
+        let toml = toml::to_string(self)?;
+        fs::create_dir_all(Path::new(&self.path).parent().unwrap())?;
+        fs::write(&self.path, toml)?;
+        println!("Saved config to '{}'", &self.path);
         Ok(())
     }
     pub fn load_from_file(path: Option<String>) -> Result<Self> {
@@ -190,10 +191,13 @@ impl Config {
 
                 let contents = fs::read_to_string(&file)?;
                 let mut secrets: InlineSecrets = toml::from_str(&contents)?;
-                secrets.insert(name.to_string(), AuthConfig {
-                    token: Some(token.to_string()),
-                    ..Default::default()
-                });
+                secrets.insert(
+                    name.to_string(),
+                    AuthConfig {
+                        token: Some(token.to_string()),
+                        ..Default::default()
+                    },
+                );
 
                 let toml = toml::to_string(&secrets)?;
                 fs::write(&file, toml)?;
@@ -201,6 +205,7 @@ impl Config {
             }
         }
     }
+
     pub fn get_auth(&self, secrets: &Secrets, name: &str) -> Result<Auth> {
         match secrets {
             Secrets::Plaintext(secrets) => {
@@ -270,7 +275,11 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            path: String::new(),
+            path: {
+                let home = env::var("HOME").unwrap();
+                let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
+                format!("{xdg_config}/gitrc-rs/config.toml")
+            },
             remotes: HashMap::from([
                 (
                     "gitea".to_string(),
