@@ -4,7 +4,7 @@ use std::{collections::HashMap, env, error::Error, fmt::Display, fs, path::Path}
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
 
-use crate::remote::{Auth, Provider, RemoteConfig};
+use crate::{log, remote::{Auth, Provider, RemoteConfig}};
 
 pub type Result<T> = std::result::Result<T, ConfigError>;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -104,7 +104,9 @@ impl Config {
         let toml = toml::to_string(self)?;
         fs::create_dir_all(Path::new(&self.path).parent().unwrap())?;
         fs::write(&self.path, toml)?;
-        println!("Saved config to '{}'", &self.path);
+        log::print("Saved config to '");
+        log::info(&self.path);
+        log::println("'.");
         Ok(())
     }
     pub fn load_from_file(path: Option<String>) -> Result<Self> {

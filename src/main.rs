@@ -8,6 +8,7 @@ use remote::{create_remote, Remote, RepoCreateInfo};
 use structopt::StructOpt;
 
 pub mod config;
+pub mod log;
 pub mod remote;
 
 #[derive(Debug, Clone, StructOpt)]
@@ -56,7 +57,8 @@ fn load_config() -> Result<Config, Box<dyn Error>> {
         Err(err) => match err.kind {
             ConfigErrorKind::ConfigNotFound => {
                 eprintln!("{}", err.message);
-                println!("Creating default config...");
+                log::info("Creating default config...");
+                log::end_line();
                 Config::save_default()?;
                 std::process::exit(1);
             }
@@ -82,10 +84,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     match command {
         Args::List { remote } => {
-            println!("Listing repositories on remote '{remote}'");
+            log::print("Listing repositories on remote '");
+            log::info(&remote);
+            log::println("'...");
+
             let remote = load_remote(&remote).await?;
             let repos = remote.list_repos().await?;
-            println!("* denotes private repositories");
+            log::println("* denotes private repositories");
             let mut longest_name = 0;
             for repo in &repos {
                 if repo.name.len() > longest_name {
@@ -94,22 +99,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
             for repo in &repos {
                 if repo.private {
-                    print!("* ");
+                    log::print("* ");
                 } else {
-                    print!("  ");
+                    log::print("  ");
                 }
                 let padding = " ".repeat(longest_name - repo.name.len());
-                print!("{}{padding}", repo.name);
+                log::info(&format!("{}{padding}", repo.name));
                 if repo.last_commits.is_empty() {
-                    print!(" - no commits");
+                    log::print(" - no commits");
                 } else {
                     let last = &repo.last_commits[0];
                     let date = &last.date;
                     let sha = last.sha.split_at(8).0;
                     let message = last.message.split('\n').next().unwrap_or(&last.message);
-                    print!(" - {date}: {sha}: {message}");
+                    log::print(&format!(" - {date}: "));
+                    log::alt_info(sha);
+                    log::print(" - ");
+                    log::info(message);
                 }
-                println!();
+                log::end_line();
             }
         }
         Args::Create {
@@ -119,7 +127,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             name,
             remote,
         } => {
-            println!("Creating repository '{name}'...");
+            log::print("Creating repository '");
+            log::info(&name);
+            log::println("'...");
             let remote = load_remote(&remote).await?;
             let info = RepoCreateInfo {
                 name,
@@ -127,13 +137,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 private,
             };
             let url = remote.create_repo(info).await?;
-            println!("Repository created at: {}", url);
+            log::print("Repository created at: ");
+            log::info(&url);
+            log::end_line();
         }
         Args::Delete {
             name,
             remote: remote_name,
         } => {
-            println!("Deleting repository '{name}'...");
             let remote = load_remote(&remote_name).await?;
             let repo_info = match remote.get_repo_info(&name).await {
                 Ok(x) => x,
@@ -144,36 +155,46 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     std::process::exit(1);
                 }
             };
-            println!(
-                "WARNING: You are about to delete repository '{name}' on remote '{remote_name}'."
-            );
+            log::important("WARNING: ");
+            log::warning("You are about to delete repository '");
+            log::important(&name);
+            log::warning("' on remote '");
+            log::important(&remote_name);
+            log::println("'.");
+
             if let Some(last) = repo_info.last_commits.first() {
                 // Only show the first line of the commit message
                 let message = last.message.split('\n').next().unwrap_or(&last.message);
-                println!(
-                    "Last commit: {} - {} by {} on {}",
-                    last.sha, message, last.author, last.date
-                );
+                log::print("Last commit: ");
+                log::alt_info(last.sha.split_at(8).0);
+                log::print(" - ");
+                log::info(message);
+                log::println(&format!(" by {} on {}", last.author, last.date));
             }
-            print!("Are you sure you want to continue? (y/N): ");
+            log::important("Are you sure you want to continue? (y/N): ");
             stdout().flush()?;
             let mut input = String::new();
             stdin().read_line(&mut input)?;
             if !input.trim().eq_ignore_ascii_case("y") {
-                println!("Operation cancelled.");
+                log::info("Operation cancelled.");
+                log::end_line();
                 std::process::exit(0);
             }
             remote.delete_repo(&name).await?;
-            println!("Repository '{name}' deleted on remote '{remote_name}'.");
+            log::print("Repository '");
+            log::info(&name);
+            log::print("' deleted on remote '");
+            log::info(&remote_name);
+            log::println("'.");
         }
         Args::Auth { remote } => {
-            print!("Enter your username (leave blank to use a token): ");
+            log::info("Enter your username (leave blank to use a token): ");
             stdout().flush()?;
             let mut username = String::new();
             stdin().read_line(&mut username)?;
             username = username.trim().to_string();
 
-            print!("Enter your password or token: ");
+            log::info("Enter your password or token: ");
             stdout().flush()?;
             let password = rpassword::read_password()?;
 
@@ -181,15 +202,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 secrets: config::Secrets::Keyring,
                 ..Default::default()
             };
-            println!("{}", toml::to_string_pretty(&def).unwrap());
+            log::println(&toml::to_string_pretty(&def).unwrap());
 
-            println!("Adding authentication to remote '{remote}'...");
+            log::highlight("Adding authentication to remote '", &remote, "'...");
             let mut config = load_config()?;
             if !username.is_empty() {
                 todo!("Basic HTTP auth is not yet supported.");
             }
             config.store_token(&remote, &password)?;
-            println!("Authentication added to remote '{remote}'.");
+            log::highlight("Authentication added to remote '", &remote, "'.");
         }
     }
 

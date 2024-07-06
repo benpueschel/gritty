@@ -3,6 +3,10 @@ name = "gritty"
 version = "0.0.1"
 edition = "2021"
 
+[features]
+default = [ "color" ]
+color = [ "structopt/color", "dep:ansi_term" ]
+
 [dependencies]
 async-trait = "0.1.80"
 chrono = "0.4.38"
@@ -13,5 +17,6 @@ serde_json = "1.0.120"
 tokio = { version = "1.38.0", features = ["full", "macros"] }
 toml = "0.8.14"
 keyring = "2.3.3"
-structopt = { version = "0.3.26", features = ["color"] }
+structopt = "0.3.26"
 rpassword = "7.3.1"
+ansi_term = { version = "0.12.1", optional = true }
