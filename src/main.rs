@@ -11,7 +11,7 @@ pub mod config;
 pub mod remote;
 
 #[derive(Debug, Clone, StructOpt)]
-#[structopt(name = "gitrc-rs", about = "A tool to manage remote git repositories.")]
+#[structopt(name = "gritty", about = "A tool to manage remote git repositories.")]
 pub enum Args {
     #[structopt(about = "List repositories on a remote")]
     List {
