@@ -57,11 +57,18 @@ impl Remote for GiteaRemote {
             limit: Some(25),
             ..Default::default()
         };
-        let commits = self
-            .client
-            .get_commits(owner, name, &commit_option)
-            .await
-            .map_err(map_error)?;
+        let commits = self.client.get_commits(owner, name, &commit_option).await;
+        let commits = match commits {
+            Ok(x) => x,
+            Err(err) => {
+                // 409 means the repository is empty, so return an empty list of commits.
+                if err.status_code.as_u16() == 409 {
+                    Vec::new()
+                } else {
+                    return Err(map_error(err));
+                }
+            }
+        };
         let last_commits = commits
             .into_iter()
             .map(|c| Commit {
