@@ -31,8 +31,17 @@ pub enum Auth {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum CloneProtocol {
+    #[serde(rename = "ssh")]
+    SSH,
+    #[serde(rename = "https")]
+    HTTPS,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RemoteConfig {
     pub username: String,
+    pub clone_protocol: CloneProtocol,
     pub url: String,
     pub auth: Auth,
 }

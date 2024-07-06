@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     log,
-    remote::{Auth, Provider, RemoteConfig},
+    remote::{Auth, CloneProtocol, Provider, RemoteConfig},
 };
 
 pub type Result<T> = std::result::Result<T, ConfigError>;
@@ -80,6 +80,7 @@ pub struct Config {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GitRemoteConfig {
     pub provider: Provider,
+    pub clone_protocol: CloneProtocol,
     pub url: String,
     pub username: String,
 }
@@ -158,6 +159,7 @@ impl Config {
     pub fn get_remote_config(&self, name: &str) -> Result<RemoteConfig> {
         if let Some(remote) = self.remotes.get(name) {
             return Ok(RemoteConfig {
+                clone_protocol: remote.clone_protocol.clone(),
                 username: remote.username.clone(),
                 url: remote.url.clone(),
                 auth: self.get_auth(&self.secrets, name)?,
@@ -297,6 +299,7 @@ impl Default for Config {
                         provider: Provider::Gitea,
                         url: "https://gitea.example.com".to_string(),
                         username: "awesome-user".to_string(),
+                        clone_protocol: CloneProtocol::HTTPS,
                     },
                 ),
                 (
@@ -305,6 +308,7 @@ impl Default for Config {
                         provider: Provider::GitHub,
                         url: "https://github.com".to_string(),
                         username: "awesome-user".to_string(),
+                        clone_protocol: CloneProtocol::SSH,
                     },
                 ),
             ]),

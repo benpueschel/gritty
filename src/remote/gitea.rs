@@ -41,13 +41,21 @@ impl Remote for GiteaRemote {
     }
 
     async fn list_repos(&self) -> Result<Vec<Repository>, Error> {
-        let owner = self.client.get_authenticated_user().await.map_err(map_error)?;
+        let owner = self
+            .client
+            .get_authenticated_user()
+            .await
+            .map_err(map_error)?;
         let search_option = teatime::SearchRepositoriesOption {
             uid: Some(owner.id),
             limit: Some(100),
             ..Default::default()
         };
-        let repos = self.client.search_repositories(&search_option).await.map_err(map_error)?;
+        let repos = self
+            .client
+            .search_repositories(&search_option)
+            .await
+            .map_err(map_error)?;
         let mut result = Vec::new();
         for repo in repos {
             result.push(self.get_repo_info(repo).await?);
@@ -73,10 +81,16 @@ impl Remote for GiteaRemote {
     }
 
     async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
-        let url = format!(
-            "git@{}/{}:{}.git",
-            self.config.url, self.config.username, name
-        );
+        let username = &self.config.username;
+        let clean_url = self
+            .config
+            .url
+            .replace("https://", "")
+            .replace("http://", "");
+        let url = match self.config.clone_protocol {
+            CloneProtocol::SSH => format!("git@{}/{}:{}.git", clean_url, username, name),
+            CloneProtocol::HTTPS => format!("{}/{}/{}.git", self.config.url, username, name),
+        };
 
         let status = std::process::Command::new("git")
             .arg("clone")

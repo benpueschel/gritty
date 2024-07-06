@@ -25,6 +25,8 @@ pub enum Args {
     Create {
         #[structopt(short, long, help = "Create a private repository")]
         private: bool,
+        #[structopt(short, long, help = "Clone the repository after creation")]
+        clone: bool,
         #[structopt(short, long, help = "Initialize the repository with a README.md")]
         init: bool,
         #[structopt(
@@ -129,6 +131,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         Args::Create {
             private,
+            clone,
             init: _,
             license: _,
             name,
@@ -139,7 +142,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             log::println("'...");
             let remote = load_remote(&remote).await?;
             let info = RepoCreateInfo {
-                name,
+                name: name.clone(),
                 description: None,
                 private,
             };
@@ -147,6 +150,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             log::print("Repository created at: ");
             log::info(&url);
             log::end_line();
+            if clone {
+                remote.clone_repo(&name, &name).await?;
+            }
         }
         Args::Delete {
             name,

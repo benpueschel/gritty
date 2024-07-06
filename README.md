@@ -125,12 +125,14 @@ secrets = "Keyring"
 provider = "GitHub"
 url = "https://github.com"
 username = "your_username"
+clone_protocol = "ssh" # or "https"
 
 # This adds a second remote to the configuration file, using Gitea as the provider.
 [remotes.gitea]
 provider = "Gitea"
 url = "https://gitea.example.com"
 username = "your_username"
+clone_protocol = "https" # or "ssh"
 ```
 
 # Examples

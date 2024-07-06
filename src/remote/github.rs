@@ -12,7 +12,7 @@ use octocrab::{
 };
 use serde::{Deserialize, Serialize};
 
-use super::{map_error, Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
+use super::{map_error, CloneProtocol, Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
 
 pub struct GitHubRemote {
     config: RemoteConfig,
@@ -91,7 +91,13 @@ impl Remote for GitHubRemote {
     }
 
     async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
-        let url = format!("git@github.com/{}:{}.git", self.config.username, name);
+        let username = &self.config.username;
+        let url = match self.config.clone_protocol {
+            CloneProtocol::SSH => format!("git@github.com/{}:{}.git", &username, name),
+            CloneProtocol::HTTPS => {
+                format!("https://github.com/{}/{}.git", &username, name)
+            }
+        };
 
         let status = std::process::Command::new("git")
             .arg("clone")
