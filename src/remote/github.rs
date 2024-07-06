@@ -12,7 +12,7 @@ use octocrab::{
 };
 use serde::{Deserialize, Serialize};
 
-use super::{map_error, CloneProtocol, Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
+use super::{map_error, Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
 
 pub struct GitHubRemote {
     config: RemoteConfig,
@@ -35,6 +35,10 @@ impl Remote for GitHubRemote {
             crab,
             config: config.clone(), // TODO: remove clone
         }
+    }
+
+    fn get_config(&self) -> &RemoteConfig {
+        &self.config
     }
 
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String, Error> {
@@ -100,29 +104,6 @@ impl Remote for GitHubRemote {
             .delete()
             .await
             .map_err(map_error)?;
-
-        Ok(())
-    }
-
-    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
-        let username = &self.config.username;
-        let url = match self.config.clone_protocol {
-            CloneProtocol::SSH => format!("git@github.com:{}/{}.git", &username, name),
-            CloneProtocol::HTTPS => format!("https://github.com/{}/{}.git", &username, name),
-        };
-
-        let status = std::process::Command::new("git")
-            .arg("clone")
-            .arg(url)
-            .arg(path)
-            .status()?;
-
-        if !status.success() {
-            return Err(Error::new(
-                ErrorKind::Other,
-                format!("Failed to clone repository '{}'", name),
-            ));
-        }
 
         Ok(())
     }

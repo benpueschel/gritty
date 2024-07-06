@@ -82,32 +82,8 @@ impl Remote for GiteaRemote {
             .map_err(map_error)
     }
 
-    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
-        let username = &self.config.username;
-        let clean_url = self
-            .config
-            .url
-            .replace("https://", "")
-            .replace("http://", "");
-        let url = match self.config.clone_protocol {
-            CloneProtocol::SSH => format!("git@{}:{}/{}.git", clean_url, username, name),
-            CloneProtocol::HTTPS => format!("{}/{}/{}.git", self.config.url, username, name),
-        };
-
-        let status = std::process::Command::new("git")
-            .arg("clone")
-            .arg(url)
-            .arg(path)
-            .status()?;
-
-        if !status.success() {
-            return Err(Error::new(
-                ErrorKind::Other,
-                format!("Failed to clone repository '{}'", name),
-            ));
-        }
-
-        Ok(())
+    fn get_config(&self) -> &RemoteConfig {
+        &self.config
     }
 }
 

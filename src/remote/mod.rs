@@ -80,7 +80,7 @@ pub struct RepoCreateInfo {
 }
 
 #[async_trait]
-pub trait Remote {
+pub trait Remote: Sync {
     /// Create a new remote with the given configuration.
     async fn new(config: &RemoteConfig) -> Self
     where
@@ -96,8 +96,33 @@ pub trait Remote {
     /// Delete a repository.
     /// Warning: Operation does not prompt for confirmation and is irreversible.
     async fn delete_repo(&self, name: &str) -> Result<(), Error>;
+    /// Get the configuration of the remote.
+    fn get_config(&self) -> &RemoteConfig;
     /// Clone a repository to the given path.
-    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error>;
+    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
+        let config = self.get_config();
+        let username = &config.username;
+        let clean_url = config.url.replace("https://", "").replace("http://", "");
+        let url = match config.clone_protocol {
+            CloneProtocol::SSH => format!("git@{}:{}/{}.git", clean_url, username, name),
+            CloneProtocol::HTTPS => format!("{}/{}/{}.git", config.url, username, name),
+        };
+
+        let status = std::process::Command::new("git")
+            .arg("clone")
+            .arg(url)
+            .arg(path)
+            .status()?;
+
+        if !status.success() {
+            return Err(Error::new(
+                ErrorKind::Other,
+                format!("Failed to clone repository '{}'", name),
+            ));
+        }
+
+        Ok(())
+    }
 }
 
 pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Box<dyn Remote> {
