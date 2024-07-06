@@ -107,10 +107,8 @@ impl Remote for GitHubRemote {
     async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
         let username = &self.config.username;
         let url = match self.config.clone_protocol {
-            CloneProtocol::SSH => format!("git@github.com/{}:{}.git", &username, name),
-            CloneProtocol::HTTPS => {
-                format!("https://github.com/{}/{}.git", &username, name)
-            }
+            CloneProtocol::SSH => format!("git@github.com:{}/{}.git", &username, name),
+            CloneProtocol::HTTPS => format!("https://github.com/{}/{}.git", &username, name),
         };
 
         let status = std::process::Command::new("git")

@@ -90,7 +90,7 @@ impl Remote for GiteaRemote {
             .replace("https://", "")
             .replace("http://", "");
         let url = match self.config.clone_protocol {
-            CloneProtocol::SSH => format!("git@{}/{}:{}.git", clean_url, username, name),
+            CloneProtocol::SSH => format!("git@{}:{}/{}.git", clean_url, username, name),
             CloneProtocol::HTTPS => format!("{}/{}/{}.git", self.config.url, username, name),
         };
 
