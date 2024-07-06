@@ -298,22 +298,7 @@ impl Default for Config {
                     },
                 ),
             ]),
-            secrets: Secrets::Plaintext(HashMap::from([
-                (
-                    "gitea".to_string(),
-                    AuthConfig {
-                        token: Some("gitea-token".to_string()),
-                        ..Default::default()
-                    },
-                ),
-                (
-                    "github".to_string(),
-                    AuthConfig {
-                        token: Some("github-token".to_string()),
-                        ..Default::default()
-                    },
-                ),
-            ])),
+            secrets: Secrets::Keyring,
         }
     }
 }
