@@ -14,6 +14,8 @@ pub mod remote;
 #[derive(Debug, Clone, StructOpt)]
 #[structopt(name = "gritty", about = "A tool to manage remote git repositories.")]
 pub enum Args {
+    #[structopt(about = "Create a default config")]
+    CreateConfig,
     #[structopt(about = "List repositories on a remote")]
     List {
         #[structopt(help = "Name of the remote as defined in the config (ex: 'github')")]
@@ -83,6 +85,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let command = Args::from_args();
 
     match command {
+        Args::CreateConfig => {
+            log::println("Creating default config...");
+            Config::save_default()?;
+            return Ok(());
+        }
         Args::List { remote } => {
             log::print("Listing repositories on remote '");
             log::info(&remote);
