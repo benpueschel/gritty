@@ -148,10 +148,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let remote = load_remote(&remote_name).await?;
             let repo_info = match remote.get_repo_info(&name).await {
                 Ok(x) => x,
-                Err(x) => {
+                Err(_) => {
                     // TODO: match the actual error type
                     eprintln!("Repository '{name}' not found on remote '{remote_name}'.");
-                    eprintln!("{}", x);
                     std::process::exit(1);
                 }
             };
