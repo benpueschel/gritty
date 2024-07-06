@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::DateTime;
 use octocrab::{
     models::repos::{CommitAuthor, GitUserTime},
-    Octocrab,
+    GitHubError, Octocrab,
 };
 use serde::{Deserialize, Serialize};
 
@@ -70,12 +70,23 @@ impl Remote for GitHubRemote {
             ),
         };
 
-        let commits = base
-            .list_commits()
-            .per_page(25)
-            .send()
-            .await
-            .map_err(map_error)?;
+        let commits = base.list_commits().per_page(25).send().await;
+        let commits = match commits {
+            Ok(x) => x,
+            Err(err) => {
+                if let octocrab::Error::GitHub { source, backtrace: _ } = &err {
+                    // If the repository is empty, return an empty list of commits
+                    // TODO: this is a bit hacky, is there a better way to handle this?
+                    if source.message == "Git Repository is empty." {
+                        Default::default()
+                    } else {
+                        return Err(Error::new(ErrorKind::Other, source.message.clone()));
+                    }
+                } else {
+                    return Err(Error::new(ErrorKind::Other, format!("{}", err)));
+                }
+            }
+        };
 
         let last_commits = commits
             .items
