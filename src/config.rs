@@ -1,10 +1,14 @@
 use core::fmt;
 use std::{collections::HashMap, env, error::Error, fmt::Display, fs, path::Path};
 
+#[cfg(feature = "keyring")]
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
 
-use crate::{log, remote::{Auth, Provider, RemoteConfig}};
+use crate::{
+    log,
+    remote::{Auth, Provider, RemoteConfig},
+};
 
 pub type Result<T> = std::result::Result<T, ConfigError>;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -42,6 +46,7 @@ impl From<toml::ser::Error> for ConfigError {
         }
     }
 }
+#[cfg(feature = "keyring")]
 impl From<keyring::Error> for ConfigError {
     fn from(value: keyring::Error) -> Self {
         Self {
@@ -58,6 +63,7 @@ pub enum ConfigErrorKind {
     RemoteNotFound,
     AuthNotFound,
     SecretsFileNotFound,
+    #[cfg(feature = "keyring")]
     KeyringError,
 }
 
@@ -83,6 +89,7 @@ type InlineSecrets = HashMap<String, AuthConfig>;
 pub enum Secrets {
     /// Use the system keyring to store secrets.
     /// This works on Linux, macOS, Windows, and probably on BSD variants.
+    #[cfg(feature = "keyring")]
     Keyring,
     SecretsFile(String),
     Plaintext(InlineSecrets),
@@ -170,6 +177,7 @@ impl Config {
         }
 
         match &mut self.secrets {
+            #[cfg(feature = "keyring")]
             Secrets::Keyring => {
                 let entry = Entry::new(&self.path, name)?;
                 entry.set_password(token)?;
@@ -249,6 +257,7 @@ impl Config {
                 let secrets: InlineSecrets = toml::from_str(&contents)?;
                 return self.get_auth(&Secrets::Plaintext(secrets), name);
             }
+            #[cfg(feature = "keyring")]
             Secrets::Keyring => {
                 // we get a unique secret id by combining the config path and the remote name.
                 // This is mainly to allow users to use multiple configs without conflicts.
@@ -277,12 +286,10 @@ impl Config {
 
 impl Default for Config {
     fn default() -> Self {
+        let home = env::var("HOME").unwrap();
+        let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
         Self {
-            path: {
-                let home = env::var("HOME").unwrap();
-                let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
-                format!("{xdg_config}/gitrc-rs/config.toml")
-            },
+            path: format!("{xdg_config}/gitrc-rs/config.toml"),
             remotes: HashMap::from([
                 (
                     "gitea".to_string(),
@@ -301,7 +308,10 @@ impl Default for Config {
                     },
                 ),
             ]),
+            #[cfg(feature = "keyring")]
             secrets: Secrets::Keyring,
+            #[cfg(not(feature = "keyring"))]
+            secrets: Secrets::SecretsFile(format!("{xdg_config}/gitrc-rs/secrets.toml")),
         }
     }
 }
