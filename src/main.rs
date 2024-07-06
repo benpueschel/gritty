@@ -1,4 +1,7 @@
-use std::{error::Error, io::{stdin, stdout, Write}};
+use std::{
+    error::Error,
+    io::{stdin, stdout, Write},
+};
 
 use config::{Config, ConfigErrorKind};
 use remote::{create_remote, Remote, RepoCreateInfo};
@@ -99,9 +102,40 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let url = remote.create_repo(info).await?;
             println!("Repository created at: {}", url);
         }
-        Args::Delete { name, remote: remote_name } => {
+        Args::Delete {
+            name,
+            remote: remote_name,
+        } => {
             println!("Deleting repository '{name}'...");
             let remote = load_remote(&remote_name).await?;
+            let repo_info = match remote.get_repo_info(&name).await {
+                Ok(x) => x,
+                Err(x) => {
+                    // TODO: match the actual error type
+                    eprintln!("Repository '{name}' not found on remote '{remote_name}'.");
+                    eprintln!("{}", x);
+                    std::process::exit(1);
+                }
+            };
+            println!(
+                "WARNING: You are about to delete repository '{name}' on remote '{remote_name}'."
+            );
+            if let Some(last) = repo_info.last_commits.first() {
+                // Only show the first line of the commit message
+                let message = last.message.split('\n').next().unwrap_or(&last.message);
+                println!(
+                    "Last commit: {} - {} by {} on {}",
+                    last.sha, message, last.author, last.date
+                );
+            }
+            print!("Are you sure you want to continue? (y/N): ");
+            stdout().flush()?;
+            let mut input = String::new();
+            stdin().read_line(&mut input)?;
+            if !input.trim().eq_ignore_ascii_case("y") {
+                println!("Operation cancelled.");
+                std::process::exit(0);
+            }
             remote.delete_repo(&name).await?;
             println!("Repository '{name}' deleted on remote '{remote_name}'.");
         }
