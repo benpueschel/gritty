@@ -182,6 +182,7 @@ impl Config {
                     .entry(name.to_string())
                     .and_modify(|x| *x = auth.clone())
                     .or_insert(auth);
+                self.save()?;
                 Ok(())
             }
             Secrets::SecretsFile(file) => {

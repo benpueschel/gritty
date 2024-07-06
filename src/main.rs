@@ -128,7 +128,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 todo!("Basic HTTP auth is not yet supported.");
             }
             config.store_token(&remote, &password)?;
-            config.save()?;
             println!("Authentication added to remote '{remote}'.");
         }
     }
