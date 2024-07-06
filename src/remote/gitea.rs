@@ -27,6 +27,8 @@ impl Remote for GiteaRemote {
 
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String, Error> {
         let cr = CreateRepoOption {
+            auto_init: create_info.init,
+            license: create_info.license.unwrap_or_default(),
             name: create_info.name,
             description: create_info.description.unwrap_or_default(),
             private: create_info.private,

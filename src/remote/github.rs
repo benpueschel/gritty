@@ -39,11 +39,25 @@ impl Remote for GitHubRemote {
 
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String, Error> {
         #[derive(Serialize, Deserialize)]
+        struct Request {
+            name: String,
+            description: Option<String>,
+            private: bool,
+            license_template: Option<String>,
+            auto_init: bool,
+        }
+        #[derive(Serialize, Deserialize)]
         struct Response {
             clone_url: String,
         }
-
-        let body = serde_json::to_value(&create_info).unwrap();
+        let req = Request {
+            name: create_info.name,
+            description: create_info.description,
+            private: create_info.private,
+            license_template: create_info.license,
+            auto_init: create_info.init,
+        };
+        let body = serde_json::to_value(&req).unwrap();
         let res: Response = self
             .crab
             .post("/user/repos", Some(&body))

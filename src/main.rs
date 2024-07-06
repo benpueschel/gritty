@@ -132,8 +132,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Args::Create {
             private,
             clone,
-            init: _,
-            license: _,
+            init,
+            license,
             name,
             remote,
         } => {
@@ -144,6 +144,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let info = RepoCreateInfo {
                 name: name.clone(),
                 description: None,
+                license,
+                init,
                 private,
             };
             let url = remote.create_repo(info).await?;

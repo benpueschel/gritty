@@ -73,6 +73,10 @@ pub struct RepoCreateInfo {
     pub description: Option<String>,
     /// Whether the repository is private. Default is false.
     pub private: bool,
+    /// An optional license for the repository.
+    pub license: Option<String>,
+    /// Whether to initialize the repository with a README and (optional) license. Default is false.
+    pub init: bool,
 }
 
 #[async_trait]
