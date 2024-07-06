@@ -64,7 +64,7 @@ jobs:
       - name: Package
         shell: bash
         env:
-          NAME: gitrc-rs
+          NAME: gritty
           TARGET: ${{ matrix.target }}
         run: .github/scripts/package.sh
 
@@ -79,4 +79,4 @@ jobs:
           draft: false
           make_latest: true
           body_path: CHANGELOG.md
-          files: "gitrc-rs*"
+          files: "gritty*"
