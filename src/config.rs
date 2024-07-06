@@ -122,8 +122,8 @@ impl Config {
             None => {
                 let home = env::var("HOME").unwrap();
                 let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
-                let config_path = format!("{xdg_config}/gitrc-rs/config.toml");
-                let fallback = format!("{home}/.gitrc-rs.toml");
+                let config_path = format!("{xdg_config}/gritty/config.toml");
+                let fallback = format!("{home}/.gritty.toml");
 
                 if Path::new(&config_path).exists() {
                     config_path
@@ -289,7 +289,7 @@ impl Default for Config {
         let home = env::var("HOME").unwrap();
         let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
         Self {
-            path: format!("{xdg_config}/gitrc-rs/config.toml"),
+            path: format!("{xdg_config}/gritty/config.toml"),
             remotes: HashMap::from([
                 (
                     "gitea".to_string(),
@@ -311,7 +311,7 @@ impl Default for Config {
             #[cfg(feature = "keyring")]
             secrets: Secrets::Keyring,
             #[cfg(not(feature = "keyring"))]
-            secrets: Secrets::SecretsFile(format!("{xdg_config}/gitrc-rs/secrets.toml")),
+            secrets: Secrets::SecretsFile(format!("{xdg_config}/gritty/secrets.toml")),
         }
     }
 }
