@@ -40,6 +40,21 @@ impl Remote for GiteaRemote {
         Ok(repo.clone_url)
     }
 
+    async fn list_repos(&self) -> Result<Vec<Repository>, Error> {
+        let owner = self.client.get_authenticated_user().await.map_err(map_error)?;
+        let search_option = teatime::SearchRepositoriesOption {
+            uid: Some(owner.id),
+            limit: Some(100),
+            ..Default::default()
+        };
+        let repos = self.client.search_repositories(&search_option).await.map_err(map_error)?;
+        let mut result = Vec::new();
+        for repo in repos {
+            result.push(self.get_repo_info(repo).await?);
+        }
+        Ok(result)
+    }
+
     async fn get_repo_info(&self, name: &str) -> Result<Repository, Error> {
         let owner = &self.config.username;
         let repo = self
@@ -47,7 +62,43 @@ impl Remote for GiteaRemote {
             .get_repository(owner, name)
             .await
             .map_err(map_error)?;
+        self.get_repo_info(repo).await
+    }
 
+    async fn delete_repo(&self, name: &str) -> Result<(), Error> {
+        self.client
+            .delete_repository(&self.config.username, name)
+            .await
+            .map_err(map_error)
+    }
+
+    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
+        let url = format!(
+            "git@{}/{}:{}.git",
+            self.config.url, self.config.username, name
+        );
+
+        let status = std::process::Command::new("git")
+            .arg("clone")
+            .arg(url)
+            .arg(path)
+            .status()?;
+
+        if !status.success() {
+            return Err(Error::new(
+                ErrorKind::Other,
+                format!("Failed to clone repository '{}'", name),
+            ));
+        }
+
+        Ok(())
+    }
+}
+
+impl GiteaRemote {
+    async fn get_repo_info(&self, repo: teatime::Repository) -> Result<Repository, Error> {
+        let owner = &self.config.username;
+        let name = &repo.name;
         // disable stats, verification, and files to speed up the request.
         // We only care about the commit messages.
         let commit_option = GetCommitsOption {
@@ -87,34 +138,5 @@ impl Remote for GiteaRemote {
             clone_url: repo.clone_url,
             last_commits,
         })
-    }
-
-    async fn delete_repo(&self, name: &str) -> Result<(), Error> {
-        self.client
-            .delete_repository(&self.config.username, name)
-            .await
-            .map_err(map_error)
-    }
-
-    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
-        let url = format!(
-            "git@{}/{}:{}.git",
-            self.config.url, self.config.username, name
-        );
-
-        let status = std::process::Command::new("git")
-            .arg("clone")
-            .arg(url)
-            .arg(path)
-            .status()?;
-
-        if !status.success() {
-            return Err(Error::new(
-                ErrorKind::Other,
-                format!("Failed to clone repository '{}'", name),
-            ));
-        }
-
-        Ok(())
     }
 }

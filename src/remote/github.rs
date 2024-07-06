@@ -3,8 +3,12 @@ use std::io::{Error, ErrorKind};
 use async_trait::async_trait;
 use chrono::DateTime;
 use octocrab::{
-    models::repos::{CommitAuthor, GitUserTime},
-    GitHubError, Octocrab,
+    models::{
+        self,
+        repos::{CommitAuthor, GitUserTime},
+    },
+    repos::RepoHandler,
+    Octocrab,
 };
 use serde::{Deserialize, Serialize};
 
@@ -49,16 +53,76 @@ impl Remote for GitHubRemote {
         Ok(res.clone_url)
     }
 
+    async fn list_repos(&self) -> Result<Vec<Repository>, Error> {
+        let repos = self
+            .crab
+            .search()
+            .repositories(&format!("user:{}", &self.config.username))
+            .per_page(100)
+            .sort("updated")
+            .order("desc")
+            .send()
+            .await
+            .map_err(map_error)?;
+        let mut result = Vec::new();
+        for repo in repos {
+            let base = self
+                .crab
+                .repos(self.config.username.clone(), repo.name.clone());
+            result.push(self.get_repo_info(base, repo).await?);
+        }
+        Ok(result)
+    }
+
     async fn get_repo_info(&self, name: &str) -> Result<Repository, Error> {
         let base = self.crab.repos(self.config.username.clone(), name);
-
         let repo = base.get().await.map_err(map_error)?;
+        self.get_repo_info(base, repo).await
+    }
 
+    async fn delete_repo(&self, name: &str) -> Result<(), Error> {
+        self.crab
+            .repos(self.config.username.clone(), name)
+            .delete()
+            .await
+            .map_err(map_error)?;
+
+        Ok(())
+    }
+
+    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
+        let url = format!("git@github.com/{}:{}.git", self.config.username, name);
+
+        let status = std::process::Command::new("git")
+            .arg("clone")
+            .arg(url)
+            .arg(path)
+            .status()?;
+
+        if !status.success() {
+            return Err(Error::new(
+                ErrorKind::Other,
+                format!("Failed to clone repository '{}'", name),
+            ));
+        }
+
+        Ok(())
+    }
+}
+
+impl GitHubRemote {
+    async fn get_repo_info(
+        &self,
+        base: RepoHandler<'_>,
+        repo: models::Repository,
+    ) -> Result<Repository, Error> {
+        static COMMIT_COUNT: u8 = 25;
+        let commits = base.list_commits().per_page(COMMIT_COUNT).send().await;
         let ssh_url = match repo.ssh_url {
             Some(url) => url.to_string(),
             None => format!(
                 "git@{}/{}:{}.git",
-                self.config.url, self.config.username, name
+                self.config.url, self.config.username, repo.name
             ),
         };
 
@@ -66,15 +130,18 @@ impl Remote for GitHubRemote {
             Some(url) => url.to_string(),
             None => format!(
                 "https://{}/{}/{}.git",
-                self.config.url, self.config.username, name
+                self.config.url, self.config.username, repo.name
             ),
         };
 
-        let commits = base.list_commits().per_page(25).send().await;
         let commits = match commits {
             Ok(x) => x,
             Err(err) => {
-                if let octocrab::Error::GitHub { source, backtrace: _ } = &err {
+                if let octocrab::Error::GitHub {
+                    source,
+                    backtrace: _,
+                } = &err
+                {
                     // If the repository is empty, return an empty list of commits
                     // TODO: this is a bit hacky, is there a better way to handle this?
                     if source.message == "Git Repository is empty." {
@@ -118,34 +185,5 @@ impl Remote for GitHubRemote {
             ssh_url,
             clone_url,
         })
-    }
-
-    async fn delete_repo(&self, name: &str) -> Result<(), Error> {
-        self.crab
-            .repos(self.config.username.clone(), name)
-            .delete()
-            .await
-            .map_err(map_error)?;
-
-        Ok(())
-    }
-
-    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
-        let url = format!("git@github.com/{}:{}.git", self.config.username, name);
-
-        let status = std::process::Command::new("git")
-            .arg("clone")
-            .arg(url)
-            .arg(path)
-            .status()?;
-
-        if !status.success() {
-            return Err(Error::new(
-                ErrorKind::Other,
-                format!("Failed to clone repository '{}'", name),
-            ));
-        }
-
-        Ok(())
     }
 }

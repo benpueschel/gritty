@@ -76,6 +76,8 @@ pub trait Remote {
     /// Create a new repository on the remote.
     /// Returns the URL of the new repository.
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String, Error>;
+    /// List all repositories.
+    async fn list_repos(&self) -> Result<Vec<Repository>, Error>;
     /// Get the information of a repository.
     async fn get_repo_info(&self, name: &str) -> Result<Repository, Error>;
     /// Delete a repository.

@@ -81,9 +81,36 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let command = Args::from_args();
 
     match command {
-        Args::List { remote: _ } => {
-            println!("Listing repositories...");
-            todo!()
+        Args::List { remote } => {
+            println!("Listing repositories on remote '{remote}'");
+            let remote = load_remote(&remote).await?;
+            let repos = remote.list_repos().await?;
+            println!("* denotes private repositories");
+            let mut longest_name = 0;
+            for repo in &repos {
+                if repo.name.len() > longest_name {
+                    longest_name = repo.name.len();
+                }
+            }
+            for repo in &repos {
+                if repo.private {
+                    print!("* ");
+                } else {
+                    print!("  ");
+                }
+                let padding = " ".repeat(longest_name - repo.name.len());
+                print!("{}{padding}", repo.name);
+                if repo.last_commits.is_empty() {
+                    print!(" - no commits");
+                } else {
+                    let last = &repo.last_commits[0];
+                    let date = &last.date;
+                    let sha = last.sha.split_at(8).0;
+                    let message = last.message.split('\n').next().unwrap_or(&last.message);
+                    print!(" - {date}: {sha}: {message}");
+                }
+                println!();
+            }
         }
         Args::Create {
             private,
