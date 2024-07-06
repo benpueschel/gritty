@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, io::{stdin, stdout, Write}};
 
 use config::{Config, ConfigErrorKind};
 use remote::{create_remote, Remote, RepoCreateInfo};
@@ -44,11 +44,6 @@ pub enum Args {
     Auth {
         #[structopt(help = "Name of the remote as defined in the config (ex: 'github')")]
         remote: String,
-        #[structopt(help = concat!("Username (or token) to authenticate with.",
-                "If using basic HTTP auth, provide the username. Otherwise, provide a token."))]
-        username_or_token: String,
-        #[structopt(help = "Password to authenticate with if using basic HTTP auth.")]
-        password: Option<String>,
     },
 }
 
@@ -110,17 +105,29 @@ async fn main() -> Result<(), Box<dyn Error>> {
             remote.delete_repo(&name).await?;
             println!("Repository '{name}' deleted on remote '{remote_name}'.");
         }
-        Args::Auth {
-            remote,
-            username_or_token,
-            password,
-        } => {
+        Args::Auth { remote } => {
+            print!("Enter your username (leave blank to use a token): ");
+            stdout().flush()?;
+            let mut username = String::new();
+            stdin().read_line(&mut username)?;
+            username = username.trim().to_string();
+
+            print!("Enter your password or token: ");
+            stdout().flush()?;
+            let password = rpassword::read_password()?;
+
+            let def = Config {
+                secrets: config::Secrets::Keyring,
+                ..Default::default()
+            };
+            println!("{}", toml::to_string_pretty(&def).unwrap());
+
             println!("Adding authentication to remote '{remote}'...");
             let mut config = load_config()?;
-            if password.is_some() {
+            if !username.is_empty() {
                 todo!("Basic HTTP auth is not yet supported.");
             }
-            config.store_token(&remote, &username_or_token)?;
+            config.store_token(&remote, &password)?;
             config.save()?;
             println!("Authentication added to remote '{remote}'.");
         }
