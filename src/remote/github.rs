@@ -115,8 +115,11 @@ impl GitHubRemote {
         base: RepoHandler<'_>,
         repo: models::Repository,
     ) -> Result<Repository, Error> {
-        static COMMIT_COUNT: u8 = 25;
-        let commits = base.list_commits().per_page(COMMIT_COUNT).send().await;
+        let commits = base
+            .list_commits()
+            .per_page(super::COMMIT_COUNT)
+            .send()
+            .await;
         let ssh_url = match repo.ssh_url {
             Some(url) => url.to_string(),
             None => format!(

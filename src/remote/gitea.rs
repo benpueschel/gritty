@@ -97,7 +97,7 @@ impl GiteaRemote {
             stat: false,
             verification: false,
             files: false,
-            limit: Some(25),
+            limit: Some(super::COMMIT_COUNT as i64),
             ..Default::default()
         };
         let commits = self.client.get_commits(owner, name, &commit_option).await;

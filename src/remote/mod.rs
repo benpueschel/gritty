@@ -79,6 +79,8 @@ pub struct RepoCreateInfo {
     pub init: bool,
 }
 
+pub static COMMIT_COUNT: u8 = 25;
+
 #[async_trait]
 pub trait Remote: Sync {
     /// Create a new remote with the given configuration.
