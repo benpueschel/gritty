@@ -4,6 +4,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.1.0] - 2024-07-06
+### :boom: BREAKING CHANGES
+- due to [`bb39c74`](https://github.com/benpueschel/gritty/commit/bb39c74e715930001b594b0f51281b4343047fac) - ask for confirmation on delete *(commit by [@benpueschel](https://github.com/benpueschel))*:
+
+  ask for confirmation on delete
+
+- due to [`d80983a`](https://github.com/benpueschel/gritty/commit/d80983aff68d077300f2154e26d02602c2efeac4) - change config path *(commit by [@benpueschel](https://github.com/benpueschel))*:
+
+  Old configs located at ~/.config/gitrc-rs/ will need to  
+  be relocated to ~/.config/gritty/
+
+- due to [`50b2fb4`](https://github.com/benpueschel/gritty/commit/50b2fb4a02610a5789c36664db4b841327c69f2e) - add option to clone repo on creation *(commit by [@benpueschel](https://github.com/benpueschel))*:
+
+  Configs now need a "clone_protocol" option for each  
+  remote.
+
+
+### :sparkles: New Features
+- [`614fc97`](https://github.com/benpueschel/gritty/commit/614fc9713c6991f7c958007e81d7d1eaa27ec5a3) - cli remote authentication *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`2e9d974`](https://github.com/benpueschel/gritty/commit/2e9d9747cc212a2180411a177c78d88c8b5130a5) - use keyring secret by default *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`bb39c74`](https://github.com/benpueschel/gritty/commit/bb39c74e715930001b594b0f51281b4343047fac) - ask for confirmation on delete *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`f0401ed`](https://github.com/benpueschel/gritty/commit/f0401edad5365710b87c2c40f6b419534158a93b) - list repositories *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`e7130bb`](https://github.com/benpueschel/gritty/commit/e7130bbf93e8f6731d57b684f4debf463e6a362d) - color highlighting *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`dc06dfd`](https://github.com/benpueschel/gritty/commit/dc06dfd4eec03624f1b88dcf53736c2e92501a74) - make keyring an optional feature *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`d80983a`](https://github.com/benpueschel/gritty/commit/d80983aff68d077300f2154e26d02602c2efeac4) - change config path *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`9be661b`](https://github.com/benpueschel/gritty/commit/9be661b03b5f8c693703a3cb6ae14b75bcf77cb3) - add command to create default config *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`50b2fb4`](https://github.com/benpueschel/gritty/commit/50b2fb4a02610a5789c36664db4b841327c69f2e) - add option to clone repo on creation *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`173cdcc`](https://github.com/benpueschel/gritty/commit/173cdcce75ce410e69fa65f39a477a116fab48dc) - implement repo initialization *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :bug: Bug Fixes
+- [`e0124bd`](https://github.com/benpueschel/gritty/commit/e0124bd4e5eb0da9a51cd16e7b8b5d308ceff12f) - **config**: only save when using plaintext auth *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`ac13c93`](https://github.com/benpueschel/gritty/commit/ac13c9356b3e3ae2ebfeb687f881ba9c0e1cd4e9) - **github**: handle empty repo commit infos *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`ac065cd`](https://github.com/benpueschel/gritty/commit/ac065cd8ab97432369800f21713312fe0e75023b) - **gitea**: handle empty repo commit infos *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`71cffcd`](https://github.com/benpueschel/gritty/commit/71cffcd8aa551a3dc6b4afa39e4927297a38e49b) - don't print full error when deleting repo *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`db82eec`](https://github.com/benpueschel/gritty/commit/db82eec5d5b921fd06026bb0e45b7aa54b9914bd) - don't print default config on auth *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`0b78193`](https://github.com/benpueschel/gritty/commit/0b78193d467c5cd89c37dedfdf374d247af2c2b5) - git clone ssh url *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :wrench: Chores
+- [`241fe0c`](https://github.com/benpueschel/gritty/commit/241fe0c7df3b77261439999a2d9317387a474b7d) - **main**: release v0.0.1 *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.0.1] - 2024-07-06
 ### :boom: BREAKING CHANGES
 - due to [`419df8e`](https://github.com/benpueschel/gritty/commit/419df8e666a03e9a669b38bda70d36b726eeb714) - simplify plaintext auth config *(commit by [@benpueschel](https://github.com/benpueschel))*:
@@ -33,3 +74,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`afe5b09`](https://github.com/benpueschel/gritty/commit/afe5b09690a63e946042cc37be2369ad08863adc) - move map_error to remote/mod.rs *(commit by [@benpueschel](https://github.com/benpueschel))*
 
 [v0.0.1]: https://github.com/benpueschel/gritty/compare/v0.0.0...v0.0.1
+[v0.1.0]: https://github.com/benpueschel/gritty/compare/v0.0.1...v0.1.0
