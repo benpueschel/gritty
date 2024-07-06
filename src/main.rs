@@ -197,12 +197,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             stdout().flush()?;
             let password = rpassword::read_password()?;
 
-            let def = Config {
-                secrets: config::Secrets::Keyring,
-                ..Default::default()
-            };
-            log::println(&toml::to_string_pretty(&def).unwrap());
-
             log::highlight("Adding authentication to remote '", &remote, "'...");
             let mut config = load_config()?;
             if !username.is_empty() {
