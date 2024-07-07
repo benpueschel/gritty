@@ -28,7 +28,7 @@ pub struct GitRemoteConfig {
     pub username: String,
 }
 
-type InlineSecrets = HashMap<String, AuthConfig>;
+pub type InlineSecrets = HashMap<String, AuthConfig>;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Secrets {
     /// Use the system keyring to store secrets.
@@ -132,6 +132,10 @@ impl Config {
                 let file = file.replace('~', env::var("HOME").unwrap().as_str());
                 let path = Path::new(&file);
                 fs::create_dir_all(path.parent().unwrap())?;
+                if !path.exists() {
+                    let toml = toml::to_string(&InlineSecrets::new())?;
+                    fs::write(&file, toml)?;
+                }
 
                 let contents = fs::read_to_string(&file)?;
                 let mut secrets: InlineSecrets = toml::from_str(&contents)?;
