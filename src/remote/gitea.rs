@@ -1,12 +1,27 @@
+use crate::error::{Error, ErrorKind, Result};
 use async_trait::async_trait;
-use std::io::Error;
-use teatime::{Client, CreateRepoOption, GetCommitsOption};
+use teatime::{error::{TeatimeError, TeatimeErrorKind}, Client, CreateRepoOption, GetCommitsOption};
 
 use super::*;
 
 pub struct GiteaRemote {
     config: RemoteConfig,
     client: Client,
+}
+
+impl From<TeatimeError> for Error {
+    fn from(err: TeatimeError) -> Self {
+        let status = err.status_code.as_u16();
+        let kind = match err.kind {
+            TeatimeErrorKind::HttpError => ErrorKind::Other,
+            TeatimeErrorKind::SerializationError => ErrorKind::Serialization,
+        };
+        Error {
+            message: err.message,
+            status: Some(status),
+            kind,
+        }
+    }
 }
 
 #[async_trait]
@@ -25,7 +40,7 @@ impl Remote for GiteaRemote {
         }
     }
 
-    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String, Error> {
+    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String> {
         let cr = CreateRepoOption {
             auto_init: create_info.init,
             license: create_info.license.unwrap_or_default(),
@@ -34,30 +49,18 @@ impl Remote for GiteaRemote {
             private: create_info.private,
             ..Default::default()
         };
-        let repo = self
-            .client
-            .user_create_repository(&cr)
-            .await
-            .map_err(map_error)?;
+        let repo = self.client.user_create_repository(&cr).await?;
         Ok(repo.clone_url)
     }
 
-    async fn list_repos(&self) -> Result<Vec<Repository>, Error> {
-        let owner = self
-            .client
-            .get_authenticated_user()
-            .await
-            .map_err(map_error)?;
+    async fn list_repos(&self) -> Result<Vec<Repository>> {
+        let owner = self.client.get_authenticated_user().await?;
         let search_option = teatime::SearchRepositoriesOption {
             uid: Some(owner.id),
             limit: Some(100),
             ..Default::default()
         };
-        let repos = self
-            .client
-            .search_repositories(&search_option)
-            .await
-            .map_err(map_error)?;
+        let repos = self.client.search_repositories(&search_option).await?;
         let mut result = Vec::new();
         for repo in repos {
             result.push(self.get_repo_info(repo).await?);
@@ -65,21 +68,16 @@ impl Remote for GiteaRemote {
         Ok(result)
     }
 
-    async fn get_repo_info(&self, name: &str) -> Result<Repository, Error> {
+    async fn get_repo_info(&self, name: &str) -> Result<Repository> {
         let owner = &self.config.username;
-        let repo = self
-            .client
-            .get_repository(owner, name)
-            .await
-            .map_err(map_error)?;
+        let repo = self.client.get_repository(owner, name).await?;
         self.get_repo_info(repo).await
     }
 
-    async fn delete_repo(&self, name: &str) -> Result<(), Error> {
-        self.client
+    async fn delete_repo(&self, name: &str) -> Result<()> {
+        Ok(self.client
             .delete_repository(&self.config.username, name)
-            .await
-            .map_err(map_error)
+            .await?)
     }
 
     fn get_config(&self) -> &RemoteConfig {
@@ -88,7 +86,7 @@ impl Remote for GiteaRemote {
 }
 
 impl GiteaRemote {
-    async fn get_repo_info(&self, repo: teatime::Repository) -> Result<Repository, Error> {
+    async fn get_repo_info(&self, repo: teatime::Repository) -> Result<Repository> {
         let owner = &self.config.username;
         let name = &repo.name;
         // disable stats, verification, and files to speed up the request.
@@ -104,11 +102,16 @@ impl GiteaRemote {
         let commits = match commits {
             Ok(x) => x,
             Err(err) => {
+                let status = err.status_code.as_u16();
                 // 409 means the repository is empty, so return an empty list of commits.
-                if err.status_code.as_u16() == 409 {
+                if status == 409 {
                     Vec::new()
                 } else {
-                    return Err(map_error(err));
+                    return Err(Error {
+                        message: err.message,
+                        kind: ErrorKind::Other,
+                        status: Some(status),
+                    });
                 }
             }
         };

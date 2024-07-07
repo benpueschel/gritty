@@ -1,13 +1,12 @@
-use std::{
-    error::Error,
-    io::{stdin, stdout, Write},
-};
+use std::io::{stdin, stdout, Write};
 
-use config::{Config, ConfigErrorKind};
+use config::Config;
+use error::{ErrorKind, Result};
 use remote::{create_remote, Remote, RepoCreateInfo};
 use structopt::StructOpt;
 
 pub mod config;
+pub mod error;
 pub mod log;
 pub mod remote;
 
@@ -55,11 +54,11 @@ pub enum Args {
     },
 }
 
-fn load_config() -> Result<Config, Box<dyn Error>> {
+fn load_config() -> Result<Config> {
     match Config::load_from_file(None) {
         Ok(config) => Ok(config),
         Err(err) => match err.kind {
-            ConfigErrorKind::ConfigNotFound => {
+            ErrorKind::NotFound => {
                 eprintln!("{}", err.message);
                 log::info("Creating default config...");
                 log::end_line();
@@ -74,7 +73,7 @@ fn load_config() -> Result<Config, Box<dyn Error>> {
     }
 }
 
-async fn load_remote(remote_name: &str) -> Result<Box<dyn Remote>, Box<dyn Error>> {
+async fn load_remote(remote_name: &str) -> Result<Box<dyn Remote>> {
     let config = load_config()?;
     let provider = config.get_remote_provider(remote_name)?;
     let remote_config = config.get_remote_config(remote_name)?;
@@ -82,7 +81,7 @@ async fn load_remote(remote_name: &str) -> Result<Box<dyn Remote>, Box<dyn Error
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
     // Parse command line arguments
     let command = Args::from_args();
 

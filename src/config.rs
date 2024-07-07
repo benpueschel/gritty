@@ -1,5 +1,5 @@
-use core::fmt;
-use std::{collections::HashMap, env, error::Error, fmt::Display, fs, path::Path};
+use crate::error::{Error, Result};
+use std::{collections::HashMap, env, fs, path::Path};
 
 #[cfg(feature = "keyring")]
 use keyring::Entry;
@@ -9,63 +9,6 @@ use crate::{
     log,
     remote::{Auth, CloneProtocol, Provider, RemoteConfig},
 };
-
-pub type Result<T> = std::result::Result<T, ConfigError>;
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ConfigError {
-    pub message: String,
-    pub kind: ConfigErrorKind,
-}
-impl Display for ConfigError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-impl Error for ConfigError {}
-impl From<std::io::Error> for ConfigError {
-    fn from(value: std::io::Error) -> Self {
-        Self {
-            message: value.to_string(),
-            kind: ConfigErrorKind::ConfigParseError,
-        }
-    }
-}
-impl From<toml::de::Error> for ConfigError {
-    fn from(value: toml::de::Error) -> Self {
-        Self {
-            message: value.message().to_string(),
-            kind: ConfigErrorKind::ConfigParseError,
-        }
-    }
-}
-impl From<toml::ser::Error> for ConfigError {
-    fn from(value: toml::ser::Error) -> Self {
-        Self {
-            message: value.to_string(),
-            kind: ConfigErrorKind::ConfigParseError,
-        }
-    }
-}
-#[cfg(feature = "keyring")]
-impl From<keyring::Error> for ConfigError {
-    fn from(value: keyring::Error) -> Self {
-        Self {
-            message: value.to_string(),
-            kind: ConfigErrorKind::KeyringError,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum ConfigErrorKind {
-    ConfigNotFound,
-    ConfigParseError,
-    RemoteNotFound,
-    AuthNotFound,
-    SecretsFileNotFound,
-    #[cfg(feature = "keyring")]
-    KeyringError,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Config {
@@ -130,12 +73,9 @@ impl Config {
                     config_path
                 } else {
                     if !Path::new(&fallback).exists() {
-                        return Err(ConfigError {
-                            message: format!(
-                                "Could not find config at '{config_path}' or '{fallback}'."
-                            ),
-                            kind: ConfigErrorKind::ConfigNotFound,
-                        });
+                        return Err(Error::not_found(format!(
+                            "Could not find config at '{config_path}' or '{fallback}'."
+                        )));
                     }
                     fallback
                 }
@@ -151,10 +91,7 @@ impl Config {
         if let Some(remote) = self.remotes.get(name) {
             return Ok(remote.provider.clone());
         }
-        Err(ConfigError {
-            message: format!("Could not find remote '{name}'"),
-            kind: ConfigErrorKind::RemoteNotFound,
-        })
+        Err(Error::not_found(format!("Could not find remote '{name}'")))
     }
     pub fn get_remote_config(&self, name: &str) -> Result<RemoteConfig> {
         if let Some(remote) = self.remotes.get(name) {
@@ -165,17 +102,11 @@ impl Config {
                 auth: self.get_auth(&self.secrets, name)?,
             });
         }
-        Err(ConfigError {
-            message: format!("Could not find remote '{name}'"),
-            kind: ConfigErrorKind::RemoteNotFound,
-        })
+        Err(Error::not_found(format!("Could not find remote '{name}'")))
     }
     pub fn store_token(&mut self, name: &str, token: &str) -> Result<()> {
         if !self.remotes.contains_key(name) {
-            return Err(ConfigError {
-                message: format!("Could not find remote '{name}'"),
-                kind: ConfigErrorKind::RemoteNotFound,
-            });
+            return Err(Error::not_found(format!("Could not find remote '{name}'")));
         }
 
         match &mut self.secrets {
@@ -236,24 +167,19 @@ impl Config {
                             password: auth.password.clone().unwrap_or_default(),
                         });
                     }
-                    return Err(ConfigError {
-                        message: format!(
-                            r#"Could not find auth for remote '{name}'.
-                             Did you forget to add it to the config?
-                             You need to set either a username/password combination,
-                             or an api token. "#
-                        ),
-                        kind: ConfigErrorKind::AuthNotFound,
-                    });
+                    return Err(Error::authentication(format!(
+                        r#"Could not find auth for remote '{name}'.
+                        Did you forget to add it to the config?
+                        You need to set either a username/password combination, or an api token. "#
+                    )));
                 }
             }
             Secrets::SecretsFile(file) => {
                 let file = file.replace('~', env::var("HOME").unwrap().as_str());
                 if !Path::new(&file).exists() {
-                    return Err(ConfigError {
-                        message: format!("Could not find secrets file '{file}'."),
-                        kind: ConfigErrorKind::SecretsFileNotFound,
-                    });
+                    return Err(Error::not_found(format!(
+                        "Could not find secrets file '{file}'."
+                    )));
                 }
                 let contents = fs::read_to_string(file)?;
                 let secrets: InlineSecrets = toml::from_str(&contents)?;
@@ -267,22 +193,16 @@ impl Config {
                 if let Ok(token) = entry.get_password() {
                     return Ok(Auth::Token { token });
                 }
-                return Err(ConfigError {
-                    message: format!(
-                        r#"Could not find auth for remote '{name}'.
-                        Did you forget to add it to the keyring?"#
-                    ),
-                    kind: ConfigErrorKind::AuthNotFound,
-                });
+                return Err(Error::authentication(format!(
+                    r#"Could not find auth for remote '{name}'.
+                    Did you forget to add it to the keyring?"#
+                )));
             }
         }
-        Err(ConfigError {
-            message: format!(
-                r#"Could not find auth for remote '{name}'.
-                Did you forget to add it to the config?"#
-            ),
-            kind: ConfigErrorKind::AuthNotFound,
-        })
+        Err(Error::authentication(format!(
+            r#"Could not find auth for remote '{name}'.
+            Did you forget to add it to the config?"#
+        )))
     }
 }
 

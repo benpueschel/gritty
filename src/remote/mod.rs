@@ -1,7 +1,6 @@
-use std::{
-    fmt::Debug,
-    io::{Error, ErrorKind},
-};
+use std::fmt::Debug;
+
+use crate::error::{Error, Result};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -90,18 +89,18 @@ pub trait Remote: Sync {
 
     /// Create a new repository on the remote.
     /// Returns the URL of the new repository.
-    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String, Error>;
+    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String>;
     /// List all repositories.
-    async fn list_repos(&self) -> Result<Vec<Repository>, Error>;
+    async fn list_repos(&self) -> Result<Vec<Repository>>;
     /// Get the information of a repository.
-    async fn get_repo_info(&self, name: &str) -> Result<Repository, Error>;
+    async fn get_repo_info(&self, name: &str) -> Result<Repository>;
     /// Delete a repository.
     /// Warning: Operation does not prompt for confirmation and is irreversible.
-    async fn delete_repo(&self, name: &str) -> Result<(), Error>;
+    async fn delete_repo(&self, name: &str) -> Result<()>;
     /// Get the configuration of the remote.
     fn get_config(&self) -> &RemoteConfig;
     /// Clone a repository to the given path.
-    async fn clone_repo(&self, name: &str, path: &str) -> Result<(), Error> {
+    async fn clone_repo(&self, name: &str, path: &str) -> Result<()> {
         let config = self.get_config();
         let username = &config.username;
         let clean_url = config.url.replace("https://", "").replace("http://", "");
@@ -117,10 +116,10 @@ pub trait Remote: Sync {
             .status()?;
 
         if !status.success() {
-            return Err(Error::new(
-                ErrorKind::Other,
-                format!("Failed to clone repository '{}'", name),
-            ));
+            return Err(Error::other(format!(
+                "Failed to clone repository '{}'",
+                name
+            )));
         }
 
         Ok(())
@@ -134,8 +133,4 @@ pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Box<dyn
         Gitea => Box::new(gitea::GiteaRemote::new(config).await),
         GitLab => unimplemented!("GitLab not implemented"),
     }
-}
-
-fn map_error(e: impl Debug) -> Error {
-    Error::new(ErrorKind::Other, format!("{:?}", e))
 }

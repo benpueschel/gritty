@@ -1,5 +1,4 @@
-use std::io::{Error, ErrorKind};
-
+use crate::error::{Error, ErrorKind, Result};
 use async_trait::async_trait;
 use chrono::DateTime;
 use octocrab::{
@@ -12,11 +11,48 @@ use octocrab::{
 };
 use serde::{Deserialize, Serialize};
 
-use super::{map_error, Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
+use super::{Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
 
 pub struct GitHubRemote {
     config: RemoteConfig,
     crab: Octocrab,
+}
+
+impl From<octocrab::Error> for Error {
+    // NOTE: the formatting is quite weird when explicitly ignoring the backtrace field
+    // (backtrace: _), so disable the unused_variables warning for this function
+    #[allow(unused_variables)]
+    fn from(value: octocrab::Error) -> Self {
+        use octocrab::Error::*;
+        match value {
+            GitHub { source, backtrace } => {
+                let status = source.status_code.as_u16();
+                let kind = match status {
+                    404 => ErrorKind::NotFound,
+                    401 => ErrorKind::Authentication,
+                    _ => ErrorKind::Other,
+                };
+                Error {
+                    message: source.message,
+                    status: Some(status),
+                    kind,
+                }
+            }
+            UriParse { source, backtrace } => Error::other(source),
+            Uri { source, backtrace } => Error::other(source),
+            InvalidHeaderValue { source, backtrace } => Error::other(source),
+            Http { source, backtrace } => Error::other(source),
+            InvalidUtf8 { source, backtrace } => Error::other(source),
+            Encoder { source, backtrace } => source.into(),
+            Service { source, backtrace } => Error::other(source),
+            Hyper { source, backtrace } => Error::other(source),
+            SerdeUrlEncoded { source, backtrace } => Error::serialization(source),
+            Serde { source, backtrace } => source.into(),
+            Json { source, backtrace } => source.into_inner().into(),
+            JWT { source, backtrace } => Error::other(source),
+            Other { source, backtrace } => Error::other(source),
+        }
+    }
 }
 
 #[async_trait]
@@ -41,7 +77,7 @@ impl Remote for GitHubRemote {
         &self.config
     }
 
-    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String, Error> {
+    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String> {
         #[derive(Serialize, Deserialize)]
         struct Request {
             name: String,
@@ -62,16 +98,12 @@ impl Remote for GitHubRemote {
             auto_init: create_info.init,
         };
         let body = serde_json::to_value(&req).unwrap();
-        let res: Response = self
-            .crab
-            .post("/user/repos", Some(&body))
-            .await
-            .map_err(map_error)?;
+        let res: Response = self.crab.post("/user/repos", Some(&body)).await?;
 
         Ok(res.clone_url)
     }
 
-    async fn list_repos(&self) -> Result<Vec<Repository>, Error> {
+    async fn list_repos(&self) -> Result<Vec<Repository>> {
         let repos = self
             .crab
             .search()
@@ -80,8 +112,7 @@ impl Remote for GitHubRemote {
             .sort("updated")
             .order("desc")
             .send()
-            .await
-            .map_err(map_error)?;
+            .await?;
         let mut result = Vec::new();
         for repo in repos {
             let base = self
@@ -92,18 +123,17 @@ impl Remote for GitHubRemote {
         Ok(result)
     }
 
-    async fn get_repo_info(&self, name: &str) -> Result<Repository, Error> {
+    async fn get_repo_info(&self, name: &str) -> Result<Repository> {
         let base = self.crab.repos(self.config.username.clone(), name);
-        let repo = base.get().await.map_err(map_error)?;
+        let repo = base.get().await?;
         self.get_repo_info(base, repo).await
     }
 
-    async fn delete_repo(&self, name: &str) -> Result<(), Error> {
+    async fn delete_repo(&self, name: &str) -> Result<()> {
         self.crab
             .repos(self.config.username.clone(), name)
             .delete()
-            .await
-            .map_err(map_error)?;
+            .await?;
 
         Ok(())
     }
@@ -114,7 +144,7 @@ impl GitHubRemote {
         &self,
         base: RepoHandler<'_>,
         repo: models::Repository,
-    ) -> Result<Repository, Error> {
+    ) -> Result<Repository> {
         let username = &self.config.username;
         let commits = base
             .list_commits()
@@ -140,14 +170,19 @@ impl GitHubRemote {
                     backtrace: _,
                 } = &err
                 {
+                    let status = source.status_code.as_u16();
                     // 409 is the status code for a repository with no commits
-                    if source.status_code.as_u16() == 409 {
+                    if status == 409 {
                         Default::default()
                     } else {
-                        return Err(Error::new(ErrorKind::Other, source.message.clone()));
+                        return Err(Error {
+                            message: source.message.clone(),
+                            kind: ErrorKind::Other,
+                            status: Some(status),
+                        });
                     }
                 } else {
-                    return Err(Error::new(ErrorKind::Other, format!("{}", err)));
+                    return Err(Error::other(format!("{}", err)));
                 }
             }
         };
