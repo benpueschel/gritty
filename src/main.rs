@@ -1,6 +1,6 @@
 use args::Args;
+use clap::Parser;
 use error::Result;
-use structopt::StructOpt;
 
 pub mod args;
 pub mod commands;
@@ -12,7 +12,7 @@ pub mod remote;
 #[tokio::main]
 async fn main() -> Result<()> {
     // Parse command line arguments
-    let command = Args::from_args();
+    let command = Args::parse();
 
     // Execute the sub-command
     let result = match command {
