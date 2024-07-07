@@ -5,11 +5,23 @@ use clap::{
     Parser,
 };
 
+fn styles() -> Styles {
+    match env::var("NO_COLOR") {
+        Ok(_) => Styles::default(),
+        Err(_) => Styles::styled()
+            .header(AnsiColor::Cyan.on_default() | Effects::BOLD)
+            .usage(AnsiColor::Cyan.on_default() | Effects::BOLD)
+            .literal(AnsiColor::BrightBlue.on_default())
+            .placeholder(AnsiColor::BrightGreen.on_default()),
+    }
+}
+
 #[derive(Debug, Clone, Parser)]
 #[command(
     name = "gritty",
     about = "A tool to manage remote git repositories.",
-    arg_required_else_help = true
+    arg_required_else_help = true,
+    styles = styles()
 )]
 pub enum Args {
     #[command(about = "Interactively configure gritty")]
