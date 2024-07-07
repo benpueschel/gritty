@@ -10,14 +10,7 @@ rather a tool to let you focus on what's important: your code.
 # Quick Start
 
 1. Install gritty using the [precompiled binaries](#precompiled-binaries) or by building from source.
-2. Create a configuration file by running `gritty create-config`.
-3. Add your remotes to the configuration file.
-4. If you want to change the default `Keyring` secret storage, you can edit the
-   configuration file as described in the [Configuration](#configuration) section.
-5. Authenticate with a remote using `gritty auth [remote]`.
-   This will prompt you for your username and password. Leave the username blank
-   to use an access token (required at this point in time). Gritty will store the
-   token in whatever secret storage you specified in the configuration file.
+2. Interactively configure gritty by running `gritty create-config` (See [Create-Config](#create-config)).
 
 Now you can use gritty to manage your repositories!
 See the [Usage](#usage) and [Examples](#Examples) sections for more information
@@ -78,6 +71,33 @@ To see the available options for a subcommand, run:
 ```bash
 gritty help [subcommand]
 ```
+
+## Create-Config
+
+The `create-config` subcommand will ask you a series of questions to create a
+configuration file for gritty. This file is located at `~/.config/gritty/config.toml`
+by default, but you can specify a different location if you like.
+
+The questions are as follows:
+1. Enter the config file path (default: ~/.config/gritty/config.toml). Leave blank for default.
+2. How do you want to store your access tokens? (Keyring, SecretsFile, Plaintext)
+   - Keyring: uses the system keyring to store access tokens (HIGHLY RECOMMENDED).
+   - SecretsFile: stores access tokens in a plaintext file.
+   - Plaintext: stores access tokens directly in the config file.
+3. Do you want to add a remote? (y/n). Answer 'y' to configure remotes.
+   - Enter the remote name (e.g. github, gh, gitea, awesome-sauce).
+   - Enter the provider (GitHub, Gitea).
+   - Enter the remote URL (e.g. https://github.com, https://gitea.example.com).
+   - Enter your username for the remote.
+   - Enter the clone protocol (ssh, https).
+   - Do you want to add authentication for this remote? (y/n). Answer 'y' to authenticate.
+     - Enter your token.
+   - Do you want to add another remote? (y/n). Answer 'y' to add another remote.
+     The process will repeat until you answer 'n'.
+
+The configuration file will be automatically created at the specified path, if you've
+added authentication for your remotes in the previous step, you can begin using gritty
+right away.
 
 After creating your configuration file, you can authenticate with a remote using:
 ```bash

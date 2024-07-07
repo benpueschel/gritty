@@ -3,7 +3,7 @@ use structopt::StructOpt;
 #[derive(Debug, Clone, StructOpt)]
 #[structopt(name = "gritty", about = "A tool to manage remote git repositories.")]
 pub enum Args {
-    #[structopt(about = "Create a default config")]
+    #[structopt(about = "Interactively configure gritty")]
     CreateConfig,
     #[structopt(about = "List repositories on a remote")]
     List {
