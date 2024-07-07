@@ -30,6 +30,13 @@ async fn load_remote(remote_name: &str) -> Result<Box<dyn Remote>> {
     Ok(remote::create_remote(&remote_config, provider).await)
 }
 
+fn get_input() -> Result<String> {
+    stdout().flush()?;
+    let mut input = String::new();
+    stdin().read_line(&mut input)?;
+    Ok(input.trim().to_string())
+}
+
 pub async fn create_config() -> Result<()> {
     log::println("Creating default config...");
     Config::save_default()?;
@@ -83,10 +90,8 @@ pub async fn create_repository(
     name: String,
     remote: String,
 ) -> Result<()> {
-    log::print("Creating repository '");
-    log::info(&name);
-    log::println("'...");
     let remote = load_remote(&remote).await?;
+    log::highlight("Creating repository '", &name, "'...");
     let info = RepoCreateInfo {
         name: name.clone(),
         description: None,
@@ -132,10 +137,8 @@ pub async fn delete_repository(name: &str, remote_name: &str) -> Result<()> {
         log::println(&format!(" by {} on {}", last.author, last.date));
     }
     log::important("Are you sure you want to continue? (y/N): ");
-    stdout().flush()?;
-    let mut input = String::new();
-    stdin().read_line(&mut input)?;
-    if !input.trim().eq_ignore_ascii_case("y") {
+    let input = get_input()?;
+    if !input.eq_ignore_ascii_case("y") {
         log::info("Operation cancelled.");
         log::end_line();
         return Ok(());
@@ -151,10 +154,7 @@ pub async fn delete_repository(name: &str, remote_name: &str) -> Result<()> {
 
 pub async fn auth(remote: &str) -> Result<()> {
     log::info("Enter your username (leave blank to use a token): ");
-    stdout().flush()?;
-    let mut username = String::new();
-    stdin().read_line(&mut username)?;
-    username = username.trim().to_string();
+    let username = get_input()?;
 
     log::info("Enter your password or token: ");
     stdout().flush()?;
