@@ -5,6 +5,13 @@ use structopt::StructOpt;
 pub enum Args {
     #[structopt(about = "Interactively configure gritty")]
     CreateConfig,
+    #[structopt(about = "Clone a repository from a remote")]
+    Clone {
+        #[structopt(help = "Name of the repository")]
+        name: String,
+        #[structopt(help = "Name of the remote as defined in the config (ex: 'github')")]
+        remote: String,
+    },
     #[structopt(about = "List repositories on a remote")]
     List {
         #[structopt(help = "Name of the remote as defined in the config (ex: 'github')")]
@@ -43,4 +50,3 @@ pub enum Args {
         remote: String,
     },
 }
-

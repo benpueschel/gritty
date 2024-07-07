@@ -4,6 +4,15 @@ pub use color::*;
 #[cfg(not(feature = "color"))]
 pub use no_color::*;
 
+macro_rules! log {
+    ($($arg:tt)*) => {
+        print!($($arg)*);
+    };
+    () => {
+
+    };
+}
+
 #[cfg(feature = "color")]
 mod color {
     use ansi_term::Color::*;

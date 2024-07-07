@@ -17,6 +17,7 @@ async fn main() -> Result<()> {
     // Execute the sub-command
     let result = match command {
         Args::CreateConfig => commands::create_config().await,
+        Args::Clone { name, remote } => commands::clone_repository(&name, &remote).await,
         Args::List { remote } => commands::list_repositories(&remote).await,
         Args::Create {
             private,

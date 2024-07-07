@@ -220,6 +220,12 @@ fn ask_for_secrets_file() -> Result<Secrets> {
     Ok(Secrets::SecretsFile(path))
 }
 
+pub async fn clone_repository(name: &str, remote: &str) -> Result<()> {
+    let remote = load_remote(remote).await?;
+    remote.clone_repo(name, name).await?;
+    Ok(())
+}
+
 pub async fn list_repositories(remote: &str) -> Result<()> {
     log::print("Listing repositories on remote '");
     log::info(remote);
