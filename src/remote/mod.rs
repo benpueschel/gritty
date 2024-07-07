@@ -1,3 +1,7 @@
+//! The remote module provides an interface for interacting with remote repositories.
+//! To acquire a remote, use the [create_remote] function.
+//! The [Remote] trait provides a common interface for interacting with remotes.
+
 use std::fmt::Debug;
 
 use crate::error::{Error, Result};
@@ -6,9 +10,6 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 pub mod gitea;
-/// The remote module provides an interface for interacting with remote repositories.
-/// To acquire a remote, use the [create_remote] function.
-/// The [Remote] trait provides a common interface for interacting with remotes.
 pub mod github;
 
 /// The supported providers for remotes.
