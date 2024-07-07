@@ -115,6 +115,7 @@ impl GitHubRemote {
         base: RepoHandler<'_>,
         repo: models::Repository,
     ) -> Result<Repository, Error> {
+        let username = &self.config.username;
         let commits = base
             .list_commits()
             .per_page(super::COMMIT_COUNT)
@@ -122,31 +123,25 @@ impl GitHubRemote {
             .await;
         let ssh_url = match repo.ssh_url {
             Some(url) => url.to_string(),
-            None => format!(
-                "git@{}/{}:{}.git",
-                self.config.url, self.config.username, repo.name
-            ),
+            None => format!("git@github.com/{}:{}.git", &username, repo.name),
         };
 
         let clone_url = match repo.clone_url {
             Some(url) => url.to_string(),
-            None => format!(
-                "https://{}/{}/{}.git",
-                self.config.url, self.config.username, repo.name
-            ),
+            None => format!("https://github.com/{}/{}.git", &username, repo.name),
         };
 
+        use octocrab::Error::GitHub;
         let commits = match commits {
             Ok(x) => x,
             Err(err) => {
-                if let octocrab::Error::GitHub {
+                if let GitHub {
                     source,
                     backtrace: _,
                 } = &err
                 {
-                    // If the repository is empty, return an empty list of commits
-                    // TODO: this is a bit hacky, is there a better way to handle this?
-                    if source.message == "Git Repository is empty." {
+                    // 409 is the status code for a repository with no commits
+                    if source.status_code.as_u16() == 409 {
                         Default::default()
                     } else {
                         return Err(Error::new(ErrorKind::Other, source.message.clone()));
