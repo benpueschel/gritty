@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.1.1] - 2024-07-07
+### :recycle: Refactors
+- [`a92eae9`](https://github.com/benpueschel/gritty/commit/a92eae97b9c8e76b2a16bb8f704ca50d79583b46) - **remote**: move clone to top-level trait *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`b3ec28d`](https://github.com/benpueschel/gritty/commit/b3ec28d58b72429af65c0aea36f06da7c821bfbb) - **remote**: add static COMMIT_COUNT *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`fb49b12`](https://github.com/benpueschel/gritty/commit/fb49b1240ca9ba4c848c5249a2008ec430ee495e) - **github**: code cleanup *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`9c278d7`](https://github.com/benpueschel/gritty/commit/9c278d7a7c00be70b9772c6b3ba4de7d8fc955a9) - unified error type *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`f9483ea`](https://github.com/benpueschel/gritty/commit/f9483ea2ce0d90507999682da9c97526dfa420eb) - **main**: cleanup main function *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :wrench: Chores
+- [`90fa380`](https://github.com/benpueschel/gritty/commit/90fa38069ee97fe161970ffe1ff5eb65a1e17c9a) - **main**: release v0.1.0 *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`bdd90b6`](https://github.com/benpueschel/gritty/commit/bdd90b60ec82a6226a1d891dff77139751a205e7) - bump version to 0.1.1 *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.1.0] - 2024-07-06
 ### :boom: BREAKING CHANGES
 - due to [`bb39c74`](https://github.com/benpueschel/gritty/commit/bb39c74e715930001b594b0f51281b4343047fac) - ask for confirmation on delete *(commit by [@benpueschel](https://github.com/benpueschel))*:
@@ -75,3 +88,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [v0.0.1]: https://github.com/benpueschel/gritty/compare/v0.0.0...v0.0.1
 [v0.1.0]: https://github.com/benpueschel/gritty/compare/v0.0.1...v0.1.0
+[v0.1.1]: https://github.com/benpueschel/gritty/compare/v0.1.0...v0.1.1
