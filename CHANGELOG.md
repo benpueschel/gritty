@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.2.0] - 2024-07-08
+### :sparkles: New Features
+- [`85677d5`](https://github.com/benpueschel/gritty/commit/85677d50eb0fad4da534880602cc61bbbfddc7f6) - interactive configuration *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`a312733`](https://github.com/benpueschel/gritty/commit/a312733b37a2afcafae3db662d665971d6879130) - clone remote repo *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`8e4da46`](https://github.com/benpueschel/gritty/commit/8e4da465a76e32c2fa25cc7b09dbea0a50e3cdc6) - **args**: add colors to help menu *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :bug: Bug Fixes
+- [`df6d042`](https://github.com/benpueschel/gritty/commit/df6d042d83897620475da84e6ef37d434418e341) - **config**: create secrets file if it doesn't exist *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :recycle: Refactors
+- [`3377df5`](https://github.com/benpueschel/gritty/commit/3377df5936df5675542a8b5085d9d33a58f69937) - **commands**: add get_input method *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`1fa1e32`](https://github.com/benpueschel/gritty/commit/1fa1e322f91c2d8100b20fb6c18a2f6edfd47099) - **args**: move from structopt to clap *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :wrench: Chores
+- [`4779719`](https://github.com/benpueschel/gritty/commit/4779719d44d957763119459de34117ece037a3af) - **main**: release v0.1.1 *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`5a2d3a8`](https://github.com/benpueschel/gritty/commit/5a2d3a8e8a1ddcff6cf9ce1209aee32c560f2232) - bump dependency versions *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`2efad6a`](https://github.com/benpueschel/gritty/commit/2efad6aead3bc0a6bfbbfe4c75c1e6bb33f127db) - v0.2.0 *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.1.1] - 2024-07-07
 ### :recycle: Refactors
 - [`a92eae9`](https://github.com/benpueschel/gritty/commit/a92eae97b9c8e76b2a16bb8f704ca50d79583b46) - **remote**: move clone to top-level trait *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -89,3 +108,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.0.1]: https://github.com/benpueschel/gritty/compare/v0.0.0...v0.0.1
 [v0.1.0]: https://github.com/benpueschel/gritty/compare/v0.0.1...v0.1.0
 [v0.1.1]: https://github.com/benpueschel/gritty/compare/v0.1.0...v0.1.1
+[v0.2.0]: https://github.com/benpueschel/gritty/compare/v0.1.1...v0.2.0
