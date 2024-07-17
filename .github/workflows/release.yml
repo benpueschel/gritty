@@ -24,11 +24,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
 
-      - name: Upload changelog
-        uses: actions/upload-artifact@v2
+      - name: Create release
+        uses: softprops/action-gh-release@v1
         with:
-          name: changelog
-          path: CHANGELOG.md
+          draft: true
+          make_latest: false
+          body: ${{ steps.changelog.outputs.changes }}
 
       - name: Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -68,15 +69,9 @@ jobs:
           TARGET: ${{ matrix.target }}
         run: .github/scripts/package.sh
 
-      - name: Get changelog
-        uses: actions/download-artifact@v3
-        with:
-          name: changelog
-
-      - name: Create release
+      - name: Upload artifacts
         uses: softprops/action-gh-release@v1
         with:
           draft: false
           make_latest: true
-          body_path: CHANGELOG.md
           files: "gritty*"
