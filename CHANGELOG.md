@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.3.0] - 2024-07-17
+### :sparkles: New Features
+- [`36ebef1`](https://github.com/benpueschel/gritty/commit/36ebef13c86efc15c1d7dec9507352740f4c46e1) - spawn concurrent list-repo tasks *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`306354e`](https://github.com/benpueschel/gritty/commit/306354ede7b68092d4ac505fc30038ec6bab4cde) - list configured remotes *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :recycle: Refactors
+- [`2239a46`](https://github.com/benpueschel/gritty/commit/2239a46a89e2d60b2daa4d5398b3ef7ccfd59eaa) - **log**: remove unused, empty macro *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :wrench: Chores
+- [`fbc54b5`](https://github.com/benpueschel/gritty/commit/fbc54b523a2456de7ff402f37e478553c1678060) - **main**: release v0.2.0 *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`e12d9f1`](https://github.com/benpueschel/gritty/commit/e12d9f13f5c8969e6bb76162cc65c39648fc2d2e) - v0.3.0 *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.2.0] - 2024-07-08
 ### :sparkles: New Features
 - [`85677d5`](https://github.com/benpueschel/gritty/commit/85677d50eb0fad4da534880602cc61bbbfddc7f6) - interactive configuration *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -109,3 +122,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.1.0]: https://github.com/benpueschel/gritty/compare/v0.0.1...v0.1.0
 [v0.1.1]: https://github.com/benpueschel/gritty/compare/v0.1.0...v0.1.1
 [v0.2.0]: https://github.com/benpueschel/gritty/compare/v0.1.1...v0.2.0
+[v0.3.0]: https://github.com/benpueschel/gritty/compare/v0.2.0...v0.3.0
