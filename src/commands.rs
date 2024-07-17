@@ -265,6 +265,35 @@ pub async fn list_repositories(remote: &str) -> Result<()> {
     Ok(())
 }
 
+pub async fn list_remotes() -> Result<()> {
+    let config = load_config()?;
+    log::println("Configured remotes:");
+    let mut longest_name = 0;
+    let mut longest_username = 0;
+    for (name, remote) in &config.remotes {
+        if name.len() > longest_name {
+            longest_name = name.len();
+        }
+        if remote.username.len() > longest_username {
+            longest_username = remote.username.len();
+        }
+    }
+    for (name, remote) in &config.remotes {
+        let name_padding = " ".repeat(longest_name - name.len());
+        let username_padding = " ".repeat(longest_username - remote.username.len());
+        log::print("  ");
+        log::info(name);
+        log::print(&name_padding);
+        log::print(" - username: ");
+        log::info(&remote.username);
+        log::print(&username_padding);
+        log::print(" - url: ");
+        log::info(&remote.url);
+        log::end_line();
+    }
+    Ok(())
+}
+
 pub async fn create_repository(
     private: bool,
     clone: bool,

@@ -19,6 +19,7 @@ async fn main() -> Result<()> {
         Args::CreateConfig => commands::create_config().await,
         Args::Clone { name, remote } => commands::clone_repository(&name, &remote).await,
         Args::List { remote } => commands::list_repositories(&remote).await,
+        Args::ListRemotes => commands::list_remotes().await,
         Args::Create {
             private,
             clone,

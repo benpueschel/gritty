@@ -38,6 +38,8 @@ pub enum Args {
         #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
         remote: String,
     },
+    #[command(about = "List all configured remotes")]
+    ListRemotes,
     #[command(about = "Create a repository on a remote")]
     Create {
         #[arg(short, long, help = "Create a private repository")]
