@@ -159,7 +159,7 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
         return Err(Error::other("Remote username cannot be empty."));
     }
 
-    log::print("Enter the clone protocol ");
+    log::print("Enter the clone protocol (");
     log::info("ssh/https");
     log::print("): ");
     let clone_protocol = get_input()?;
