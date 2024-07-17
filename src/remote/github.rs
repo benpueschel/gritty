@@ -113,12 +113,25 @@ impl Remote for GitHubRemote {
             .order("desc")
             .send()
             .await?;
-        let mut result = Vec::new();
+        let mut futures = Vec::new();
         for repo in repos {
-            let base = self
+            // SAFETY: We are not moving `self` in the closure, self is guaranteed to be valid as
+            // long as the closure is running and we're not mutating it, so this is safe.
+            let this = unsafe { &*(self as *const Self) };
+            let base = this
                 .crab
                 .repos(self.config.username.clone(), repo.name.clone());
-            result.push(self.get_repo_info(base, repo).await?);
+            let username = &self.config.username;
+            futures.push(tokio::spawn(Self::get_repo_info(
+                username.clone(),
+                base,
+                repo,
+            )));
+        }
+        let mut result = Vec::with_capacity(futures.len());
+        for future in futures {
+            let f = future.await.unwrap()?;
+            result.push(f);
         }
         Ok(result)
     }
@@ -126,7 +139,7 @@ impl Remote for GitHubRemote {
     async fn get_repo_info(&self, name: &str) -> Result<Repository> {
         let base = self.crab.repos(self.config.username.clone(), name);
         let repo = base.get().await?;
-        self.get_repo_info(base, repo).await
+        Self::get_repo_info(self.config.username.clone(), base, repo).await
     }
 
     async fn delete_repo(&self, name: &str) -> Result<()> {
@@ -141,11 +154,10 @@ impl Remote for GitHubRemote {
 
 impl GitHubRemote {
     async fn get_repo_info(
-        &self,
+        username: String,
         base: RepoHandler<'_>,
         repo: models::Repository,
     ) -> Result<Repository> {
-        let username = &self.config.username;
         let commits = base
             .list_commits()
             .per_page(super::COMMIT_COUNT)

@@ -1,6 +1,9 @@
 use crate::error::{Error, ErrorKind, Result};
 use async_trait::async_trait;
-use teatime::{error::{TeatimeError, TeatimeErrorKind}, Client, CreateRepoOption, GetCommitsOption};
+use teatime::{
+    error::{TeatimeError, TeatimeErrorKind},
+    Client, CreateRepoOption, GetCommitsOption,
+};
 
 use super::*;
 
@@ -61,9 +64,16 @@ impl Remote for GiteaRemote {
             ..Default::default()
         };
         let repos = self.client.search_repositories(&search_option).await?;
-        let mut result = Vec::new();
+        let mut futures = Vec::new();
         for repo in repos {
-            result.push(self.get_repo_info(repo).await?);
+            // SAFETY: We are not moving `self` in the closure, self is guaranteed to be valid as
+            // long as the closure is running and we're not mutating it, so this is safe.
+            let this = unsafe { &*(self as *const Self) };
+            futures.push(tokio::spawn((*this).get_repo_info(repo)));
+        }
+        let mut result = Vec::with_capacity(futures.len());
+        for future in futures {
+            result.push(future.await.unwrap()?);
         }
         Ok(result)
     }
@@ -75,7 +85,8 @@ impl Remote for GiteaRemote {
     }
 
     async fn delete_repo(&self, name: &str) -> Result<()> {
-        Ok(self.client
+        Ok(self
+            .client
             .delete_repository(&self.config.username, name)
             .await?)
     }
