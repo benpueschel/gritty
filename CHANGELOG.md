@@ -12,11 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### :recycle: Refactors
 - [`2239a46`](https://github.com/benpueschel/gritty/commit/2239a46a89e2d60b2daa4d5398b3ef7ccfd59eaa) - **log**: remove unused, empty macro *(commit by [@benpueschel](https://github.com/benpueschel))*
 
-### :wrench: Chores
-- [`fbc54b5`](https://github.com/benpueschel/gritty/commit/fbc54b523a2456de7ff402f37e478553c1678060) - **main**: release v0.2.0 *(commit by [@benpueschel](https://github.com/benpueschel))*
-- [`e12d9f1`](https://github.com/benpueschel/gritty/commit/e12d9f13f5c8969e6bb76162cc65c39648fc2d2e) - v0.3.0 *(commit by [@benpueschel](https://github.com/benpueschel))*
-
-
 ## [v0.2.0] - 2024-07-08
 ### :sparkles: New Features
 - [`85677d5`](https://github.com/benpueschel/gritty/commit/85677d50eb0fad4da534880602cc61bbbfddc7f6) - interactive configuration *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -30,12 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`3377df5`](https://github.com/benpueschel/gritty/commit/3377df5936df5675542a8b5085d9d33a58f69937) - **commands**: add get_input method *(commit by [@benpueschel](https://github.com/benpueschel))*
 - [`1fa1e32`](https://github.com/benpueschel/gritty/commit/1fa1e322f91c2d8100b20fb6c18a2f6edfd47099) - **args**: move from structopt to clap *(commit by [@benpueschel](https://github.com/benpueschel))*
 
-### :wrench: Chores
-- [`4779719`](https://github.com/benpueschel/gritty/commit/4779719d44d957763119459de34117ece037a3af) - **main**: release v0.1.1 *(commit by [@benpueschel](https://github.com/benpueschel))*
-- [`5a2d3a8`](https://github.com/benpueschel/gritty/commit/5a2d3a8e8a1ddcff6cf9ce1209aee32c560f2232) - bump dependency versions *(commit by [@benpueschel](https://github.com/benpueschel))*
-- [`2efad6a`](https://github.com/benpueschel/gritty/commit/2efad6aead3bc0a6bfbbfe4c75c1e6bb33f127db) - v0.2.0 *(commit by [@benpueschel](https://github.com/benpueschel))*
-
-
 ## [v0.1.1] - 2024-07-07
 ### :recycle: Refactors
 - [`a92eae9`](https://github.com/benpueschel/gritty/commit/a92eae97b9c8e76b2a16bb8f704ca50d79583b46) - **remote**: move clone to top-level trait *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -43,11 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`fb49b12`](https://github.com/benpueschel/gritty/commit/fb49b1240ca9ba4c848c5249a2008ec430ee495e) - **github**: code cleanup *(commit by [@benpueschel](https://github.com/benpueschel))*
 - [`9c278d7`](https://github.com/benpueschel/gritty/commit/9c278d7a7c00be70b9772c6b3ba4de7d8fc955a9) - unified error type *(commit by [@benpueschel](https://github.com/benpueschel))*
 - [`f9483ea`](https://github.com/benpueschel/gritty/commit/f9483ea2ce0d90507999682da9c97526dfa420eb) - **main**: cleanup main function *(commit by [@benpueschel](https://github.com/benpueschel))*
-
-### :wrench: Chores
-- [`90fa380`](https://github.com/benpueschel/gritty/commit/90fa38069ee97fe161970ffe1ff5eb65a1e17c9a) - **main**: release v0.1.0 *(commit by [@benpueschel](https://github.com/benpueschel))*
-- [`bdd90b6`](https://github.com/benpueschel/gritty/commit/bdd90b60ec82a6226a1d891dff77139751a205e7) - bump version to 0.1.1 *(commit by [@benpueschel](https://github.com/benpueschel))*
-
 
 ## [v0.1.0] - 2024-07-06
 ### :boom: BREAKING CHANGES
@@ -57,12 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - due to [`d80983a`](https://github.com/benpueschel/gritty/commit/d80983aff68d077300f2154e26d02602c2efeac4) - change config path *(commit by [@benpueschel](https://github.com/benpueschel))*:
 
-  Old configs located at ~/.config/gitrc-rs/ will need to  
+  Old configs located at ~/.config/gitrc-rs/ will need to
   be relocated to ~/.config/gritty/
 
 - due to [`50b2fb4`](https://github.com/benpueschel/gritty/commit/50b2fb4a02610a5789c36664db4b841327c69f2e) - add option to clone repo on creation *(commit by [@benpueschel](https://github.com/benpueschel))*:
 
-  Configs now need a "clone_protocol" option for each  
+  Configs now need a "clone_protocol" option for each
   remote.
 
 
@@ -85,10 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [`71cffcd`](https://github.com/benpueschel/gritty/commit/71cffcd8aa551a3dc6b4afa39e4927297a38e49b) - don't print full error when deleting repo *(commit by [@benpueschel](https://github.com/benpueschel))*
 - [`db82eec`](https://github.com/benpueschel/gritty/commit/db82eec5d5b921fd06026bb0e45b7aa54b9914bd) - don't print default config on auth *(commit by [@benpueschel](https://github.com/benpueschel))*
 - [`0b78193`](https://github.com/benpueschel/gritty/commit/0b78193d467c5cd89c37dedfdf374d247af2c2b5) - git clone ssh url *(commit by [@benpueschel](https://github.com/benpueschel))*
-
-### :wrench: Chores
-- [`241fe0c`](https://github.com/benpueschel/gritty/commit/241fe0c7df3b77261439999a2d9317387a474b7d) - **main**: release v0.0.1 *(commit by [@benpueschel](https://github.com/benpueschel))*
-
 
 ## [v0.0.1] - 2024-07-06
 ### :boom: BREAKING CHANGES
