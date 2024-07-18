@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use crate::error::{Error, ErrorKind, Result};
 use async_trait::async_trait;
 use teatime::{
@@ -132,7 +134,7 @@ impl GiteaRemote {
                 sha: c.sha,
                 message: c.commit.message,
                 author: c.commit.author.name,
-                date: c.commit.author.date,
+                date: DateTime::from_str(&c.commit.author.date).unwrap(),
             })
             .collect();
 

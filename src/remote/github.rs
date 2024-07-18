@@ -216,7 +216,7 @@ impl GitHubRemote {
                     sha: c.sha,
                     message: c.commit.message,
                     author: author.user.name,
-                    date: author.date.unwrap_or_default().to_rfc2822(),
+                    date: author.date.unwrap_or_default(),
                 }
             })
             .collect();

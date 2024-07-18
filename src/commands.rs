@@ -1,6 +1,8 @@
 use std::env;
 use std::io::{stdin, stdout, Write};
 
+use chrono::{DateTime, Local};
+
 use crate::config::{AuthConfig, Config, GitRemoteConfig, InlineSecrets, Secrets};
 use crate::error::{Error, ErrorKind, Result};
 use crate::log;
@@ -252,7 +254,7 @@ pub async fn list_repositories(remote: &str) -> Result<()> {
             log::print(" - no commits");
         } else {
             let last = &repo.last_commits[0];
-            let date = &last.date;
+            let date: DateTime<Local> = last.date.into();
             let sha = last.sha.split_at(8).0;
             let message = last.message.split('\n').next().unwrap_or(&last.message);
             log::print(&format!(" - {date}: "));

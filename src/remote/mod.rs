@@ -7,6 +7,7 @@ use std::fmt::Debug;
 use crate::error::{Error, Result};
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 pub mod gitea;
@@ -62,7 +63,7 @@ pub struct Commit {
     pub sha: String,
     pub message: String,
     pub author: String,
-    pub date: String,
+    pub date: DateTime<Utc>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]

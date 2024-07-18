@@ -6,6 +6,7 @@ use crate::{
 };
 use ::gitlab as gl;
 use async_trait::async_trait;
+use chrono::DateTime;
 use gl::{
     api::{
         self,
@@ -21,7 +22,7 @@ use gl::{
     RestError,
 };
 use serde::Deserialize;
-use std::error::Error as StdError;
+use std::{error::Error as StdError, str::FromStr};
 
 pub struct GitlabRemote {
     config: RemoteConfig,
@@ -263,7 +264,8 @@ impl GitlabRemote {
                     sha: commit.id,
                     message: commit.message,
                     author: commit.author_name,
-                    date: commit.committed_date,
+                    // TODO: handle error
+                    date: DateTime::from_str(&commit.committed_date).unwrap(),
                 });
             }
         }
