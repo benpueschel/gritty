@@ -23,11 +23,12 @@ async fn main() -> Result<()> {
         Args::Create {
             private,
             clone,
+            description,
             init,
             license,
             name,
             remote,
-        } => commands::create_repository(private, clone, init, license, name, remote).await,
+        } => commands::create_repository(private, clone, description, init, license, name, remote).await,
         Args::Delete { name, remote } => commands::delete_repository(&name, &remote).await,
         Args::Auth { remote } => commands::auth(&remote).await,
     };

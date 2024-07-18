@@ -297,6 +297,7 @@ pub async fn list_remotes() -> Result<()> {
 pub async fn create_repository(
     private: bool,
     clone: bool,
+    description: Option<String>,
     init: bool,
     license: Option<String>,
     name: String,
@@ -306,7 +307,7 @@ pub async fn create_repository(
     log::highlight("Creating repository '", &name, "'...");
     let info = RepoCreateInfo {
         name: name.clone(),
-        description: None,
+        description,
         license,
         init,
         private,

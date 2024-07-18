@@ -46,6 +46,8 @@ pub enum Args {
         private: bool,
         #[arg(short, long, help = "Clone the repository after creation")]
         clone: bool,
+        #[arg(short, long, help = "Description of the repository")]
+        description: Option<String>,
         #[arg(short, long, help = "Initialize the repository with a README.md")]
         init: bool,
         #[arg(
