@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.4.0] - 2024-07-18
+### :sparkles: New Features
+- [`0ffd216`](https://github.com/benpueschel/gritty/commit/0ffd2166a51c13fa5941a7b269f0a3e206adcfdf) - add description option when creating repo *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`855c420`](https://github.com/benpueschel/gritty/commit/855c420222cb285960a08027928f21b9614fe944) - add gitlab remote *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :bug: Bug Fixes
+- [`87fe5ca`](https://github.com/benpueschel/gritty/commit/87fe5ca55c24b919e9092f25ebe5fc0170113e61) - **create-config**: add missing open paren *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :recycle: Refactors
+- [`5e40db8`](https://github.com/benpueschel/gritty/commit/5e40db8f387bf643f7af05a6251d28c5b0676df0) - use DateTime for commit date *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.3.0] - 2024-07-17
 ### :sparkles: New Features
 - [`36ebef1`](https://github.com/benpueschel/gritty/commit/36ebef13c86efc15c1d7dec9507352740f4c46e1) - spawn concurrent list-repo tasks *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -103,3 +115,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.1.1]: https://github.com/benpueschel/gritty/compare/v0.1.0...v0.1.1
 [v0.2.0]: https://github.com/benpueschel/gritty/compare/v0.1.1...v0.2.0
 [v0.3.0]: https://github.com/benpueschel/gritty/compare/v0.2.0...v0.3.0
+[v0.4.0]: https://github.com/benpueschel/gritty/compare/v0.3.0...v0.4.0
