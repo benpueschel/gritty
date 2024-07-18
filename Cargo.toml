@@ -21,3 +21,5 @@ keyring = { version = "2.3.3", optional = true }
 rpassword = "7.3.1"
 ansi_term = { version = "0.12.1", optional = true }
 clap = { version = "4.5.8", features = ["derive", "deprecated"] }
+gitlab = "0.1701.0"
+urlencoding = "2.1.3"

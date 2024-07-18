@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod gitea;
 pub mod github;
+pub mod gitlab;
 
 /// The supported providers for remotes.
 /// Each provider has its own implementation of the [Remote] trait.
@@ -132,6 +133,6 @@ pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Box<dyn
     match provider {
         GitHub => Box::new(github::GitHubRemote::new(config).await),
         Gitea => Box::new(gitea::GiteaRemote::new(config).await),
-        GitLab => unimplemented!("GitLab not implemented"),
+        GitLab => Box::new(gitlab::GitlabRemote::new(config).await),
     }
 }
