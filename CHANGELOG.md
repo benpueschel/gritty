@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.5.0] - 2024-07-20
+### :sparkles: New Features
+- [`b7d17d6`](https://github.com/benpueschel/gritty/commit/b7d17d6b358256ad8cc3101e87d83c1b560f7f4c) - add global --config (-C) option *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`7c7bc8b`](https://github.com/benpueschel/gritty/commit/7c7bc8b38d25eda330f2661a02bde5ba54274469) - add option to recursively clone repos *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :bug: Bug Fixes
+- [`ae08291`](https://github.com/benpueschel/gritty/commit/ae08291761e7ef659e18cdd07374892bc56515b2) - properly respect NO_COLOR env variable *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`49ab416`](https://github.com/benpueschel/gritty/commit/49ab416be6bad45726a52f8513e9339f5f2c2532) - only colorize if stdout is a tty *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :recycle: Refactors
+- [`ea8fe55`](https://github.com/benpueschel/gritty/commit/ea8fe55113c378c1620fff02cf7d2ccc91c3f820) - move subcommands into dedicated structs *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.4.0] - 2024-07-18
 ### :sparkles: New Features
 - [`0ffd216`](https://github.com/benpueschel/gritty/commit/0ffd2166a51c13fa5941a7b269f0a3e206adcfdf) - add description option when creating repo *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -116,3 +129,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.2.0]: https://github.com/benpueschel/gritty/compare/v0.1.1...v0.2.0
 [v0.3.0]: https://github.com/benpueschel/gritty/compare/v0.2.0...v0.3.0
 [v0.4.0]: https://github.com/benpueschel/gritty/compare/v0.3.0...v0.4.0
+[v0.5.0]: https://github.com/benpueschel/gritty/compare/v0.4.0...v0.5.0
