@@ -121,7 +121,7 @@ pub trait Remote: Sync {
         let cmd = cmd.status()?;
         if !cmd.success() {
             return Err(Error::other(format!(
-                "Failed to clone repository '{}'",
+                "Failed to clone repository {}",
                 name
             )));
         }

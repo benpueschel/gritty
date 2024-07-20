@@ -55,7 +55,7 @@ impl Config {
         let toml = toml::to_string(self)?;
         fs::create_dir_all(Path::new(&self.path).parent().unwrap())?;
         fs::write(&self.path, toml)?;
-        println!("Saved config to '{}'.'", &self.path);
+        println!("Saved config to {}.'", &self.path);
         Ok(())
     }
     pub fn load_from_file(path: Option<String>) -> Result<Self> {

@@ -57,7 +57,7 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
         );
     } else {
         println!(
-            "Enter the path to the config file (default is '{}'):",
+            "Enter the path to the config file (default is {}):",
             Highlight::Path(&config.path)
         );
         let path = get_input()?;
@@ -199,7 +199,7 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
         log::print("Enter token: ");
         stdout().flush()?;
         let token = rpassword::read_password()?;
-        println!("Token added to remote '{}'.", Highlight::Remote(&name));
+        println!("Token added to remote {}.", Highlight::Remote(&name));
         Some(AuthConfig {
             username: None,
             password: None,
@@ -227,7 +227,7 @@ fn ask_for_secrets_file() -> Result<Secrets> {
 
     let mut path = format!("{xdg_config}/gritty/secrets.toml");
     print!(
-        "Enter the path to the secrets file (default is '{}'): ",
+        "Enter the path to the secrets file (default is {}): ",
         Highlight::Path(&path)
     );
     let input = get_input()?;
@@ -248,7 +248,7 @@ pub async fn clone_repository(args: Clone, config: &Option<String>) -> Result<()
 pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()> {
     let remote = &args.remote;
     println!(
-        "Listing repositories on remote '{}'...",
+        "Listing repositories on remote {}...",
         Highlight::Remote(remote)
     );
 
@@ -325,7 +325,7 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
         remote,
     } = args;
     let remote = load_remote(&remote, config).await?;
-    println!("Creating repository '{}'...", Highlight::Repo(&name));
+    println!("Creating repository {}...", Highlight::Repo(&name));
     let info = RepoCreateInfo {
         name: name.clone(),
         description,
@@ -357,7 +357,7 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
         }
     };
     println!(
-        "{}: You are about to delete repository '{}' on remote '{}'.",
+        "{}: You are about to delete repository {} on remote {}.",
         Highlight::Important("WARNING"),
         Highlight::Repo(&name),
         Highlight::Remote(&remote_name),
@@ -384,7 +384,7 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
     }
     remote.delete_repo(name).await?;
     println!(
-        "Repository '{}' deleted on remote '{}'.",
+        "Repository {} deleted on remote {}.",
         Highlight::Repo(&name),
         Highlight::Remote(&remote_name)
     );
@@ -404,7 +404,7 @@ pub async fn auth(args: Auth, config: &Option<String>) -> Result<()> {
     let password = rpassword::read_password()?;
 
     println!(
-        "Adding authentication to remote '{}'...",
+        "Adding authentication to remote {}...",
         Highlight::Remote(remote)
     );
     let mut config = load_config(config)?;
@@ -413,7 +413,7 @@ pub async fn auth(args: Auth, config: &Option<String>) -> Result<()> {
     }
     config.store_token(remote, &password)?;
     println!(
-        "Authentication added to remote '{}'.",
+        "Authentication added to remote {}.",
         Highlight::Remote(remote)
     );
     Ok(())
