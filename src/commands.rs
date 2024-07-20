@@ -352,7 +352,7 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
         Err(_) => {
             // TODO: match the actual error type
             return Err(Error::not_found(format!(
-                "Repository '{name}' not found on remote '{remote_name}'."
+                "Repository {name} not found on remote {remote_name}."
             )));
         }
     };

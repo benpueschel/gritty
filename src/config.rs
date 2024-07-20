@@ -55,7 +55,7 @@ impl Config {
         let toml = toml::to_string(self)?;
         fs::create_dir_all(Path::new(&self.path).parent().unwrap())?;
         fs::write(&self.path, toml)?;
-        println!("Saved config to {}.'", &self.path);
+        println!("Saved config to {}.", &self.path);
         Ok(())
     }
     pub fn load_from_file(path: Option<String>) -> Result<Self> {
@@ -72,7 +72,7 @@ impl Config {
                 } else {
                     if !Path::new(&fallback).exists() {
                         return Err(Error::not_found(format!(
-                            "Could not find config at '{config_path}' or '{fallback}'."
+                            "Could not find config at {config_path} or {fallback}."
                         )));
                     }
                     fallback
@@ -89,7 +89,7 @@ impl Config {
         if let Some(remote) = self.remotes.get(name) {
             return Ok(remote.provider.clone());
         }
-        Err(Error::not_found(format!("Could not find remote '{name}'")))
+        Err(Error::not_found(format!("Could not find remote {name}")))
     }
     pub fn get_remote_config(&self, name: &str) -> Result<RemoteConfig> {
         if let Some(remote) = self.remotes.get(name) {
@@ -100,11 +100,11 @@ impl Config {
                 auth: self.get_auth(&self.secrets, name)?,
             });
         }
-        Err(Error::not_found(format!("Could not find remote '{name}'")))
+        Err(Error::not_found(format!("Could not find remote {name}")))
     }
     pub fn store_token(&mut self, name: &str, token: &str) -> Result<()> {
         if !self.remotes.contains_key(name) {
-            return Err(Error::not_found(format!("Could not find remote '{name}'")));
+            return Err(Error::not_found(format!("Could not find remote {name}")));
         }
 
         match &mut self.secrets {
@@ -170,7 +170,7 @@ impl Config {
                         });
                     }
                     return Err(Error::authentication(format!(
-                        r#"Could not find auth for remote '{name}'.
+                        r#"Could not find auth for remote {name}.
                         Did you forget to add it to the config?
                         You need to set either a username/password combination, or an api token. "#
                     )));
@@ -180,7 +180,7 @@ impl Config {
                 let file = file.replace('~', env::var("HOME").unwrap().as_str());
                 if !Path::new(&file).exists() {
                     return Err(Error::not_found(format!(
-                        "Could not find secrets file '{file}'."
+                        "Could not find secrets file {file}."
                     )));
                 }
                 let contents = fs::read_to_string(file)?;
@@ -196,13 +196,13 @@ impl Config {
                     return Ok(Auth::Token { token });
                 }
                 return Err(Error::authentication(format!(
-                    r#"Could not find auth for remote '{name}'.
+                    r#"Could not find auth for remote {name}.
                     Did you forget to add it to the keyring?"#
                 )));
             }
         }
         Err(Error::authentication(format!(
-            r#"Could not find auth for remote '{name}'.
+            r#"Could not find auth for remote {name}.
             Did you forget to add it to the config?"#
         )))
     }
