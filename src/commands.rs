@@ -268,8 +268,7 @@ pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()
             print!("  ");
         }
 
-        let padding = " ".repeat(longest_name - repo.name.len());
-        print!("{}{padding}", Highlight::Repo(&repo.name));
+        log::print(Highlight::Repo(log::leftpad(&repo.name, longest_name)));
 
         if repo.last_commits.is_empty() {
             print!(" - no commits");
@@ -304,12 +303,10 @@ pub async fn list_remotes(config: &Option<String>) -> Result<()> {
         }
     }
     for (name, remote) in &config.remotes {
-        let name_padding = " ".repeat(longest_name - name.len());
-        let username_padding = " ".repeat(longest_username - remote.username.len());
+        let name = Highlight::Remote(log::leftpad(name, longest_name));
+        let username = Highlight::Username(log::leftpad(&remote.username, longest_username));
         println!(
-            "  {}{name_padding} - username: {}{username_padding} - url: {}",
-            Highlight::Remote(name),
-            Highlight::Username(&remote.username),
+            "  {name} - username: {username} - url: {}",
             Highlight::Url(&remote.url),
         );
     }

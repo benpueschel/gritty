@@ -5,6 +5,10 @@ use std::{
 
 use ansi_term::Style;
 
+pub fn leftpad(s: &str, width: usize) -> String {
+    format!("{s}{}", " ".repeat(width.saturating_sub(s.len())))
+}
+
 pub fn is_color() -> bool {
     // only colorize if NO_COLOR is not set and stdout is a tty
     std::env::var("NO_COLOR").is_err() && std::io::stdout().is_terminal()
