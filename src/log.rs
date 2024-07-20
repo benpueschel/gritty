@@ -1,7 +1,9 @@
+use std::io::IsTerminal;
+
 pub fn is_color() -> bool {
     #[cfg(feature = "color")]
     // only colorize if NO_COLOR is not set and stdout is a tty
-    return std::env::var("NO_COLOR").is_err() && atty::is(atty::Stream::Stdout);
+    return std::env::var("NO_COLOR").is_err() && std::io::stdout().is_terminal();
     #[cfg(not(feature = "color"))]
     return false;
 }
