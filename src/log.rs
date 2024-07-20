@@ -1,6 +1,7 @@
 pub fn is_color() -> bool {
     #[cfg(feature = "color")]
-    return std::env::var("NO_COLOR").is_err();
+    // only colorize if NO_COLOR is not set and stdout is a tty
+    return std::env::var("NO_COLOR").is_err() && atty::is(atty::Stream::Stdout);
     #[cfg(not(feature = "color"))]
     return false;
 }
