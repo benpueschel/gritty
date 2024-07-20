@@ -232,7 +232,9 @@ fn ask_for_secrets_file() -> Result<Secrets> {
 
 pub async fn clone_repository(args: Clone, config: &Option<String>) -> Result<()> {
     let remote = load_remote(&args.remote, config).await?;
-    remote.clone_repo(&args.name, &args.name).await?;
+    remote
+        .clone_repo(&args.name, &args.name, args.recursive)
+        .await?;
     Ok(())
 }
 
@@ -309,6 +311,7 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
     let Create {
         private,
         clone,
+        recursive,
         name,
         description,
         license,
@@ -329,13 +332,16 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
     log::info(&url);
     log::end_line();
     if clone {
-        remote.clone_repo(&name, &name).await?;
+        remote.clone_repo(&name, &name, recursive).await?;
     }
     Ok(())
 }
 
 pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<()> {
-    let Delete { name, remote: remote_name } = &args;
+    let Delete {
+        name,
+        remote: remote_name,
+    } = &args;
     let remote = load_remote(remote_name, config).await?;
     let repo_info = match remote.get_repo_info(name).await {
         Ok(x) => x,

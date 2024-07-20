@@ -103,7 +103,7 @@ pub trait Remote: Sync {
     /// Get the configuration of the remote.
     fn get_config(&self) -> &RemoteConfig;
     /// Clone a repository to the given path.
-    async fn clone_repo(&self, name: &str, path: &str) -> Result<()> {
+    async fn clone_repo(&self, name: &str, path: &str, recursive: bool) -> Result<()> {
         let config = self.get_config();
         let username = &config.username;
         let clean_url = config.url.replace("https://", "").replace("http://", "");
@@ -112,13 +112,14 @@ pub trait Remote: Sync {
             CloneProtocol::HTTPS => format!("{}/{}/{}.git", config.url, username, name),
         };
 
-        let status = std::process::Command::new("git")
-            .arg("clone")
-            .arg(url)
-            .arg(path)
-            .status()?;
+        let mut cmd = std::process::Command::new("git");
+        cmd.args(["clone", &url, path]);
+        if recursive {
+            cmd.arg("--recursive");
+        }
 
-        if !status.success() {
+        let cmd = cmd.status()?;
+        if !cmd.success() {
             return Err(Error::other(format!(
                 "Failed to clone repository '{}'",
                 name

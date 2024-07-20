@@ -64,6 +64,8 @@ pub struct Clone {
     pub name: String,
     #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
     pub remote: String,
+    #[arg(short, long, help = "Initialize and clone all submodules")]
+    pub recursive: bool,
 }
 
 #[derive(Debug, Clone, Parser)]
@@ -80,6 +82,8 @@ pub struct Create {
     pub private: bool,
     #[arg(short, long, help = "Clone the repository after creation")]
     pub clone: bool,
+    #[arg(short, long, help = "Initialize and clone all submodules. Only valid with --clone")]
+    pub recursive: bool,
     #[arg(short, long, help = "Description of the repository")]
     pub description: Option<String>,
     #[arg(short, long, help = "Initialize the repository with a README.md")]
