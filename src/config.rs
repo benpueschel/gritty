@@ -47,8 +47,11 @@ pub struct AuthConfig {
 }
 
 impl Config {
-    pub fn save_default() -> Result<()> {
-        let config = Config::default();
+    pub fn save_default(path: &Option<String>) -> Result<()> {
+        let mut config = Config::default();
+        if let Some(path) = path {
+            config.path.clone_from(path);
+        }
         config.save()
     }
     pub fn save(&self) -> Result<()> {

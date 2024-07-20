@@ -26,6 +26,21 @@ fn styles() -> Styles {
 pub struct Args {
     #[command(subcommand)]
     pub subcommand: Commands,
+    #[arg(
+        short = 'C',
+        long,
+        help = "Path to the configuration file",
+        long_help = "Path to the configuration file.
+\
+If not provided, the config will be searched for in the following directories:
+- $XDG_CONFIG_HOME/gritty/config.toml (~/.config/gritty/config.toml)
+- $HOME/.gritty.toml                  (~/.gritty.toml)
+
+If the config file does not exist, it will be created in the specified location,
+or ~/.config/gritty/config.toml if not specified.\
+"
+    )]
+    pub config: Option<String>,
 }
 
 #[derive(Debug, Clone, Subcommand)]
@@ -40,7 +55,6 @@ pub enum Commands {
     CreateConfig,
     #[command(about = "List all configured remotes")]
     ListRemotes,
-
 }
 
 #[derive(Debug, Clone, Parser)]

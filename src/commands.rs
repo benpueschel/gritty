@@ -9,7 +9,7 @@ use crate::error::{Error, ErrorKind, Result};
 use crate::log;
 use crate::remote::{self, Remote, RepoCreateInfo};
 
-fn load_config() -> Result<Config> {
+fn load_config(path: &Option<String>) -> Result<Config> {
     match Config::load_from_file(None) {
         Ok(config) => Ok(config),
         Err(err) => match err.kind {
@@ -17,7 +17,7 @@ fn load_config() -> Result<Config> {
                 eprintln!("{}", err.message);
                 log::info("Creating default config...");
                 log::end_line();
-                Config::save_default()?;
+                Config::save_default(path)?;
                 Err(Error::not_found(
                     "Default config created. Please fill in the required fields.",
                 ))
@@ -27,8 +27,8 @@ fn load_config() -> Result<Config> {
     }
 }
 
-async fn load_remote(remote_name: &str) -> Result<Box<dyn Remote>> {
-    let config = load_config()?;
+async fn load_remote(remote_name: &str, config: &Option<String>) -> Result<Box<dyn Remote>> {
+    let config = load_config(config)?;
     let provider = config.get_remote_provider(remote_name)?;
     let remote_config = config.get_remote_config(remote_name)?;
     Ok(remote::create_remote(&remote_config, provider).await)
@@ -41,7 +41,7 @@ fn get_input() -> Result<String> {
     Ok(input.trim().to_string())
 }
 
-pub async fn create_config() -> Result<()> {
+pub async fn create_config(cfg: &Option<String>) -> Result<()> {
     log::highlight("Welcome to ", "gritty", "!");
     log::println("This command will ask you some questions to create a config file.");
     log::end_line();
@@ -50,14 +50,21 @@ pub async fn create_config() -> Result<()> {
 
     // Config file path
 
-    log::print("Enter the path to the config file (default is '");
-    log::info(&config.path);
-    log::print("'): ");
-    let path = get_input()?;
-    if !path.is_empty() {
-        config.path = path;
+    if let Some(path) = cfg {
+        config.path.clone_from(path);
+        log::print("Using provided config file path: ");
+        log::info(path);
+        log::end_line();
+    } else {
+        log::print("Enter the path to the config file (default is '");
+        log::info(&config.path);
+        log::print("'): ");
+        let path = get_input()?;
+        if !path.is_empty() {
+            config.path = path;
+        }
+        log::end_line();
     }
-    log::end_line();
 
     // Token storage
 
@@ -223,19 +230,19 @@ fn ask_for_secrets_file() -> Result<Secrets> {
     Ok(Secrets::SecretsFile(path))
 }
 
-pub async fn clone_repository(args: Clone) -> Result<()> {
-    let remote = load_remote(&args.remote).await?;
+pub async fn clone_repository(args: Clone, config: &Option<String>) -> Result<()> {
+    let remote = load_remote(&args.remote, config).await?;
     remote.clone_repo(&args.name, &args.name).await?;
     Ok(())
 }
 
-pub async fn list_repositories(args: List) -> Result<()> {
+pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()> {
     let remote = &args.remote;
     log::print("Listing repositories on remote '");
     log::info(remote);
     log::println("'...");
 
-    let remote = load_remote(remote).await?;
+    let remote = load_remote(remote, config).await?;
     let repos = remote.list_repos().await?;
     log::println("* denotes private repositories");
     let mut longest_name = 0;
@@ -269,8 +276,8 @@ pub async fn list_repositories(args: List) -> Result<()> {
     Ok(())
 }
 
-pub async fn list_remotes() -> Result<()> {
-    let config = load_config()?;
+pub async fn list_remotes(config: &Option<String>) -> Result<()> {
+    let config = load_config(config)?;
     log::println("Configured remotes:");
     let mut longest_name = 0;
     let mut longest_username = 0;
@@ -298,7 +305,7 @@ pub async fn list_remotes() -> Result<()> {
     Ok(())
 }
 
-pub async fn create_repository(args: Create) -> Result<()> {
+pub async fn create_repository(args: Create, config: &Option<String>) -> Result<()> {
     let Create {
         private,
         clone,
@@ -308,7 +315,7 @@ pub async fn create_repository(args: Create) -> Result<()> {
         init,
         remote,
     } = args;
-    let remote = load_remote(&remote).await?;
+    let remote = load_remote(&remote, config).await?;
     log::highlight("Creating repository '", &name, "'...");
     let info = RepoCreateInfo {
         name: name.clone(),
@@ -327,9 +334,9 @@ pub async fn create_repository(args: Create) -> Result<()> {
     Ok(())
 }
 
-pub async fn delete_repository(args: Delete) -> Result<()> {
+pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<()> {
     let Delete { name, remote: remote_name } = &args;
-    let remote = load_remote(remote_name).await?;
+    let remote = load_remote(remote_name, config).await?;
     let repo_info = match remote.get_repo_info(name).await {
         Ok(x) => x,
         Err(_) => {
@@ -371,7 +378,7 @@ pub async fn delete_repository(args: Delete) -> Result<()> {
     Ok(())
 }
 
-pub async fn auth(args: Auth) -> Result<()> {
+pub async fn auth(args: Auth, config: &Option<String>) -> Result<()> {
     let Auth { remote } = &args;
     log::info("Enter your username (leave blank to use a token): ");
     let username = get_input()?;
@@ -381,7 +388,7 @@ pub async fn auth(args: Auth) -> Result<()> {
     let password = rpassword::read_password()?;
 
     log::highlight("Adding authentication to remote '", remote, "'...");
-    let mut config = load_config()?;
+    let mut config = load_config(config)?;
     if !username.is_empty() {
         todo!("Basic HTTP auth is not yet supported.");
     }
