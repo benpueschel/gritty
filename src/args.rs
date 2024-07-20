@@ -2,7 +2,7 @@ use std::env;
 
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
-    Parser,
+    Parser, Subcommand,
 };
 
 fn styles() -> Styles {
@@ -23,55 +23,76 @@ fn styles() -> Styles {
     arg_required_else_help = true,
     styles = styles()
 )]
-pub enum Args {
+pub struct Args {
+    #[command(subcommand)]
+    pub subcommand: Commands,
+}
+
+#[derive(Debug, Clone, Subcommand)]
+pub enum Commands {
+    Clone(Clone),
+    List(List),
+    Create(Create),
+    Delete(Delete),
+    Auth(Auth),
+
     #[command(about = "Interactively configure gritty")]
     CreateConfig,
-    #[command(about = "Clone a repository from a remote")]
-    Clone {
-        #[arg(help = "Name of the repository")]
-        name: String,
-        #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-        remote: String,
-    },
-    #[command(about = "List repositories on a remote")]
-    List {
-        #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-        remote: String,
-    },
     #[command(about = "List all configured remotes")]
     ListRemotes,
-    #[command(about = "Create a repository on a remote")]
-    Create {
-        #[arg(short, long, help = "Create a private repository")]
-        private: bool,
-        #[arg(short, long, help = "Clone the repository after creation")]
-        clone: bool,
-        #[arg(short, long, help = "Description of the repository")]
-        description: Option<String>,
-        #[arg(short, long, help = "Initialize the repository with a README.md")]
-        init: bool,
-        #[arg(
-            short,
-            long,
-            help = concat!("License to use for the repository (ex: 'MIT'). ",
-            "If not provided, or --init is not specified, no license will be addeed.")
+
+}
+
+#[derive(Debug, Clone, Parser)]
+#[command(about = "Clone a repository from a remote")]
+pub struct Clone {
+    #[arg(help = "Name of the repository")]
+    pub name: String,
+    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
+    pub remote: String,
+}
+
+#[derive(Debug, Clone, Parser)]
+#[command(about = "List repositories on a remote")]
+pub struct List {
+    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
+    pub remote: String,
+}
+
+#[derive(Debug, Clone, Parser)]
+#[command(about = "Create a repository on a remote")]
+pub struct Create {
+    #[arg(short, long, help = "Create a private repository")]
+    pub private: bool,
+    #[arg(short, long, help = "Clone the repository after creation")]
+    pub clone: bool,
+    #[arg(short, long, help = "Description of the repository")]
+    pub description: Option<String>,
+    #[arg(short, long, help = "Initialize the repository with a README.md")]
+    pub init: bool,
+    #[arg(
+        short,
+        long,
+        help = concat!("License to use for the repository (ex: 'MIT'). ",
+        "If not provided, or --init is not specified, no license will be addeed.")
         )]
-        license: Option<String>,
-        #[arg(help = "Name of the repository")]
-        name: String,
-        #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-        remote: String,
-    },
-    #[command(about = "Delete a repository on a remote")]
-    Delete {
-        #[arg(help = "Name of the repository")]
-        name: String,
-        #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-        remote: String,
-    },
-    #[command(about = "Authenticate with a remote")]
-    Auth {
-        #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-        remote: String,
-    },
+    pub license: Option<String>,
+    #[arg(help = "Name of the repository")]
+    pub name: String,
+    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
+    pub remote: String,
+}
+#[derive(Debug, Clone, Parser)]
+#[command(about = "Delete a repository on a remote")]
+pub struct Delete {
+    #[arg(help = "Name of the repository")]
+    pub name: String,
+    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
+    pub remote: String,
+}
+#[derive(Debug, Clone, Parser)]
+#[command(about = "Authenticate with a remote")]
+pub struct Auth {
+    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
+    pub remote: String,
 }

@@ -3,6 +3,7 @@ use std::io::{stdin, stdout, Write};
 
 use chrono::{DateTime, Local};
 
+use crate::args::{Auth, Clone, Create, Delete, List};
 use crate::config::{AuthConfig, Config, GitRemoteConfig, InlineSecrets, Secrets};
 use crate::error::{Error, ErrorKind, Result};
 use crate::log;
@@ -222,13 +223,14 @@ fn ask_for_secrets_file() -> Result<Secrets> {
     Ok(Secrets::SecretsFile(path))
 }
 
-pub async fn clone_repository(name: &str, remote: &str) -> Result<()> {
-    let remote = load_remote(remote).await?;
-    remote.clone_repo(name, name).await?;
+pub async fn clone_repository(args: Clone) -> Result<()> {
+    let remote = load_remote(&args.remote).await?;
+    remote.clone_repo(&args.name, &args.name).await?;
     Ok(())
 }
 
-pub async fn list_repositories(remote: &str) -> Result<()> {
+pub async fn list_repositories(args: List) -> Result<()> {
+    let remote = &args.remote;
     log::print("Listing repositories on remote '");
     log::info(remote);
     log::println("'...");
@@ -296,15 +298,16 @@ pub async fn list_remotes() -> Result<()> {
     Ok(())
 }
 
-pub async fn create_repository(
-    private: bool,
-    clone: bool,
-    description: Option<String>,
-    init: bool,
-    license: Option<String>,
-    name: String,
-    remote: String,
-) -> Result<()> {
+pub async fn create_repository(args: Create) -> Result<()> {
+    let Create {
+        private,
+        clone,
+        name,
+        description,
+        license,
+        init,
+        remote,
+    } = args;
     let remote = load_remote(&remote).await?;
     log::highlight("Creating repository '", &name, "'...");
     let info = RepoCreateInfo {
@@ -324,7 +327,8 @@ pub async fn create_repository(
     Ok(())
 }
 
-pub async fn delete_repository(name: &str, remote_name: &str) -> Result<()> {
+pub async fn delete_repository(args: Delete) -> Result<()> {
+    let Delete { name, remote: remote_name } = &args;
     let remote = load_remote(remote_name).await?;
     let repo_info = match remote.get_repo_info(name).await {
         Ok(x) => x,
@@ -367,7 +371,8 @@ pub async fn delete_repository(name: &str, remote_name: &str) -> Result<()> {
     Ok(())
 }
 
-pub async fn auth(remote: &str) -> Result<()> {
+pub async fn auth(args: Auth) -> Result<()> {
+    let Auth { remote } = &args;
     log::info("Enter your username (leave blank to use a token): ");
     let username = get_input()?;
 
