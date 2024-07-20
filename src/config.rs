@@ -5,10 +5,7 @@ use std::{collections::HashMap, env, fs, path::Path};
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    log,
-    remote::{Auth, CloneProtocol, Provider, RemoteConfig},
-};
+use crate::remote::{Auth, CloneProtocol, Provider, RemoteConfig};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Config {
@@ -58,9 +55,7 @@ impl Config {
         let toml = toml::to_string(self)?;
         fs::create_dir_all(Path::new(&self.path).parent().unwrap())?;
         fs::write(&self.path, toml)?;
-        log::print("Saved config to '");
-        log::info(&self.path);
-        log::println("'.");
+        println!("Saved config to '{}'.'", &self.path);
         Ok(())
     }
     pub fn load_from_file(path: Option<String>) -> Result<Self> {

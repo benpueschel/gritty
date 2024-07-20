@@ -6,7 +6,7 @@ use chrono::{DateTime, Local};
 use crate::args::{Auth, Clone, Create, Delete, List};
 use crate::config::{AuthConfig, Config, GitRemoteConfig, InlineSecrets, Secrets};
 use crate::error::{Error, ErrorKind, Result};
-use crate::log;
+use crate::log::{self, Highlight};
 use crate::remote::{self, Remote, RepoCreateInfo};
 
 fn load_config(path: &Option<String>) -> Result<Config> {
@@ -15,8 +15,7 @@ fn load_config(path: &Option<String>) -> Result<Config> {
         Err(err) => match err.kind {
             ErrorKind::NotFound => {
                 eprintln!("{}", err.message);
-                log::info("Creating default config...");
-                log::end_line();
+                println!("Creating default config...");
                 Config::save_default(path)?;
                 Err(Error::not_found(
                     "Default config created. Please fill in the required fields.",
@@ -42,9 +41,9 @@ fn get_input() -> Result<String> {
 }
 
 pub async fn create_config(cfg: &Option<String>) -> Result<()> {
-    log::highlight("Welcome to ", "gritty", "!");
-    log::println("This command will ask you some questions to create a config file.");
-    log::end_line();
+    println!("Welcome to {}!", Highlight::Special("gritty"));
+    println!("This command will ask you some questions to create a config file.");
+    println!();
 
     let mut config = Config::default();
 
@@ -52,34 +51,36 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
 
     if let Some(path) = cfg {
         config.path.clone_from(path);
-        log::print("Using provided config file path: ");
-        log::info(path);
-        log::end_line();
+        println!(
+            "Using provided config file path: {}",
+            Highlight::Path(&config.path)
+        );
     } else {
-        log::print("Enter the path to the config file (default is '");
-        log::info(&config.path);
-        log::print("'): ");
+        println!(
+            "Enter the path to the config file (default is '{}'):",
+            Highlight::Path(&config.path)
+        );
         let path = get_input()?;
         if !path.is_empty() {
             config.path = path;
         }
-        log::end_line();
+        println!();
     }
 
     // Token storage
 
-    log::println("How do you want to store your tokens? (leave blank for default)");
+    println!("How do you want to store your tokens? (leave blank for default)");
     #[cfg(feature = "keyring")]
     let secrets = {
-        log::info("1. ");
-        log::print("Use the system keyring (");
-        log::info("highly recommended, default");
-        log::println(")");
-
-        log::highlight("", "2. ", "In a plaintext secrets file");
-        log::highlight("", "3. ", "In the config file");
-
+        println!(
+            "{} Use the system keyring ({})",
+            Highlight::Special("1."),
+            Highlight::Special("highly recommended, default")
+        );
+        println!("{} In a plaintext secrets file", Highlight::Special("2."));
+        println!("{} In the config file", Highlight::Special("3."));
         log::print("> ");
+
         let num = get_input()?;
         match num.as_str() {
             "2" => ask_for_secrets_file()?,
@@ -89,12 +90,12 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
     };
     #[cfg(not(feature = "keyring"))]
     let secrets = {
-        log::info("1. ");
-        log::print("In a plaintext secrets file (");
-        log::info("default");
-        log::println(")");
-
-        log::highlight("", "2. ", "In the config file");
+        println!(
+            "{} In a plaintext secrets file ({})",
+            Highlight::Special("1."),
+            Highlight::Special("default")
+        );
+        println!("{} In the config file", Highlight::Special("2."));
 
         log::print("> ");
         let num = get_input()?;
@@ -105,8 +106,8 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
     };
 
     config.secrets = secrets;
-    log::println("Token storage method set.");
-    log::end_line();
+    println!("Token storage method set.");
+    println!();
 
     // Remotes
 
@@ -122,7 +123,7 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
                 config.store_token(&name, &token.token.unwrap())?;
             }
 
-            log::println("Remote added.");
+            println!("Remote added.");
             log::print("Do you want to add another remote? (y/N): ");
             continue;
         }
@@ -130,7 +131,7 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
         break;
     }
 
-    log::println("Saving config...");
+    println!("Saving config...");
     config.save()?;
     Ok(())
 }
@@ -141,9 +142,12 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
     if name.is_empty() {
         return Err(Error::other("Remote name cannot be empty."));
     }
-    log::print("Enter the provider for the remote (");
-    log::info("github/gitea");
-    log::print("): ");
+    print!(
+        "Enter the name of the remote ({}): ",
+        Highlight::Remote("github/gitea")
+    );
+    // we need to flush stdout, this is the cleanest way to do it
+    log::print("");
     let provider = get_input()?;
     if provider.is_empty() {
         return Err(Error::other("Remote provider cannot be empty."));
@@ -169,9 +173,11 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
         return Err(Error::other("Remote username cannot be empty."));
     }
 
-    log::print("Enter the clone protocol (");
-    log::info("ssh/https");
-    log::print("): ");
+    print!(
+        "Enter the clone protocol ({}): ",
+        Highlight::Protocol("ssh/https")
+    );
+    log::print("");
     let clone_protocol = get_input()?;
     if clone_protocol.is_empty() {
         return Err(Error::other("Clone protocol cannot be empty."));
@@ -193,7 +199,7 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
         log::print("Enter token: ");
         stdout().flush()?;
         let token = rpassword::read_password()?;
-        log::highlight("Token added to remote '", &name, "'.");
+        println!("Token added to remote '{}'.", Highlight::Remote(&name));
         Some(AuthConfig {
             username: None,
             password: None,
@@ -220,9 +226,10 @@ fn ask_for_secrets_file() -> Result<Secrets> {
     let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
 
     let mut path = format!("{xdg_config}/gritty/secrets.toml");
-    log::print("Enter the path to the secrets file (default is '");
-    log::info(&path);
-    log::print("'): ");
+    print!(
+        "Enter the path to the secrets file (default is '{}'): ",
+        Highlight::Path(&path)
+    );
     let input = get_input()?;
     if !input.is_empty() {
         path = input;
@@ -240,13 +247,14 @@ pub async fn clone_repository(args: Clone, config: &Option<String>) -> Result<()
 
 pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()> {
     let remote = &args.remote;
-    log::print("Listing repositories on remote '");
-    log::info(remote);
-    log::println("'...");
+    println!(
+        "Listing repositories on remote '{}'...",
+        Highlight::Remote(remote)
+    );
 
     let remote = load_remote(remote, config).await?;
     let repos = remote.list_repos().await?;
-    log::println("* denotes private repositories");
+    println!("* denotes private repositories");
     let mut longest_name = 0;
     for repo in &repos {
         if repo.name.len() > longest_name {
@@ -255,32 +263,36 @@ pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()
     }
     for repo in &repos {
         if repo.private {
-            log::print("* ");
+            print!("* ");
         } else {
-            log::print("  ");
+            print!("  ");
         }
+
         let padding = " ".repeat(longest_name - repo.name.len());
-        log::info(&format!("{}{padding}", repo.name));
+        print!("{}{padding}", Highlight::Repo(&repo.name));
+
         if repo.last_commits.is_empty() {
-            log::print(" - no commits");
+            print!(" - no commits");
         } else {
             let last = &repo.last_commits[0];
             let date: DateTime<Local> = last.date.into();
             let sha = last.sha.split_at(8).0;
             let message = last.message.split('\n').next().unwrap_or(&last.message);
-            log::print(&format!(" - {date}: "));
-            log::alt_info(sha);
-            log::print(" - ");
-            log::info(message);
+            print!(
+                " - {}: {} - {}",
+                Highlight::Date(date),
+                Highlight::Commit(sha),
+                Highlight::CommitMsg(message)
+            );
         }
-        log::end_line();
+        println!();
     }
     Ok(())
 }
 
 pub async fn list_remotes(config: &Option<String>) -> Result<()> {
     let config = load_config(config)?;
-    log::println("Configured remotes:");
+    println!("Configured remotes:");
     let mut longest_name = 0;
     let mut longest_username = 0;
     for (name, remote) in &config.remotes {
@@ -294,15 +306,12 @@ pub async fn list_remotes(config: &Option<String>) -> Result<()> {
     for (name, remote) in &config.remotes {
         let name_padding = " ".repeat(longest_name - name.len());
         let username_padding = " ".repeat(longest_username - remote.username.len());
-        log::print("  ");
-        log::info(name);
-        log::print(&name_padding);
-        log::print(" - username: ");
-        log::info(&remote.username);
-        log::print(&username_padding);
-        log::print(" - url: ");
-        log::info(&remote.url);
-        log::end_line();
+        println!(
+            "  {}{name_padding} - username: {}{username_padding} - url: {}",
+            Highlight::Remote(name),
+            Highlight::Username(&remote.username),
+            Highlight::Url(&remote.url),
+        );
     }
     Ok(())
 }
@@ -319,7 +328,7 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
         remote,
     } = args;
     let remote = load_remote(&remote, config).await?;
-    log::highlight("Creating repository '", &name, "'...");
+    println!("Creating repository '{}'...", Highlight::Repo(&name));
     let info = RepoCreateInfo {
         name: name.clone(),
         description,
@@ -328,9 +337,7 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
         private,
     };
     let url = remote.create_repo(info).await?;
-    log::print("Repository created at: ");
-    log::info(&url);
-    log::end_line();
+    println!("Repository created at: {}", Highlight::Url(&url));
     if clone {
         remote.clone_repo(&name, &name, recursive).await?;
     }
@@ -352,53 +359,65 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
             )));
         }
     };
-    log::important("WARNING: ");
-    log::warning("You are about to delete repository '");
-    log::important(name);
-    log::warning("' on remote '");
-    log::important(remote_name);
-    log::println("'.");
+    println!(
+        "{}: You are about to delete repository '{}' on remote '{}'.",
+        Highlight::Important("WARNING"),
+        Highlight::Repo(&name),
+        Highlight::Remote(&remote_name),
+    );
 
     if let Some(last) = repo_info.last_commits.first() {
         // Only show the first line of the commit message
         let message = last.message.split('\n').next().unwrap_or(&last.message);
-        log::print("Last commit: ");
-        log::alt_info(last.sha.split_at(8).0);
-        log::print(" - ");
-        log::info(message);
-        log::println(&format!(" by {} on {}", last.author, last.date));
+        println!(
+            "Last commit: {} - {} by {} on {}",
+            Highlight::Commit(last.sha.split_at(8).0),
+            Highlight::CommitMsg(message),
+            Highlight::Author(&last.author),
+            Highlight::Date(&last.date),
+        );
     }
-    log::important("Are you sure you want to continue? (y/N): ");
+    log::print(Highlight::Important(
+        "Are you sure you want to continue? (y/N): ",
+    ));
     let input = get_input()?;
     if !input.eq_ignore_ascii_case("y") {
-        log::info("Operation cancelled.");
-        log::end_line();
+        println!("{}", Highlight::Special("Operation cancelled."));
         return Ok(());
     }
     remote.delete_repo(name).await?;
-    log::print("Repository '");
-    log::info(name);
-    log::print("' deleted on remote '");
-    log::info(remote_name);
-    log::println("'.");
+    println!(
+        "Repository '{}' deleted on remote '{}'.",
+        Highlight::Repo(&name),
+        Highlight::Remote(&remote_name)
+    );
     Ok(())
 }
 
 pub async fn auth(args: Auth, config: &Option<String>) -> Result<()> {
     let Auth { remote } = &args;
-    log::info("Enter your username (leave blank to use a token): ");
+    println!(
+        "Enter your {} (leave blank to use a token): ",
+        Highlight::Username(&remote)
+    );
     let username = get_input()?;
 
-    log::info("Enter your password or token: ");
+    println!("Enter your {} ", Highlight::Special("password or token"));
     stdout().flush()?;
     let password = rpassword::read_password()?;
 
-    log::highlight("Adding authentication to remote '", remote, "'...");
+    println!(
+        "Adding authentication to remote '{}'...",
+        Highlight::Remote(remote)
+    );
     let mut config = load_config(config)?;
     if !username.is_empty() {
         todo!("Basic HTTP auth is not yet supported.");
     }
     config.store_token(remote, &password)?;
-    log::highlight("Authentication added to remote '", remote, "'.");
+    println!(
+        "Authentication added to remote '{}'.",
+        Highlight::Remote(remote)
+    );
     Ok(())
 }

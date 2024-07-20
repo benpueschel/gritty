@@ -1,107 +1,87 @@
-use std::io::IsTerminal;
+use std::{
+    fmt::{self, Display},
+    io::{IsTerminal, Write},
+};
+
+use ansi_term::Style;
 
 pub fn is_color() -> bool {
-    #[cfg(feature = "color")]
     // only colorize if NO_COLOR is not set and stdout is a tty
-    return std::env::var("NO_COLOR").is_err() && std::io::stdout().is_terminal();
-    #[cfg(not(feature = "color"))]
-    return false;
+    std::env::var("NO_COLOR").is_err() && std::io::stdout().is_terminal()
 }
 
-pub fn important(msg: &str) {
-    if is_color() {
-        #[cfg(feature = "color")]
-        color::important(msg);
-    } else {
-        no_color::important(msg);
-    }
-}
-pub fn highlight(prefix: &str, highlight: &str, suffix: &str) {
-    print(prefix);
-    info(highlight);
-    println(suffix);
-}
-pub fn info(msg: &str) {
-    if is_color() {
-        #[cfg(feature = "color")]
-        color::info(msg);
-    } else {
-        no_color::info(msg);
-    }
-}
-pub fn alt_info(msg: &str) {
-    if is_color() {
-        #[cfg(feature = "color")]
-        color::alt_info(msg);
-    } else {
-        no_color::info(msg);
-    }
-}
-pub fn warning(msg: &str) {
-    if is_color() {
-        #[cfg(feature = "color")]
-        color::warning(msg);
-    } else {
-        no_color::warning(msg);
-    }
-}
-pub fn print(msg: &str) {
-    if is_color() {
-        #[cfg(feature = "color")]
-        color::print(msg);
-    } else {
-        no_color::print(msg);
-    }
-}
-pub fn println(msg: &str) {
-    if is_color() {
-        #[cfg(feature = "color")]
-        color::println(msg);
-    } else {
-        no_color::println(msg);
-    }
-}
-pub fn end_line() {
-    println!();
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum Highlight<D: ToString> {
+    Important(D),
+    Special(D),
+    Repo(D),
+    Origin(D),
+    Remote(D),
+    Username(D),
+    Path(D),
+    Protocol(D),
+    Url(D),
+    Commit(D),
+    Date(D),
+    Author(D),
+    CommitMsg(D),
+    Warning(D),
 }
 
-#[cfg(feature = "color")]
-mod color {
-    use ansi_term::Color::*;
-    pub fn important(msg: &str) {
-        print!("{}", Red.bold().paint(msg));
+/// Print a string to stdout, flushing the buffer immediately.
+pub fn print(data: impl ToString) {
+    print!("{}", data.to_string());
+    std::io::stdout().flush().unwrap();
+}
+
+impl<D: ToString> Highlight<D> {
+    pub fn get_style(&self) -> Style {
+        use ansi_term::Color::*;
+
+        if !is_color() {
+            return Style::new();
+        }
+        match self {
+            Highlight::Important(_) => Red.bold(),
+            Highlight::Special(_) => Cyan.normal(),
+            Highlight::Repo(_) => Cyan.normal(),
+            Highlight::Origin(_) => Green.normal(),
+            Highlight::Remote(_) => Green.normal(),
+            Highlight::Username(_) => Green.normal(),
+            Highlight::Path(_) => Cyan.normal(),
+            Highlight::Protocol(_) => Cyan.normal(),
+            Highlight::Url(_) => Purple.normal(),
+            Highlight::Commit(_) => Green.normal(),
+            Highlight::Date(_) => Style::new(),
+            Highlight::Author(_) => Style::new(),
+            Highlight::CommitMsg(_) => Cyan.normal(),
+            Highlight::Warning(_) => Yellow.normal(),
+        }
     }
-    pub fn info(msg: &str) {
-        print!("{}", Cyan.paint(msg));
-    }
-    pub fn alt_info(msg: &str) {
-        print!("{}", Green.paint(msg));
-    }
-    pub fn warning(msg: &str) {
-        print!("{}", Yellow.paint(msg));
-    }
-    pub fn print(msg: &str) {
-        print!("{}", msg);
-    }
-    pub fn println(msg: &str) {
-        println!("{}", msg);
+    pub fn get_data(&self) -> &D {
+        match self {
+            Highlight::Important(d) => d,
+            Highlight::Special(d) => d,
+            Highlight::Repo(d) => d,
+            Highlight::Origin(d) => d,
+            Highlight::Remote(d) => d,
+            Highlight::Username(d) => d,
+            Highlight::Path(d) => d,
+            Highlight::Protocol(d) => d,
+            Highlight::Url(d) => d,
+            Highlight::Commit(d) => d,
+            Highlight::Date(d) => d,
+            Highlight::Author(d) => d,
+            Highlight::CommitMsg(d) => d,
+            Highlight::Warning(d) => d,
+        }
     }
 }
 
-mod no_color {
-    pub fn important(msg: &str) {
-        print!("{}", msg);
-    }
-    pub fn info(msg: &str) {
-        print!("{}", msg);
-    }
-    pub fn warning(msg: &str) {
-        print!("{}", msg);
-    }
-    pub fn print(msg: &str) {
-        print!("{}", msg);
-    }
-    pub fn println(msg: &str) {
-        println!("{}", msg);
+impl<D: ToString> Display for Highlight<D> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let style = self.get_style();
+        let data = self.get_data().to_string();
+        write!(f, "{}", style.paint(data))
     }
 }

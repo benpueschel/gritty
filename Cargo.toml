@@ -4,8 +4,7 @@ version = "0.5.0"
 edition = "2021"
 
 [features]
-default = [ "color", "keyring" ]
-color = [ "clap/color", "dep:ansi_term" ]
+default = [ "keyring" ]
 keyring = [ "dep:keyring" ]
 
 [dependencies]
@@ -19,7 +18,7 @@ tokio = { version = "1.38.0", features = ["full", "macros"] }
 toml = "0.8.14"
 keyring = { version = "2.3.3", optional = true }
 rpassword = "7.3.1"
-ansi_term = { version = "0.12.1", optional = true }
-clap = { version = "4.5.8", features = ["derive", "deprecated"] }
+ansi_term = "0.12.1"
+clap = { version = "4.5.8", features = ["derive", "deprecated", "color"] }
 gitlab = "0.1701.0"
 urlencoding = "2.1.3"

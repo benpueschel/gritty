@@ -1,7 +1,6 @@
 use super::{Auth, Remote, RemoteConfig, RepoCreateInfo, Repository};
 use crate::{
     error::{Error, ErrorKind, Result},
-    log,
     remote::COMMIT_COUNT,
 };
 use ::gitlab as gl;
@@ -177,8 +176,7 @@ impl Remote for GitlabRemote {
             false => VisibilityLevel::Public,
         };
         if create_info.license.is_some() {
-            log::warning("License is not supported by Gitlab. Ignoring.");
-            log::end_line();
+            println!("License is not supported by Gitlab. Ignoring.");
         }
         let project = CreateProject::builder()
             .name(create_info.name)
