@@ -1,19 +1,72 @@
-#[cfg(feature = "color")]
-pub use color::*;
+pub fn is_color() -> bool {
+    #[cfg(feature = "color")]
+    return std::env::var("NO_COLOR").is_err();
+    #[cfg(not(feature = "color"))]
+    return false;
+}
 
-#[cfg(not(feature = "color"))]
-pub use no_color::*;
+pub fn important(msg: &str) {
+    if is_color() {
+        #[cfg(feature = "color")]
+        color::important(msg);
+    } else {
+        no_color::important(msg);
+    }
+}
+pub fn highlight(prefix: &str, highlight: &str, suffix: &str) {
+    print(prefix);
+    info(highlight);
+    println(suffix);
+}
+pub fn info(msg: &str) {
+    if is_color() {
+        #[cfg(feature = "color")]
+        color::info(msg);
+    } else {
+        no_color::info(msg);
+    }
+}
+pub fn alt_info(msg: &str) {
+    if is_color() {
+        #[cfg(feature = "color")]
+        color::alt_info(msg);
+    } else {
+        no_color::info(msg);
+    }
+}
+pub fn warning(msg: &str) {
+    if is_color() {
+        #[cfg(feature = "color")]
+        color::warning(msg);
+    } else {
+        no_color::warning(msg);
+    }
+}
+pub fn print(msg: &str) {
+    if is_color() {
+        #[cfg(feature = "color")]
+        color::print(msg);
+    } else {
+        no_color::print(msg);
+    }
+}
+pub fn println(msg: &str) {
+    if is_color() {
+        #[cfg(feature = "color")]
+        color::println(msg);
+    } else {
+        no_color::println(msg);
+    }
+}
+pub fn end_line() {
+    println!();
+}
 
 #[cfg(feature = "color")]
 mod color {
     use ansi_term::Color::*;
     pub fn important(msg: &str) {
         print!("{}", Red.bold().paint(msg));
-    }
-    pub fn highlight(prefix: &str, highlight: &str, suffix: &str) {
-        print(prefix);
-        info(highlight);
-        println(suffix);
     }
     pub fn info(msg: &str) {
         print!("{}", Cyan.paint(msg));
@@ -30,12 +83,8 @@ mod color {
     pub fn println(msg: &str) {
         println!("{}", msg);
     }
-    pub fn end_line() {
-        println!();
-    }
 }
 
-#[cfg(not(feature = "color"))]
 mod no_color {
     pub fn important(msg: &str) {
         print!("{}", msg);
@@ -51,8 +100,5 @@ mod no_color {
     }
     pub fn println(msg: &str) {
         println!("{}", msg);
-    }
-    pub fn end_line() {
-        println!();
     }
 }
