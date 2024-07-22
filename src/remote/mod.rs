@@ -53,6 +53,7 @@ pub struct Repository {
     pub name: String,
     pub description: Option<String>,
     pub private: bool,
+    pub fork: bool,
     pub ssh_url: String,
     pub clone_url: String,
     pub last_commits: Vec<Commit>,
@@ -85,6 +86,8 @@ pub struct RepoCreateInfo {
 pub struct ListReposInfo {
     /// Whether to include private repositories in the list.
     pub private: bool,
+    /// Whether to include forked repositories in the list.
+    pub forks: bool,
 }
 
 pub static COMMIT_COUNT: u8 = 25;

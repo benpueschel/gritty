@@ -76,7 +76,13 @@ impl Remote for GiteaRemote {
         }
         let mut result = Vec::with_capacity(futures.len());
         for future in futures {
-            result.push(future.await.unwrap()?);
+            let f = future.await.unwrap()?;
+            // Filter out forks. We can't filter them out in the search query because the API
+            // requires us to make a whole new request to list all forks. I don't want to do that.
+            if !list_info.forks && f.fork {
+                continue;
+            }
+            result.push(f);
         }
         Ok(result)
     }
@@ -143,6 +149,7 @@ impl GiteaRemote {
             name: name.to_string(),
             description: Some(repo.description),
             private: repo.private,
+            fork: repo.fork,
             ssh_url: repo.ssh_url,
             clone_url: repo.clone_url,
             last_commits,

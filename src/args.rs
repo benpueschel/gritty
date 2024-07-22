@@ -75,6 +75,8 @@ pub struct List {
     pub remote: String,
     #[arg(short, long, help = "Show private repositories")]
     pub private: bool,
+    #[arg(short, long, help = "Show forks")]
+    pub forks: bool,
 }
 
 #[derive(Debug, Clone, Parser)]

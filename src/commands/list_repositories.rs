@@ -16,10 +16,14 @@ pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()
     let remote = load_remote(remote, config).await?;
     let list_info = ListReposInfo {
         private: args.private,
+        forks: args.forks,
     };
     let repos = remote.list_repos(list_info).await?;
     if args.private {
         println!("* denotes private repositories");
+    }
+    if args.forks {
+        println!("^ denotes forked repositories");
     }
     let mut longest_name = 0;
     for repo in &repos {
@@ -30,6 +34,8 @@ pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()
     for repo in &repos {
         if repo.private {
             print!("* ");
+        } else if repo.fork {
+            print!("^ ");
         } else {
             print!("  ");
         }

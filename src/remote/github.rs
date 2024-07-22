@@ -104,10 +104,14 @@ impl Remote for GitHubRemote {
     }
 
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {
+        let mut query = format!("user:{}", &self.config.username);
+        if list_info.forks {
+            query += " fork:true";
+        }
         let repos = self
             .crab
             .search()
-            .repositories(&format!("user:{}", &self.config.username))
+            .repositories(&query)
             .per_page(100)
             .sort("updated")
             .order("desc")
@@ -230,6 +234,7 @@ impl GitHubRemote {
             name: repo.name,
             description: repo.description,
             private: repo.private.unwrap_or(false),
+            fork: repo.fork.unwrap_or(false),
             last_commits,
             ssh_url,
             clone_url,

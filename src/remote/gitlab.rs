@@ -20,7 +20,7 @@ use gl::{
     },
     RestError,
 };
-use serde::Deserialize;
+use serde::{de::IgnoredAny, Deserialize};
 use std::{error::Error as StdError, str::FromStr};
 
 pub struct GitlabRemote {
@@ -33,6 +33,7 @@ pub struct GitlabRemote {
 struct Project {
     name: String,
     description: Option<String>,
+    forked_from_project: Option<IgnoredAny>,
     ssh_url_to_repo: String,
     http_url_to_repo: String,
     visibility: String,
@@ -210,6 +211,10 @@ impl Remote for GitlabRemote {
         let mut result = Vec::with_capacity(futures.len());
         for future in futures {
             let f = future.await.unwrap()?;
+            // Filter out forks if the user doesn't want them
+            if !list_info.forks && f.fork {
+                continue;
+            }
             result.push(f);
         }
         Ok(result)
@@ -277,6 +282,7 @@ impl GitlabRemote {
             name: project.name,
             description: project.description,
             private: project.visibility == "private",
+            fork: project.forked_from_project.is_some(),
             ssh_url: project.ssh_url_to_repo,
             clone_url: project.http_url_to_repo,
             last_commits,
