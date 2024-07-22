@@ -8,8 +8,8 @@ use super::{get_input, load_config};
 pub async fn auth(args: Auth, config: &Option<String>) -> Result<()> {
     let Auth { remote } = &args;
     print!(
-        "Enter your {} (leave blank to use a token): ",
-        Highlight::Username(&remote)
+        "Enter your {} for remote {} (leave blank to use a token): ",
+        Highlight::Username("username"), Highlight::Remote(remote)
     );
     stdout().flush()?;
     let username = get_input()?;

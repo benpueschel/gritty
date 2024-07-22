@@ -1,12 +1,14 @@
 use crate::args::Delete;
 use crate::error::{Error, Result};
 use crate::log::{self, Highlight};
+use crate::remote::Repository;
 
 use super::{get_input, load_remote};
 
 pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<()> {
     let Delete {
         name,
+        force,
         remote: remote_name,
     } = &args;
     let remote = load_remote(remote_name, config).await?;
@@ -19,6 +21,20 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
             )));
         }
     };
+    if !force && !ask_for_confirmation(name, remote_name, &repo_info)? {
+        println!("{}", Highlight::Special("Operation cancelled."));
+        return Ok(());
+    }
+    remote.delete_repo(name).await?;
+    println!(
+        "Repository {} deleted on remote {}.",
+        Highlight::Repo(&name),
+        Highlight::Remote(&remote_name)
+    );
+    Ok(())
+}
+
+fn ask_for_confirmation(name: &str, remote_name: &str, repo: &Repository) -> Result<bool> {
     println!(
         "{}: You are about to delete repository {} on remote {}.",
         Highlight::Important("WARNING"),
@@ -26,7 +42,7 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
         Highlight::Remote(&remote_name),
     );
 
-    if let Some(last) = repo_info.last_commits.first() {
+    if let Some(last) = repo.last_commits.first() {
         // Only show the first line of the commit message
         let message = last.message.split('\n').next().unwrap_or(&last.message);
         println!(
@@ -41,15 +57,6 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
         "Are you sure you want to continue? (y/N): ",
     ));
     let input = get_input()?;
-    if !input.eq_ignore_ascii_case("y") {
-        println!("{}", Highlight::Special("Operation cancelled."));
-        return Ok(());
-    }
-    remote.delete_repo(name).await?;
-    println!(
-        "Repository {} deleted on remote {}.",
-        Highlight::Repo(&name),
-        Highlight::Remote(&remote_name)
-    );
-    Ok(())
+    // Only accept "y" or "Y" as confirmation, return false otherwise
+    Ok(input.eq_ignore_ascii_case("y"))
 }
