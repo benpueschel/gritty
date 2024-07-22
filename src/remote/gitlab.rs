@@ -190,15 +190,13 @@ impl Remote for GitlabRemote {
         Ok(project.http_url_to_repo)
     }
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {
-        let visibility = match list_info.private {
-            true => VisibilityLevel::Private,
-            false => VisibilityLevel::Public,
-        };
-        let projects = Projects::builder()
-            .owned(true)
-            .visibility(visibility)
-            .include_hidden(list_info.private)
-            .build()?;
+        let mut projects = Projects::builder();
+        projects.owned(true).include_hidden(list_info.private);
+        if !list_info.private {
+            projects.visibility(VisibilityLevel::Public);
+        }
+
+        let projects = projects.build()?;
         let projects: Vec<Project> = projects.query_async(&self.client).await?;
 
         let mut futures = Vec::new();
