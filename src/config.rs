@@ -214,26 +214,7 @@ impl Default for Config {
         let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
         Self {
             path: format!("{xdg_config}/gritty/config.toml"),
-            remotes: HashMap::from([
-                (
-                    "gitea".to_string(),
-                    GitRemoteConfig {
-                        provider: Provider::Gitea,
-                        url: "https://gitea.example.com".to_string(),
-                        username: "awesome-user".to_string(),
-                        clone_protocol: CloneProtocol::HTTPS,
-                    },
-                ),
-                (
-                    "github".to_string(),
-                    GitRemoteConfig {
-                        provider: Provider::GitHub,
-                        url: "https://github.com".to_string(),
-                        username: "awesome-user".to_string(),
-                        clone_protocol: CloneProtocol::SSH,
-                    },
-                ),
-            ]),
+            remotes: HashMap::new(),
             #[cfg(feature = "keyring")]
             secrets: Secrets::Keyring,
             #[cfg(not(feature = "keyring"))]
