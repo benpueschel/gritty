@@ -20,6 +20,7 @@ impl From<TeatimeError> for Error {
         let kind = match err.kind {
             TeatimeErrorKind::HttpError => ErrorKind::Other,
             TeatimeErrorKind::SerializationError => ErrorKind::Serialization,
+            TeatimeErrorKind::Other => ErrorKind::Other,
         };
         Error {
             message: err.message,
@@ -32,12 +33,12 @@ impl From<TeatimeError> for Error {
 #[async_trait]
 impl Remote for GiteaRemote {
     async fn new(config: &RemoteConfig) -> Self {
-        let token = match config.auth.clone() {
-            Auth::Token { token } => token,
-            _ => panic!("auth must be a token for Gitea"),
+        let auth = match config.auth.clone() {
+            Auth::Token { token } => teatime::Auth::Token(token),
+            Auth::Basic { username, password } => teatime::Auth::Basic(username, password),
         };
 
-        let client = Client::new(config.url.clone(), token);
+        let client = Client::new(config.url.clone(), auth);
 
         Self {
             config: config.clone(),
