@@ -58,9 +58,10 @@ impl Remote for GiteaRemote {
         Ok(repo.clone_url)
     }
 
-    async fn list_repos(&self) -> Result<Vec<Repository>> {
+    async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {
         let owner = self.client.get_authenticated_user().await?;
         let search_option = teatime::SearchRepositoriesOption {
+            private: Some(list_info.private),
             uid: Some(owner.id),
             limit: Some(100),
             ..Default::default()

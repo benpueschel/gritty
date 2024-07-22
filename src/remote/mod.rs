@@ -81,6 +81,12 @@ pub struct RepoCreateInfo {
     pub init: bool,
 }
 
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ListReposInfo {
+    /// Whether to include private repositories in the list.
+    pub private: bool,
+}
+
 pub static COMMIT_COUNT: u8 = 25;
 
 #[async_trait]
@@ -94,7 +100,7 @@ pub trait Remote: Sync {
     /// Returns the URL of the new repository.
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String>;
     /// List all repositories.
-    async fn list_repos(&self) -> Result<Vec<Repository>>;
+    async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>>;
     /// Get the information of a repository.
     async fn get_repo_info(&self, name: &str) -> Result<Repository>;
     /// Delete a repository.

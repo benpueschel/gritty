@@ -11,7 +11,7 @@ use octocrab::{
 };
 use serde::{Deserialize, Serialize};
 
-use super::{Commit, Remote, RemoteConfig, RepoCreateInfo, Repository};
+use super::{Commit, ListReposInfo, Remote, RemoteConfig, RepoCreateInfo, Repository};
 
 pub struct GitHubRemote {
     config: RemoteConfig,
@@ -103,7 +103,7 @@ impl Remote for GitHubRemote {
         Ok(res.clone_url)
     }
 
-    async fn list_repos(&self) -> Result<Vec<Repository>> {
+    async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {
         let repos = self
             .crab
             .search()
@@ -131,6 +131,11 @@ impl Remote for GitHubRemote {
         let mut result = Vec::with_capacity(futures.len());
         for future in futures {
             let f = future.await.unwrap()?;
+            // Skip private repositories if the user doesn't want them. We need to do this here
+            // because the GitHub search API doesn't seem to support filtering by privacy.
+            if !list_info.private && f.private {
+                continue;
+            }
             result.push(f);
         }
         Ok(result)

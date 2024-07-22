@@ -73,6 +73,8 @@ pub struct Clone {
 pub struct List {
     #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
     pub remote: String,
+    #[arg(short, long, help = "Show private repositories")]
+    pub private: bool,
 }
 
 #[derive(Debug, Clone, Parser)]

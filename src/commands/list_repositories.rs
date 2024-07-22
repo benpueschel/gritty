@@ -1,6 +1,7 @@
 use crate::args::List;
 use crate::error::Result;
 use crate::log::{self, Highlight};
+use crate::remote::ListReposInfo;
 use chrono::{DateTime, Local};
 
 use super::load_remote;
@@ -13,8 +14,13 @@ pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()
     );
 
     let remote = load_remote(remote, config).await?;
-    let repos = remote.list_repos().await?;
-    println!("* denotes private repositories");
+    let list_info = ListReposInfo {
+        private: args.private,
+    };
+    let repos = remote.list_repos(list_info).await?;
+    if args.private {
+        println!("* denotes private repositories");
+    }
     let mut longest_name = 0;
     for repo in &repos {
         if repo.name.len() > longest_name {
