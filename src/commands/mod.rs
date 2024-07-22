@@ -26,7 +26,7 @@ mod delete_repository;
 pub use delete_repository::delete_repository;
 
 fn load_config(path: &Option<String>) -> Result<Config> {
-    match Config::load_from_file(None) {
+    match Config::load_from_file(path.clone()) {
         Ok(config) => Ok(config),
         Err(err) => match err.kind {
             ErrorKind::NotFound => {
