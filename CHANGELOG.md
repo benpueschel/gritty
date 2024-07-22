@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.6.0] - 2024-07-22
+### :boom: BREAKING CHANGES
+- due to [`95b5d41`](https://github.com/benpueschel/gritty/commit/95b5d41fc0a24b2fc6fd6cb33c2609e8f7a2f0b4) - toggle listing private repos *(commit by [@benpueschel](https://github.com/benpueschel))*:
+
+  Private repositories are not shown by default anymore.  
+  To list public and private repos, run `gritty list <remote> -p`.
+
+
+### :sparkles: New Features
+- [`95b5d41`](https://github.com/benpueschel/gritty/commit/95b5d41fc0a24b2fc6fd6cb33c2609e8f7a2f0b4) - toggle listing private repos *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`a6a7285`](https://github.com/benpueschel/gritty/commit/a6a7285d7afb491e56444b68965813a76dfda335) - add option to show forks *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :bug: Bug Fixes
+- [`383ad57`](https://github.com/benpueschel/gritty/commit/383ad5725cd9cb15a8e7ff0fe4feb525026c32a9) - remove atty, use std method to detect tty *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`d6a736d`](https://github.com/benpueschel/gritty/commit/d6a736d345f23186ae9c554258b87a18352713e6) - correctly filter out private repos on gitlab *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :recycle: Refactors
+- [`d01d8da`](https://github.com/benpueschel/gritty/commit/d01d8da6faa028f37a7aaced5b786485f646229f) - use println macro and custom style to log *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`1e8246b`](https://github.com/benpueschel/gritty/commit/1e8246b7b9f4abfcb2067febc1b7a2aed70e6c2d) - **log**: add leftpad function *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`677f2a3`](https://github.com/benpueschel/gritty/commit/677f2a3e148526bdd6c3ff5679f1ce2f79e3779e) - move subcommands into more atomic units *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.5.0] - 2024-07-20
 ### :sparkles: New Features
 - [`b7d17d6`](https://github.com/benpueschel/gritty/commit/b7d17d6b358256ad8cc3101e87d83c1b560f7f4c) - add global --config (-C) option *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -130,3 +152,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.3.0]: https://github.com/benpueschel/gritty/compare/v0.2.0...v0.3.0
 [v0.4.0]: https://github.com/benpueschel/gritty/compare/v0.3.0...v0.4.0
 [v0.5.0]: https://github.com/benpueschel/gritty/compare/v0.4.0...v0.5.0
+[v0.6.0]: https://github.com/benpueschel/gritty/compare/v0.5.0...v0.6.0
