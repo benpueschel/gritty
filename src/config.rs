@@ -170,9 +170,9 @@ impl Config {
                         });
                     }
                     return Err(Error::authentication(format!(
-                        r#"Could not find auth for remote {name}.
-                        Did you forget to add it to the config?
-                        You need to set either a username/password combination, or an api token. "#
+                        "Could not find auth for remote {name}.\n{}\n{}",
+                        "Did you forget to add it to the config?",
+                        "You need to set either a username/password combination, or an api token."
                     )));
                 }
             }
@@ -196,14 +196,14 @@ impl Config {
                     return Ok(Auth::Token { token });
                 }
                 return Err(Error::authentication(format!(
-                    r#"Could not find auth for remote {name}.
-                    Did you forget to add it to the keyring?"#
+                    "Could not find auth for remote {name}.\n{}",
+                    "Did you forget to add it to the keyring?"
                 )));
             }
         }
         Err(Error::authentication(format!(
-            r#"Could not find auth for remote {name}.
-            Did you forget to add it to the config?"#
+            "Could not find auth for remote {name}.\n{}",
+            "Did you forget to add it to the config?"
         )))
     }
 }
