@@ -107,7 +107,7 @@ pub trait Remote: Sync {
     /// Get the information of a repository.
     async fn get_repo_info(&self, name: &str) -> Result<Repository>;
     /// Delete a repository.
-    /// Warning: Operation does not prompt for confirmation and is irreversible.
+    /// WARNING: Operation does not prompt for confirmation and is irreversible.
     async fn delete_repo(&self, name: &str) -> Result<()>;
     /// Get the configuration of the remote.
     fn get_config(&self) -> &RemoteConfig;
