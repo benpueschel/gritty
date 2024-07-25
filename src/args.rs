@@ -86,8 +86,22 @@ pub struct Create {
     pub private: bool,
     #[arg(short, long, help = "Clone the repository after creation")]
     pub clone: bool,
-    #[arg(short, long, help = "Initialize and clone all submodules. Only valid with --clone")]
+    #[arg(
+        short,
+        long,
+        help = "Initialize and clone all submodules. Only valid with --clone"
+    )]
     pub recursive: bool,
+    #[arg(
+        short,
+        long,
+        help = "Add the remote to the local git repository as 'origin'. Ignored if --clone is specified",
+        long_help = "Add the remote to the local git repository as 'origin'.
+If the current directory is not a git repository, it will be initialized as one.
+Ignored if --clone is specified.
+"
+    )]
+    pub add_remote: bool,
     #[arg(short, long, help = "Description of the repository")]
     pub description: Option<String>,
     #[arg(short, long, help = "Initialize the repository with a README.md")]
@@ -111,7 +125,11 @@ pub struct Delete {
     pub name: String,
     #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
     pub remote: String,
-    #[arg(short, long, help = "Force deletion without confirmation. Use with caution!")]
+    #[arg(
+        short,
+        long,
+        help = "Force deletion without confirmation. Use with caution!"
+    )]
     pub force: bool,
 }
 #[derive(Debug, Clone, Parser)]

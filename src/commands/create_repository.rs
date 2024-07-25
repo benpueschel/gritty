@@ -10,6 +10,7 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
         private,
         clone,
         recursive,
+        add_remote,
         name,
         description,
         license,
@@ -29,6 +30,8 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
     println!("Repository created at: {}", Highlight::Url(&url));
     if clone {
         remote.clone_repo(&name, &name, recursive).await?;
+    } else if add_remote {
+        remote.add_remote(&name).await?;
     }
     Ok(())
 }

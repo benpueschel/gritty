@@ -114,12 +114,7 @@ pub trait Remote: Sync {
     /// Clone a repository to the given path.
     async fn clone_repo(&self, name: &str, path: &str, recursive: bool) -> Result<()> {
         let config = self.get_config();
-        let username = &config.username;
-        let clean_url = config.url.replace("https://", "").replace("http://", "");
-        let url = match config.clone_protocol {
-            CloneProtocol::SSH => format!("git@{}:{}/{}.git", clean_url, username, name),
-            CloneProtocol::HTTPS => format!("{}/{}/{}.git", config.url, username, name),
-        };
+        let url = self.clone_url(&config.username, name);
 
         let mut cmd = std::process::Command::new("git");
         cmd.args(["clone", &url, path]);
@@ -129,13 +124,46 @@ pub trait Remote: Sync {
 
         let cmd = cmd.status()?;
         if !cmd.success() {
-            return Err(Error::other(format!(
-                "Failed to clone repository {}",
-                name
-            )));
+            return Err(Error::other(format!("Failed to clone repository {}", name)));
         }
 
         Ok(())
+    }
+    /// Add a remote to the local git repository. If the current directory is not a git repository,
+    /// it will be initialized as one.
+    async fn add_remote(&self, repo_name: &str) -> Result<()> {
+        let config = self.get_config();
+        let url = self.clone_url(&config.username, repo_name);
+
+        if !std::path::Path::new(".git").exists() {
+            let cmd = std::process::Command::new("git").arg("init").status()?;
+            if !cmd.success() {
+                return Err(Error::other("Failed to initialize empty git repository"));
+            }
+        }
+
+        let cmd = std::process::Command::new("git")
+            .args(["remote", "add", "origin", &url])
+            .status()?;
+        if !cmd.success() {
+            return Err(Error::other(format!(
+                "Failed to add remote 'origin' for repository {}",
+                repo_name
+            )));
+        }
+
+        // TODO: Get the repo's default branch and pull it
+
+        Ok(())
+    }
+    /// Get the clone URL for the given repository.
+    fn clone_url(&self, username: &str, repo_name: &str) -> String {
+        let config = self.get_config();
+        let clean_url = config.url.replace("https://", "").replace("http://", "");
+        match config.clone_protocol {
+            CloneProtocol::SSH => format!("git@{}:{}/{}.git", clean_url, username, repo_name),
+            CloneProtocol::HTTPS => format!("{}/{}/{}.git", config.url, username, repo_name),
+        }
     }
 }
 
