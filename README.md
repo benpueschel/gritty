@@ -86,7 +86,7 @@ The questions are as follows:
    - Plaintext: stores access tokens directly in the config file.
 3. Do you want to add a remote? (y/n). Answer 'y' to configure remotes.
    - Enter the remote name (e.g. github, gh, gitea, awesome-sauce).
-   - Enter the provider (GitHub, Gitea).
+   - Enter the provider (GitHub, Gitea, GitLabj).
    - Enter the remote URL (e.g. https://github.com, https://gitea.example.com).
    - Enter your username for the remote.
    - Enter the clone protocol (ssh, https).
