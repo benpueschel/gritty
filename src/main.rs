@@ -1,7 +1,7 @@
 use args::{Args, Commands};
 use clap::Parser;
 use error::Result;
-use log::Highlight;
+use log::{Highlight, Paint};
 
 pub mod args;
 pub mod commands;
@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
 
     // Handle errors by printing them to stderr and exiting with status code 1
     let _ = result.map_err(|e| {
-        eprintln!("{}: {}", Highlight::Important("Error"), e);
+        eprintln!("{}: {}", "Error".paint(Highlight::Important), e);
         std::process::exit(1);
     });
     Ok(())

@@ -1,6 +1,6 @@
 use crate::args::Create;
 use crate::error::Result;
-use crate::log::Highlight;
+use crate::log::{Highlight, Paint};
 use crate::remote::RepoCreateInfo;
 
 use super::load_remote;
@@ -18,7 +18,7 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
         remote,
     } = args;
     let remote = load_remote(&remote, config).await?;
-    println!("Creating repository {}...", Highlight::Repo(&name));
+    println!("Creating repository {}...", name.paint(Highlight::Repo));
     let info = RepoCreateInfo {
         name: name.clone(),
         description,
@@ -27,7 +27,7 @@ pub async fn create_repository(args: Create, config: &Option<String>) -> Result<
         private,
     };
     let url = remote.create_repo(info).await?;
-    println!("Repository created at: {}", Highlight::Url(&url));
+    println!("Repository created at: {}", url.paint(Highlight::Url));
     if clone {
         remote.clone_repo(&name, &name, recursive).await?;
     } else if add_remote {

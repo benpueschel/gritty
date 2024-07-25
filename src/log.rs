@@ -14,22 +14,43 @@ pub fn is_color() -> bool {
     std::env::var("NO_COLOR").is_err() && std::io::stdout().is_terminal()
 }
 
-#[derive(Copy, Clone, PartialEq, Eq)]
-pub enum Highlight<D: ToString> {
-    Important(D),
-    Special(D),
-    Repo(D),
-    Origin(D),
-    Remote(D),
-    Username(D),
-    Path(D),
-    Protocol(D),
-    Url(D),
-    Commit(D),
-    Date(D),
-    Author(D),
-    CommitMsg(D),
-    Warning(D),
+pub struct StyledString(pub String, pub Highlight);
+pub trait Paint {
+    fn paint(&self, highlight: Highlight) -> StyledString;
+}
+
+impl Paint for dyn ToString {
+    fn paint(&self, highlight: Highlight) -> StyledString {
+        StyledString(self.to_string(), highlight)
+    }
+}
+impl Paint for String {
+    fn paint(&self, highlight: Highlight) -> StyledString {
+        StyledString(self.clone(), highlight)
+    }
+}
+impl Paint for &str {
+    fn paint(&self, highlight: Highlight) -> StyledString {
+        StyledString(self.to_string(), highlight)
+    }
+}
+
+#[derive(Copy, Hash, Clone, PartialEq, Eq)]
+pub enum Highlight {
+    Important,
+    Special,
+    Repo,
+    Origin,
+    Remote,
+    Username,
+    Path,
+    Protocol,
+    Url,
+    Commit,
+    Date,
+    Author,
+    CommitMsg,
+    Warning,
 }
 
 /// Print a string to stdout, flushing the buffer immediately.
@@ -38,7 +59,7 @@ pub fn print(data: impl ToString) {
     std::io::stdout().flush().unwrap();
 }
 
-impl<D: ToString> Highlight<D> {
+impl Highlight {
     pub fn get_style(&self) -> Style {
         use ansi_term::Color::*;
 
@@ -46,46 +67,28 @@ impl<D: ToString> Highlight<D> {
             return Style::new();
         }
         match self {
-            Highlight::Important(_) => Red.bold(),
-            Highlight::Special(_) => Cyan.normal(),
-            Highlight::Repo(_) => Cyan.normal(),
-            Highlight::Origin(_) => Green.normal(),
-            Highlight::Remote(_) => Green.normal(),
-            Highlight::Username(_) => Green.normal(),
-            Highlight::Path(_) => Cyan.normal(),
-            Highlight::Protocol(_) => Cyan.normal(),
-            Highlight::Url(_) => Purple.normal(),
-            Highlight::Commit(_) => Green.normal(),
-            Highlight::Date(_) => Style::new(),
-            Highlight::Author(_) => Style::new(),
-            Highlight::CommitMsg(_) => Cyan.normal(),
-            Highlight::Warning(_) => Yellow.normal(),
-        }
-    }
-    pub fn get_data(&self) -> &D {
-        match self {
-            Highlight::Important(d) => d,
-            Highlight::Special(d) => d,
-            Highlight::Repo(d) => d,
-            Highlight::Origin(d) => d,
-            Highlight::Remote(d) => d,
-            Highlight::Username(d) => d,
-            Highlight::Path(d) => d,
-            Highlight::Protocol(d) => d,
-            Highlight::Url(d) => d,
-            Highlight::Commit(d) => d,
-            Highlight::Date(d) => d,
-            Highlight::Author(d) => d,
-            Highlight::CommitMsg(d) => d,
-            Highlight::Warning(d) => d,
+            Highlight::Important => Red.bold(),
+            Highlight::Special => Cyan.normal(),
+            Highlight::Repo => Cyan.normal(),
+            Highlight::Origin => Green.normal(),
+            Highlight::Remote => Green.normal(),
+            Highlight::Username => Green.normal(),
+            Highlight::Path => Cyan.normal(),
+            Highlight::Protocol => Cyan.normal(),
+            Highlight::Url => Purple.normal(),
+            Highlight::Commit => Green.normal(),
+            Highlight::Date => Style::new(),
+            Highlight::Author => Style::new(),
+            Highlight::CommitMsg => Cyan.normal(),
+            Highlight::Warning => Yellow.normal(),
         }
     }
 }
 
-impl<D: ToString> Display for Highlight<D> {
+impl Display for StyledString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let style = self.get_style();
-        let data = self.get_data().to_string();
+        let style = self.1.get_style();
+        let data = &self.0;
         write!(f, "{}", style.paint(data))
     }
 }

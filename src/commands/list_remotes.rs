@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::log::{self, Highlight};
+use crate::log::{self, Highlight, Paint};
 
 use super::load_config;
 
@@ -17,13 +17,12 @@ pub async fn list_remotes(config: &Option<String>) -> Result<()> {
         }
     }
     for (name, remote) in &config.remotes {
-        let name = Highlight::Remote(log::leftpad(name, longest_name));
-        let username = Highlight::Username(log::leftpad(&remote.username, longest_username));
+        let name = log::leftpad(name, longest_name).paint(Highlight::Remote);
+        let username = log::leftpad(&remote.username, longest_username).paint(Highlight::Username);
         println!(
             "  {name} - username: {username} - url: {}",
-            Highlight::Url(&remote.url),
+            &remote.url.paint(Highlight::Url),
         );
     }
     Ok(())
 }
-

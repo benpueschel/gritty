@@ -3,13 +3,13 @@ use std::io::{stdout, Write};
 
 use crate::config::{AuthConfig, Config, GitRemoteConfig, InlineSecrets, Secrets};
 use crate::error::{Error, Result};
-use crate::log::{self, Highlight};
+use crate::log::{self, Highlight, Paint};
 use crate::remote;
 
 use super::get_input;
 
 pub async fn create_config(cfg: &Option<String>) -> Result<()> {
-    println!("Welcome to {}!", Highlight::Special("gritty"));
+    println!("Welcome to {}!", "gritty".paint(Highlight::Special));
     println!("This command will ask you some questions to create a config file.");
     println!();
 
@@ -21,12 +21,12 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
         config.path.clone_from(path);
         println!(
             "Using provided config file path: {}",
-            Highlight::Path(&config.path)
+            &config.path.paint(Highlight::Path)
         );
     } else {
         println!(
             "Enter the path to the config file (default is {}):",
-            Highlight::Path(&config.path)
+            &config.path.paint(Highlight::Path)
         );
         let path = get_input()?;
         if !path.is_empty() {
@@ -42,11 +42,14 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
     let secrets = {
         println!(
             "{} Use the system keyring ({})",
-            Highlight::Special("1."),
-            Highlight::Special("highly recommended, default")
+            "1.".paint(Highlight::Special),
+            "highly recommended, default".paint(Highlight::Special)
         );
-        println!("{} In a plaintext secrets file", Highlight::Special("2."));
-        println!("{} In the config file", Highlight::Special("3."));
+        println!(
+            "{} In a plaintext secrets file",
+            "2.".paint(Highlight::Special)
+        );
+        println!("{} In the config file", "3.".paint(Highlight::Special));
         log::print("> ");
 
         let num = get_input()?;
@@ -60,10 +63,10 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
     let secrets = {
         println!(
             "{} In a plaintext secrets file ({})",
-            Highlight::Special("1."),
-            Highlight::Special("default")
+            "1.".paint(Highlight::Special),
+            "default".paint(Highlight::Special)
         );
-        println!("{} In the config file", Highlight::Special("2."));
+        println!("{} In the config file", "2.".paint(Highlight::Special));
 
         log::print("> ");
         let num = get_input()?;
@@ -112,7 +115,7 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
     }
     print!(
         "Enter the name of the remote ({}): ",
-        Highlight::Remote("github/gitea")
+        "github/gitea".paint(Highlight::Remote)
     );
     // we need to flush stdout, this is the cleanest way to do it
     log::print("");
@@ -143,7 +146,7 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
 
     print!(
         "Enter the clone protocol ({}): ",
-        Highlight::Protocol("ssh/https")
+        "ssh/https".paint(Highlight::Protocol)
     );
     log::print("");
     let clone_protocol = get_input()?;
@@ -167,7 +170,7 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
         log::print("Enter token: ");
         stdout().flush()?;
         let token = rpassword::read_password()?;
-        println!("Token added to remote {}.", Highlight::Remote(&name));
+        println!("Token added to remote {}.", &name.paint(Highlight::Remote));
         Some(AuthConfig {
             username: None,
             password: None,
@@ -196,7 +199,7 @@ fn ask_for_secrets_file() -> Result<Secrets> {
     let mut path = format!("{xdg_config}/gritty/secrets.toml");
     print!(
         "Enter the path to the secrets file (default is {}): ",
-        Highlight::Path(&path)
+        path.paint(Highlight::Path)
     );
     let input = get_input()?;
     if !input.is_empty() {

@@ -1,6 +1,6 @@
 use crate::args::List;
 use crate::error::Result;
-use crate::log::{self, Highlight};
+use crate::log::{self, Highlight, Paint};
 use crate::remote::ListReposInfo;
 use chrono::{DateTime, Local};
 
@@ -10,7 +10,7 @@ pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()
     let remote = &args.remote;
     println!(
         "Listing repositories on remote {}...",
-        Highlight::Remote(remote)
+        remote.paint(Highlight::Remote)
     );
 
     let remote = load_remote(remote, config).await?;
@@ -40,7 +40,7 @@ pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()
             print!("  ");
         }
 
-        log::print(Highlight::Repo(log::leftpad(&repo.name, longest_name)));
+        log::print(log::leftpad(&repo.name, longest_name).paint(Highlight::Repo));
 
         if repo.last_commits.is_empty() {
             print!(" - no commits");
@@ -51,9 +51,9 @@ pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()
             let message = last.message.split('\n').next().unwrap_or(&last.message);
             print!(
                 " - {}: {} - {}",
-                Highlight::Date(date),
-                Highlight::Commit(sha),
-                Highlight::CommitMsg(message)
+                date.to_string().paint(Highlight::Date),
+                sha.paint(Highlight::Commit),
+                message.paint(Highlight::CommitMsg)
             );
         }
         println!();

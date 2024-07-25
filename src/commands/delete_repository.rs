@@ -1,6 +1,6 @@
 use crate::args::Delete;
 use crate::error::{Error, Result};
-use crate::log::{self, Highlight};
+use crate::log::{self, Highlight, Paint};
 use crate::remote::Repository;
 
 use super::{get_input, load_remote};
@@ -22,14 +22,14 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
         }
     };
     if !force && !ask_for_confirmation(name, remote_name, &repo_info)? {
-        println!("{}", Highlight::Special("Operation cancelled."));
+        println!("{}", "Operation cancelled.".paint(Highlight::Special));
         return Ok(());
     }
     remote.delete_repo(name).await?;
     println!(
         "Repository {} deleted on remote {}.",
-        Highlight::Repo(&name),
-        Highlight::Remote(&remote_name)
+        &name.paint(Highlight::Repo),
+        &remote_name.paint(Highlight::Remote)
     );
     Ok(())
 }
@@ -37,9 +37,9 @@ pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<
 fn ask_for_confirmation(name: &str, remote_name: &str, repo: &Repository) -> Result<bool> {
     println!(
         "{}: You are about to delete repository {} on remote {}.",
-        Highlight::Important("WARNING"),
-        Highlight::Repo(&name),
-        Highlight::Remote(&remote_name),
+        "WARNING".paint(Highlight::Important),
+        &name.paint(Highlight::Repo),
+        &remote_name.paint(Highlight::Remote),
     );
 
     if let Some(last) = repo.last_commits.first() {
@@ -47,15 +47,13 @@ fn ask_for_confirmation(name: &str, remote_name: &str, repo: &Repository) -> Res
         let message = last.message.split('\n').next().unwrap_or(&last.message);
         println!(
             "Last commit: {} - {} by {} on {}",
-            Highlight::Commit(last.sha.split_at(8).0),
-            Highlight::CommitMsg(message),
-            Highlight::Author(&last.author),
-            Highlight::Date(&last.date),
+            last.sha.split_at(8).0.paint(Highlight::Commit),
+            message.paint(Highlight::CommitMsg),
+            &last.author.paint(Highlight::Author),
+            &last.date.to_string().paint(Highlight::Date),
         );
     }
-    log::print(Highlight::Important(
-        "Are you sure you want to continue? (y/N): ",
-    ));
+    log::print("Are you sure you want to continue? (y/N): ".paint(Highlight::Important));
     let input = get_input()?;
     // Only accept "y" or "Y" as confirmation, return false otherwise
     Ok(input.eq_ignore_ascii_case("y"))
