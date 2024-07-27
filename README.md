@@ -1,7 +1,7 @@
 # gritty
 
-Gritty is a command line tool to manage your remote repositories, written in Rust.
-Currently supports any Gitea or GitHub instance, with plans to add support for GitLab.
+Gritty is a command line tool to manage your remote repositories on GitHub,
+GitLab and Gitea remotes, written in Rust.
 
 Gritty is designed to be simple and easy to use, with a focus on the most common
 repository management tasks. It is not meant to be a full-featured Git client, but
