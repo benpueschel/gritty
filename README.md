@@ -7,6 +7,8 @@ Gritty is designed to be simple and easy to use, with a focus on the most common
 repository management tasks. It is not meant to be a full-featured Git client, but
 rather a tool to let you focus on what's important: your code.
 
+![gritty help](images/gritty-help.png)
+
 # Quick Start
 
 1. Install gritty using the [precompiled binaries](#precompiled-binaries) or by building from source.
@@ -212,13 +214,25 @@ or use the shorthand:
 gritty create -p my-private-repo github
 ```
 
+Example output:
+
+![gritty create command output](images/gritty-create.png)
+
 To list all repositories on Gitea:
 ```bash
 gritty list gitea
 ```
+
+Example output:
+
+![gritty list command output](images/gritty-list.png)
 
 To delete a repository from a remote:
 ```bash
 gritty delete my-repo my-awesome-remote
 ```
 This will prompt you for confirmation and show you the last commit before deleting.
+
+Example output:
+
+![gritty delete command output](images/gritty-delete.png)
