@@ -62,10 +62,13 @@ create a default configuration file in the default location for your platform.
 You can then edit this file to add your remotes and access tokens.
 
 Gritty currently supports the following subcommands:
+- `gritty create-config`: interactively create a configuration file.
 - `gritty auth [remote]`: authenticate with the specified remote.
+- `gritty clone [repo] [remote]`: clone a repository from the specified remote.
 - `gritty create [repo] [remote]`: create a new repository on the specified remote.
 - `gritty delete [repo] [remote]`: delete a repository from the specified remote.
 - `gritty list [remote]`: list all repositories on the specified remote.
+- `gritty list-remotes`: list all remotes in the configuration file.
 
 To see the available options for a subcommand, run:
 ```bash
