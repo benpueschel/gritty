@@ -32,7 +32,9 @@ pub async fn create_repository(args: Create, config: &Config) -> Result<()> {
     if clone {
         remote.clone_repo(&name, &name, recursive).await?;
     } else if add_remote {
-        remote.add_remote(&name).await?;
+        // TODO: remove this? Getting the repo info after just creating it seems redundant.
+        let repo = remote.get_repo_info(&name).await?;
+        remote.add_remote(&name, repo.default_branch).await?;
     }
     Ok(())
 }

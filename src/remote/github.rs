@@ -233,6 +233,7 @@ impl GitHubRemote {
         Ok(Repository {
             name: repo.name,
             description: repo.description,
+            default_branch: repo.default_branch,
             private: repo.private.unwrap_or(false),
             fork: repo.fork.unwrap_or(false),
             last_commits,

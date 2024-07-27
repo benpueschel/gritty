@@ -33,6 +33,7 @@ pub struct GitlabRemote {
 struct Project {
     name: String,
     description: Option<String>,
+    default_branch: Option<String>,
     forked_from_project: Option<IgnoredAny>,
     ssh_url_to_repo: String,
     http_url_to_repo: String,
@@ -280,6 +281,7 @@ impl GitlabRemote {
             name: project.name,
             description: project.description,
             private: project.visibility == "private",
+            default_branch: project.default_branch,
             fork: project.forked_from_project.is_some(),
             ssh_url: project.ssh_url_to_repo,
             clone_url: project.http_url_to_repo,

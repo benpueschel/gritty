@@ -149,6 +149,7 @@ impl GiteaRemote {
         Ok(Repository {
             name: name.to_string(),
             description: Some(repo.description),
+            default_branch: Some(repo.default_branch),
             private: repo.private,
             fork: repo.fork,
             ssh_url: repo.ssh_url,

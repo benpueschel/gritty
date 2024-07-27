@@ -54,6 +54,7 @@ pub struct Repository {
     pub description: Option<String>,
     pub private: bool,
     pub fork: bool,
+    pub default_branch: Option<String>,
     pub ssh_url: String,
     pub clone_url: String,
     pub last_commits: Vec<Commit>,
@@ -131,7 +132,7 @@ pub trait Remote: Sync {
     }
     /// Add a remote to the local git repository. If the current directory is not a git repository,
     /// it will be initialized as one.
-    async fn add_remote(&self, repo_name: &str) -> Result<()> {
+    async fn add_remote(&self, repo_name: &str, branch: Option<String>) -> Result<()> {
         let config = self.get_config();
         let url = self.clone_url(&config.username, repo_name);
 
@@ -152,7 +153,17 @@ pub trait Remote: Sync {
             )));
         }
 
-        // TODO: Get the repo's default branch and pull it
+        if let Some(branch) = branch {
+            let cmd = std::process::Command::new("git")
+                .args(["pull", "origin", &branch])
+                .status()?;
+            if !cmd.success() {
+                return Err(Error::other(format!(
+                    "Failed to pull branch {} from repository {}",
+                    branch, repo_name
+                )));
+            }
+        }
 
         Ok(())
     }
