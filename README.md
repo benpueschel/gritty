@@ -156,7 +156,45 @@ provider = "Gitea"
 url = "https://gitea.example.com"
 username = "your_username"
 clone_protocol = "https" # or "ssh"
+
+# You can also configure color output for gritty:
+[colors.repo]
+color = "Red"
+background = "Black"
+bold = true
+
+[colors.important]
+color = { r = 255, g = 10, b = 124 }
+underline = true
+italic = true
+
+[colors.commit]
+color = 24
+inverse = true
 ```
+
+### Colors
+Gritty supports colored output for the following fields:
+- important - used for error messages and important prompts (such as delete confirmation).
+- repo - used for repository names
+- origin - used for origin names
+- remote - used for remote names
+- username - used for usernames
+- path - used for local paths
+- protocol - used for clone protocols (ssh, https)
+- url - used for remote URLs
+- commit - used for commit hashes
+- date - used for commit dates
+- author - used for author names in commit messages
+- commit_msg - used for commit messages
+- warning - used for warning messages
+- special - used for other special messages
+
+The color can be specified as a string (e.g. "Red", "Blue", "Green"), as an 8-bit
+ANSI color code (0-255), or as an RGB color code (r, g, b).
+The background color can be specified in the same way.
+You can also specify whether the text should be bold, italic, or underlined.
+The `inverse` option will swap the text and background colors.
 
 # Examples
 
