@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.8.0] - 2024-07-27
+### :sparkles: New Features
+- [`79f1f0b`](https://github.com/benpueschel/gritty/commit/79f1f0b2353bded13ab3ae2789a0033962d3bcd6) - add option to git init current dir *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`c1409e9`](https://github.com/benpueschel/gritty/commit/c1409e9768660834be2387c248841d467dc8e43a) - dynamically configurable colors :) *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`427b07f`](https://github.com/benpueschel/gritty/commit/427b07fa8ef10460ad80acf33be20a8f6d8d2ddf) - automatically pull from remote upon creation *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :recycle: Refactors
+- [`08c1e7c`](https://github.com/benpueschel/gritty/commit/08c1e7c491071dc361c3b8de6a9581845f612a52) - **log**: new color api (again) *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.7.0] - 2024-07-23
 ### :sparkles: New Features
 - [`60161ce`](https://github.com/benpueschel/gritty/commit/60161ce3bbb619e47f4054fbaec832e7dce18538) - **delete**: add option to force-delete repo *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -166,3 +176,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.5.0]: https://github.com/benpueschel/gritty/compare/v0.4.0...v0.5.0
 [v0.6.0]: https://github.com/benpueschel/gritty/compare/v0.5.0...v0.6.0
 [v0.7.0]: https://github.com/benpueschel/gritty/compare/v0.6.0...v0.7.0
+[v0.8.0]: https://github.com/benpueschel/gritty/compare/v0.7.0...v0.8.0
