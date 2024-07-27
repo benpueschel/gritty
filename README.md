@@ -36,21 +36,13 @@ To build from source, you will need to have Rust installed. You can install
 Rust by following the instructions on the [official website](https://www.rust-lang.org/tools/install).
 I recommend using `rustup` to manage your Rust installation and toolchains.
 
-Once you have rust installed, clone this repository and build gritty in release mode
-(which optimizes the binary and strips debug symbols):
+The project has a `Makefile`, so you can build and install the binary with:
 ```bash
-cargo build --release
+make && sudo make install
 ```
+This will use `cargo` to build the binary and move it to `/usr/local/bin`.
 PLEASE NOTE: building from main is not recommended as it may be unstable.
 Consider checking out a release tag instead.
-
-The binary will be located at `target/release/gritty`.
-You can move this binary to a directory in your PATH to use it globally:
-```bash
-sudo mv target/release/gritty /usr/local/bin
-```
-For Windows, the binary will be located at `target\release\gritty.exe`.
-Where you move it is up to you, but it must be in your PATH to use it globally.
 
 # Usage
 
