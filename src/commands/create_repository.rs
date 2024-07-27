@@ -1,11 +1,12 @@
 use crate::args::Create;
+use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
 use crate::remote::RepoCreateInfo;
 
 use super::load_remote;
 
-pub async fn create_repository(args: Create, config: &Option<String>) -> Result<()> {
+pub async fn create_repository(args: Create, config: &Config) -> Result<()> {
     let Create {
         private,
         clone,

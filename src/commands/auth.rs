@@ -1,11 +1,12 @@
 use crate::args::Auth;
+use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
 use std::io::{stdout, Write};
 
-use super::{get_input, load_config};
+use super::get_input;
 
-pub async fn auth(args: Auth, config: &Option<String>) -> Result<()> {
+pub async fn auth(args: Auth, config: &mut Config) -> Result<()> {
     let Auth { remote } = &args;
     print!(
         "Enter your {} for remote {} (leave blank to use a token): ",
@@ -26,7 +27,6 @@ pub async fn auth(args: Auth, config: &Option<String>) -> Result<()> {
         "Adding authentication to remote {}...",
         remote.paint(Highlight::Remote)
     );
-    let mut config = load_config(config)?;
     if !username.is_empty() {
         todo!("Basic HTTP auth is not yet supported.");
     }

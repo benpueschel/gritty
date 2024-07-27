@@ -2,10 +2,11 @@ use crate::args::Delete;
 use crate::error::{Error, Result};
 use crate::log::{self, Highlight, Paint};
 use crate::remote::Repository;
+use crate::config::Config;
 
 use super::{get_input, load_remote};
 
-pub async fn delete_repository(args: Delete, config: &Option<String>) -> Result<()> {
+pub async fn delete_repository(args: Delete, config: &Config) -> Result<()> {
     let Delete {
         name,
         force,

@@ -7,12 +7,17 @@ use serde::{Deserialize, Serialize};
 
 use crate::remote::{Auth, CloneProtocol, Provider, RemoteConfig};
 
+use self::colors::ConfigColorMap;
+
+pub mod colors;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Config {
     /// A list of remotes.
     /// Maps the remote name to the remote configuration.
     pub remotes: HashMap<String, GitRemoteConfig>,
     pub secrets: Secrets,
+    pub colors: Option<ConfigColorMap>,
     #[serde(skip)]
     pub path: String,
 }
@@ -215,6 +220,7 @@ impl Default for Config {
         Self {
             path: format!("{xdg_config}/gritty/config.toml"),
             remotes: HashMap::new(),
+            colors: None,
             #[cfg(feature = "keyring")]
             secrets: Secrets::Keyring,
             #[cfg(not(feature = "keyring"))]

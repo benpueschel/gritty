@@ -1,10 +1,8 @@
 use crate::error::Result;
 use crate::log::{self, Highlight, Paint};
+use crate::config::Config;
 
-use super::load_config;
-
-pub async fn list_remotes(config: &Option<String>) -> Result<()> {
-    let config = load_config(config)?;
+pub async fn list_remotes(config: &Config) -> Result<()> {
     println!("Configured remotes:");
     let mut longest_name = 0;
     let mut longest_username = 0;

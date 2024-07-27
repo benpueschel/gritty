@@ -1,4 +1,5 @@
 use crate::args::List;
+use crate::config::Config;
 use crate::error::Result;
 use crate::log::{self, Highlight, Paint};
 use crate::remote::ListReposInfo;
@@ -6,7 +7,7 @@ use chrono::{DateTime, Local};
 
 use super::load_remote;
 
-pub async fn list_repositories(args: List, config: &Option<String>) -> Result<()> {
+pub async fn list_repositories(args: List, config: &Config) -> Result<()> {
     let remote = &args.remote;
     println!(
         "Listing repositories on remote {}...",

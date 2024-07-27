@@ -1,7 +1,7 @@
 use std::io::{stdin, stdout, Write};
 
 use crate::config::Config;
-use crate::error::{Error, ErrorKind, Result};
+use crate::error::Result;
 use crate::remote::{self, Remote};
 
 mod auth;
@@ -25,25 +25,7 @@ pub use list_remotes::list_remotes;
 mod delete_repository;
 pub use delete_repository::delete_repository;
 
-fn load_config(path: &Option<String>) -> Result<Config> {
-    match Config::load_from_file(path.clone()) {
-        Ok(config) => Ok(config),
-        Err(err) => match err.kind {
-            ErrorKind::NotFound => {
-                eprintln!("{}", err.message);
-                println!("Creating default config...");
-                Config::save_default(path)?;
-                Err(Error::not_found(
-                    "Default config created. Please fill in the required fields.",
-                ))
-            }
-            _ => Err(err),
-        },
-    }
-}
-
-async fn load_remote(remote_name: &str, config: &Option<String>) -> Result<Box<dyn Remote>> {
-    let config = load_config(config)?;
+async fn load_remote(remote_name: &str, config: &Config) -> Result<Box<dyn Remote>> {
     let provider = config.get_remote_provider(remote_name)?;
     let remote_config = config.get_remote_config(remote_name)?;
     Ok(remote::create_remote(&remote_config, provider).await)

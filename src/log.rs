@@ -1,9 +1,27 @@
 use std::{
+    collections::HashMap,
     fmt::{self, Display},
     io::{IsTerminal, Write},
 };
 
 use ansi_term::Style;
+use tokio::sync::OnceCell;
+
+use crate::config::Config;
+use crate::error::Result;
+
+static STYLES: OnceCell<HashMap<Highlight, Style>> = OnceCell::const_new();
+
+pub fn load_colors(config: &Config) -> Result<()> {
+    let map = config
+        .colors
+        .clone()
+        .unwrap_or_default()
+        .parse_highlights()?;
+
+    STYLES.set(map).map_err(|e| e.to_string()).unwrap();
+    Ok(())
+}
 
 pub fn leftpad(s: &str, width: usize) -> String {
     format!("{s}{}", " ".repeat(width.saturating_sub(s.len())))
@@ -61,26 +79,10 @@ pub fn print(data: impl ToString) {
 
 impl Highlight {
     pub fn get_style(&self) -> Style {
-        use ansi_term::Color::*;
-
-        if !is_color() {
-            return Style::new();
-        }
-        match self {
-            Highlight::Important => Red.bold(),
-            Highlight::Special => Cyan.normal(),
-            Highlight::Repo => Cyan.normal(),
-            Highlight::Origin => Green.normal(),
-            Highlight::Remote => Green.normal(),
-            Highlight::Username => Green.normal(),
-            Highlight::Path => Cyan.normal(),
-            Highlight::Protocol => Cyan.normal(),
-            Highlight::Url => Purple.normal(),
-            Highlight::Commit => Green.normal(),
-            Highlight::Date => Style::new(),
-            Highlight::Author => Style::new(),
-            Highlight::CommitMsg => Cyan.normal(),
-            Highlight::Warning => Yellow.normal(),
+        if is_color() {
+            STYLES.get().unwrap()[self]
+        } else {
+            Style::new()
         }
     }
 }
