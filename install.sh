@@ -7,6 +7,7 @@
 #
 
 PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+VERSION="latest"
 
 # check if sudo is installed
 if ! command -v sudo &> /dev/null; then
@@ -36,11 +37,12 @@ print_help() {
 	COMMAND=$(basename "$0")
 	echo "Usage: $COMMAND [options]"
 	echo "Options:"
-	echo "  -h, --help    Show this help message and exit"
+	echo "  -h, --help        Show this help message and exit"
+	echo "  -v, --version     Set the gritty version to download (default: latest)"
 	echo "  -p, --platform    Specify the platform to download for (default: $PLATFORM)"
 }
 
-while getopts ":h:p:" opt; do
+while getopts ":h:p:v:" opt; do
 	case $opt in
 		h)
 			print_help
@@ -48,6 +50,9 @@ while getopts ":h:p:" opt; do
 			;;
 		p)
 			PLATFORM=$OPTARG
+			;;
+		v)
+			VERSION=$OPTARG
 			;;
 		\?)
 			>&2 echo "Invalid option: -$OPTARG" >&2
@@ -62,10 +67,14 @@ while getopts ":h:p:" opt; do
 	esac
 done
 
-echo "Downloading gritty for $PLATFORM..."
+echo "Downloading gritty-$VERSION for $PLATFORM..."
 
 # get the latest release's asset url endpoint
-ASSETS_URL=$(curl -s "https://api.github.com/repos/benpueschel/gritty/releases/latest" | jq -r '.assets_url')
+if [ "$VERSION" == "latest" ]; then
+	ASSETS_URL=$(curl -s "https://api.github.com/repos/benpueschel/gritty/releases/latest" | jq -r '.assets_url')
+else
+	ASSETS_URL=$(curl -s "https://api.github.com/repos/benpueschel/gritty/releases/tags/$VERSION" | jq -r '.assets_url')
+fi
 
 # get all assets matching the platform
 ASSETS=$(curl -s "$ASSETS_URL" | jq -c ".[] | select ( .name | contains(\"$PLATFORM\"))")
