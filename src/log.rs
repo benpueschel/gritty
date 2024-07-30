@@ -7,11 +7,16 @@ use std::{
 use ansi_term::Style;
 use tokio::sync::OnceCell;
 
-use crate::config::Config;
+use crate::config::{colors::ConfigColorMap, Config};
 use crate::error::Result;
 
 static STYLES: OnceCell<HashMap<Highlight, Style>> = OnceCell::const_new();
 
+pub fn load_default_colors() -> Result<()> {
+    let map = ConfigColorMap::default().parse_highlights()?;
+    STYLES.set(map).map_err(|e| e.to_string()).unwrap();
+    Ok(())
+}
 pub fn load_colors(config: &Config) -> Result<()> {
     let map = config
         .colors

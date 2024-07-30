@@ -30,6 +30,7 @@ fn load_config(path: &Option<String>) -> Result<Config> {
 
 async fn execute_command(args: Args) -> Result<()> {
     if let Commands::CreateConfig = args.subcommand {
+        log::load_default_colors()?;
         return commands::create_config(&args.config).await;
     }
 
