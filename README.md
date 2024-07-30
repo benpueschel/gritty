@@ -25,6 +25,23 @@ on the available commands.
 Precompiled binaries are available on the [releases page](https://github.com/benpueschel/gritty/releases).
 These binaries are built for Linux, MacOS, and Windows.
 
+### Install-Script
+
+You can use the install script to download and install the latest release for your platform:
+```bash
+curl -LO https://raw.githubusercontent.com/benpueschel/gritty/main/install.sh && \
+chmod +x install.sh && \
+./install.sh && \
+rm install.sh
+```
+This script will download the latest release for your platform and install it in `/usr/local/bin`.
+To install a specific version, you can pass the version tag (e.g. `v0.8.0`) as an argument to the script:
+```bash
+./install.sh -v v0.8.0
+```
+
+### Manual Installation
+
 Just download and extract the archive for your platform and add the binary to your PATH.
 One great way to do this is to move the binary to `/usr/local/bin` on Linux or
 MacOS, which should already be in your PATH.
