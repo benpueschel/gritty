@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.8.1] - 2024-07-30
+### :bug: Bug Fixes
+- [`82ee9e9`](https://github.com/benpueschel/gritty/commit/82ee9e9dac2dcd49970d60a2f4a59ac08dcf5908) - load default colors on create-config command *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.8.0] - 2024-07-27
 ### :sparkles: New Features
 - [`79f1f0b`](https://github.com/benpueschel/gritty/commit/79f1f0b2353bded13ab3ae2789a0033962d3bcd6) - add option to git init current dir *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -177,3 +182,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.6.0]: https://github.com/benpueschel/gritty/compare/v0.5.0...v0.6.0
 [v0.7.0]: https://github.com/benpueschel/gritty/compare/v0.6.0...v0.7.0
 [v0.8.0]: https://github.com/benpueschel/gritty/compare/v0.7.0...v0.8.0
+[v0.8.1]: https://github.com/benpueschel/gritty/compare/v0.8.0...v0.8.1
