@@ -231,3 +231,89 @@ impl Default for Config {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_deserialize_secrets_file() {
+        let config = Config {
+            secrets: Secrets::SecretsFile {
+                file: "secrets.toml".to_string(),
+            },
+            ..Default::default()
+        };
+        let toml = toml::to_string(&config).unwrap();
+        assert_eq!(
+            toml,
+            "\
+[remotes]
+
+[secrets]
+type = \"SecretsFile\"
+file = \"secrets.toml\"
+"
+        );
+    }
+
+    #[cfg(feature = "keyring")]
+    #[test]
+    fn test_deserialize_keyring() {
+        let config = Config {
+            secrets: Secrets::Keyring,
+            ..Default::default()
+        };
+        let toml = toml::to_string(&config).unwrap();
+        assert_eq!(
+            toml,
+            "\
+[remotes]
+
+[secrets]
+type = \"Keyring\"
+"
+        );
+    }
+
+    #[test]
+    fn test_deserialize_plaintext() {
+        let mut secrets = InlineSecrets::new();
+        secrets.insert(
+            "origin".to_string(),
+            AuthConfig {
+                username: Some("user".to_string()),
+                password: Some("pass".to_string()),
+                ..Default::default()
+            },
+        );
+        secrets.insert(
+            "upstream".to_string(),
+            AuthConfig {
+                token: Some("super-secret-token".to_string()),
+                ..Default::default()
+            },
+        );
+        let config = Config {
+            secrets: Secrets::Plaintext(secrets),
+            ..Default::default()
+        };
+        let toml = toml::to_string(&config).unwrap();
+        assert_eq!(
+            toml,
+            "\
+[remotes]
+
+[secrets]
+type = \"Plaintext\"
+
+[secrets.origin]
+username = \"user\"
+password = \"pass\"
+
+[secrets.upstream]
+token = \"super-secret-token\"
+"
+        );
+    }
+}
