@@ -205,5 +205,5 @@ fn ask_for_secrets_file() -> Result<Secrets> {
     if !input.is_empty() {
         path = input;
     }
-    Ok(Secrets::SecretsFile(path))
+    Ok(Secrets::SecretsFile { file: path })
 }

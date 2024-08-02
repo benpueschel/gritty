@@ -137,18 +137,25 @@ The configuration file is a TOML file with the following structure:
 # On Linux, you will need to have a keyring daemon,
 # like gnome-keyring, installed and running.
 # On MacOS and Windows, the keyring should work out of the box.
-secrets = "Keyring"
+[secrets]
+type = "Keyring"
 
 # You can also store access tokens in a plaintext file:
 # Please note that this is not recommended for security reasons.
-#secrets.SecretsFile = "~/.config/gritty/secrets.toml"
+#
+# [secrets]
+# type = "SecretsFile"
+# file = "~/.config/gritty/secrets.toml"
 
 # You can also store access tokens directly in the config file:
 # Please note that this is by far the least secure option to store your tokens.
-#[secrets.Plaintext.github]
-#token = "your_access_token"
-#[secrets.Plaintext.gitea]
-#token = "your_access_token"
+#
+# [secrets]
+# type = "Plaintext"
+# [secrets.github]
+# token = "your_access_token"
+# [secrets.gitea]
+# token = "your_access_token"
 
 # You can add as many remotes as you like. The name of the remote is
 # specified in square brackets after the `remotes` keyword. If you want the

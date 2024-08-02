@@ -32,12 +32,15 @@ pub struct GitRemoteConfig {
 
 pub type InlineSecrets = HashMap<String, AuthConfig>;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "type")]
 pub enum Secrets {
     /// Use the system keyring to store secrets.
     /// This works on Linux, macOS, Windows, and probably on BSD variants.
     #[cfg(feature = "keyring")]
     Keyring,
-    SecretsFile(String),
+    SecretsFile {
+        file: String,
+    },
     Plaintext(InlineSecrets),
 }
 
@@ -131,7 +134,7 @@ impl Config {
                 self.save()?;
                 Ok(())
             }
-            Secrets::SecretsFile(file) => {
+            Secrets::SecretsFile { file } => {
                 let file = file.replace('~', env::var("HOME").unwrap().as_str());
                 let path = Path::new(&file);
                 fs::create_dir_all(path.parent().unwrap())?;
@@ -181,7 +184,7 @@ impl Config {
                     )));
                 }
             }
-            Secrets::SecretsFile(file) => {
+            Secrets::SecretsFile { file } => {
                 let file = file.replace('~', env::var("HOME").unwrap().as_str());
                 if !Path::new(&file).exists() {
                     return Err(Error::not_found(format!(
