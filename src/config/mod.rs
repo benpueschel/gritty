@@ -1,5 +1,5 @@
 use crate::error::{Error, Result};
-use std::{collections::HashMap, env, fs, path::Path};
+use std::{collections::BTreeMap, env, fs, path::Path};
 
 #[cfg(feature = "keyring")]
 use keyring::Entry;
@@ -15,7 +15,7 @@ pub mod colors;
 pub struct Config {
     /// A list of remotes.
     /// Maps the remote name to the remote configuration.
-    pub remotes: HashMap<String, GitRemoteConfig>,
+    pub remotes: BTreeMap<String, GitRemoteConfig>,
     pub secrets: Secrets,
     pub colors: Option<ConfigColorMap>,
     #[serde(skip)]
@@ -30,7 +30,7 @@ pub struct GitRemoteConfig {
     pub username: String,
 }
 
-pub type InlineSecrets = HashMap<String, AuthConfig>;
+pub type InlineSecrets = BTreeMap<String, AuthConfig>;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum Secrets {
@@ -222,7 +222,7 @@ impl Default for Config {
         let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
         Self {
             path: format!("{xdg_config}/gritty/config.toml"),
-            remotes: HashMap::new(),
+            remotes: BTreeMap::new(),
             colors: None,
             #[cfg(feature = "keyring")]
             secrets: Secrets::Keyring,
