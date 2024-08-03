@@ -4,7 +4,7 @@ print_help() {
 	NAME=$(basename $0)
 	echo "Get the breaking changes between two tags"
 	echo ""
-	echo "Usage: $NAME w <old_tag> [new_tag]"
+	echo "Usage: $NAME <old_tag> [new_tag]"
 	echo "  old_tag: The old tag to compare"
 	echo "  new_tag: The optional new tag to compare. Defaults to the latest tag"
 }
