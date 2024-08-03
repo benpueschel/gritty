@@ -28,7 +28,10 @@ pub struct ColorValue {
 }
 
 macro_rules! map {
-    ($( $key: expr => $value:expr ),*) => {{
+    () => {
+        HashMap::new()
+    };
+    ($($key:expr => $value:expr),+ $(,)?) => {{
         let mut map = HashMap::new();
         $( map.insert($key, $value); )*
         map
