@@ -11,6 +11,25 @@ use self::colors::ConfigColorMap;
 
 pub mod colors;
 
+pub fn get_config_dir() -> String {
+    #[cfg(target_os = "windows")]
+    return env::var("LOCALAPPDATA").unwrap();
+
+    #[cfg(not(target_os = "windows"))]
+    return {
+        let home = env::var("HOME").unwrap();
+        env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"))
+    };
+}
+
+pub fn get_fallback_config() -> String {
+    #[cfg(target_os = "windows")]
+    return format!("{}/.gritty.toml", env::var("LOCALAPPDATA").unwrap());
+
+    #[cfg(not(target_os = "windows"))]
+    return format!("{}/.gritty.toml", env::var("HOME").unwrap());
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Config {
     /// A list of remotes.
@@ -70,10 +89,8 @@ impl Config {
         let path = match path {
             Some(path) => path,
             None => {
-                let home = env::var("HOME").unwrap();
-                let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
-                let config_path = format!("{xdg_config}/gritty/config.toml");
-                let fallback = format!("{home}/.gritty.toml");
+                let config_path = format!("{}/gritty/config.toml", get_config_dir());
+                let fallback = get_fallback_config();
 
                 if Path::new(&config_path).exists() {
                     config_path
@@ -218,16 +235,17 @@ impl Config {
 
 impl Default for Config {
     fn default() -> Self {
-        let home = env::var("HOME").unwrap();
-        let xdg_config = env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"));
+        let config_dir = get_config_dir();
         Self {
-            path: format!("{xdg_config}/gritty/config.toml"),
+            path: format!("{config_dir}/gritty/config.toml"),
             remotes: BTreeMap::new(),
             colors: None,
             #[cfg(feature = "keyring")]
             secrets: Secrets::Keyring,
             #[cfg(not(feature = "keyring"))]
-            secrets: Secrets::SecretsFile { file: format!("{xdg_config}/gritty/secrets.toml") },
+            secrets: Secrets::SecretsFile {
+                file: format!("{config_dir}/gritty/secrets.toml"),
+            },
         }
     }
 }
