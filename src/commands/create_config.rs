@@ -18,19 +18,19 @@ pub async fn create_config(cfg: &Option<String>) -> Result<()> {
     // Config file path
 
     if let Some(path) = cfg {
-        config.path.clone_from(path);
+        config.path = path.into();
         println!(
             "Using provided config file path: {}",
             &config.path.paint(Highlight::Path)
         );
     } else {
-        println!(
+        print!(
             "Enter the path to the config file (default is {}):",
             &config.path.paint(Highlight::Path)
         );
         let path = get_input()?;
         if !path.is_empty() {
-            config.path = path;
+            config.path = path.into();
         }
         println!();
     }
