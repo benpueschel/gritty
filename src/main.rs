@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use args::{Args, Commands};
 use clap::Parser;
 use config::Config;
@@ -29,14 +31,28 @@ fn load_config(path: &Option<String>) -> Result<Config> {
     }
 }
 
+/// If we fail before successfully loading the colors, we can't use them to print the error
+/// message. In that case, we print the error message without colors and exit with status code 1.
+fn exit_no_color(err: impl Display) -> ! {
+    eprintln!("{}", err);
+    std::process::exit(1);
+}
+
 async fn execute_command(args: Args) -> Result<()> {
     if let Commands::CreateConfig = args.subcommand {
-        log::load_default_colors()?;
+        if let Err(err) = log::load_default_colors() {
+            exit_no_color(err);
+        }
         return commands::create_config(&args.config).await;
     }
 
-    let mut config = load_config(&args.config)?;
-    log::load_colors(&config)?;
+    let mut config = match load_config(&args.config) {
+        Ok(x) => x,
+        Err(err) => exit_no_color(err),
+    };
+    if let Err(err) = log::load_colors(&config) {
+        exit_no_color(err);
+    }
 
     // Execute the sub-command
     match args.subcommand {
