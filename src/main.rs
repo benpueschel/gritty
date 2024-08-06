@@ -1,7 +1,8 @@
 use args::{Args, Commands};
 use clap::Parser;
 use config::Config;
-use error::{ErrorKind, Result, Error};
+use error::{Error, ErrorKind, Result};
+use human_panic::metadata;
 use log::{Highlight, Paint};
 
 pub mod args;
@@ -51,7 +52,13 @@ async fn execute_command(args: Args) -> Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    human_panic::setup_panic!();
+    human_panic::setup_panic!(human_panic::Metadata::new(
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION")
+    )
+    .authors(env!("CARGO_PKG_AUTHORS").replace(':', ", "))
+    .support("- Open an issue at https://github.com/benpueschel/gritty/issues/new"));
+
     // Parse command line arguments
     let args = Args::parse();
 
