@@ -51,6 +51,7 @@ async fn execute_command(args: Args) -> Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    human_panic::setup_panic!();
     // Parse command line arguments
     let args = Args::parse();
 
