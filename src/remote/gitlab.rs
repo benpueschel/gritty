@@ -172,7 +172,7 @@ impl Remote for GitlabRemote {
             client,
         }
     }
-    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String> {
+    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository> {
         let visibility = match create_info.private {
             true => VisibilityLevel::Private,
             false => VisibilityLevel::Public,
@@ -188,7 +188,7 @@ impl Remote for GitlabRemote {
             .build()?;
 
         let project: Project = project.query_async(&self.client).await?;
-        Ok(project.http_url_to_repo)
+        self.get_project_info(project).await
     }
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {
         let mut projects = Projects::builder();

@@ -77,7 +77,7 @@ impl Remote for GitHubRemote {
         &self.config
     }
 
-    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String> {
+    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository> {
         #[derive(Serialize, Deserialize)]
         struct Request {
             name: String,
@@ -98,9 +98,9 @@ impl Remote for GitHubRemote {
             auto_init: create_info.init,
         };
         let body = serde_json::to_value(&req).unwrap();
-        let res: Response = self.crab.post("/user/repos", Some(&body)).await?;
-
-        Ok(res.clone_url)
+        let repo: octocrab::models::Repository = self.crab.post("/user/repos", Some(&body)).await?;
+        let base = self.crab.repos(self.config.username.clone(), req.name);
+        Self::get_repo_info(self.config.username.clone(), base, repo).await
     }
 
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {

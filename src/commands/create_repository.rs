@@ -27,8 +27,8 @@ pub async fn create_repository(args: Create, config: &Config) -> Result<()> {
         init,
         private,
     };
-    let url = remote.create_repo(info).await?;
-    println!("Repository created at: {}", url.paint(Highlight::Url));
+    let repo = remote.create_repo(info).await?;
+    println!("Repository created at: {}", repo.clone_url.paint(Highlight::Url));
     if clone {
         remote.clone_repo(&name, &name, recursive).await?;
     } else if add_remote {

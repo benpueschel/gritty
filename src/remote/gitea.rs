@@ -46,7 +46,7 @@ impl Remote for GiteaRemote {
         }
     }
 
-    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String> {
+    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository> {
         let cr = CreateRepoOption {
             auto_init: create_info.init,
             license: create_info.license.unwrap_or_default(),
@@ -56,7 +56,7 @@ impl Remote for GiteaRemote {
             ..Default::default()
         };
         let repo = self.client.user_create_repository(&cr).await?;
-        Ok(repo.clone_url)
+        self.get_repo_info(repo).await
     }
 
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {

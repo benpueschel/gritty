@@ -102,7 +102,7 @@ pub trait Remote: Sync {
 
     /// Create a new repository on the remote.
     /// Returns the URL of the new repository.
-    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<String>;
+    async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository>;
     /// List all repositories.
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>>;
     /// Get the information of a repository.
