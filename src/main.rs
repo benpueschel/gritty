@@ -4,7 +4,6 @@ use args::{Args, Commands};
 use clap::Parser;
 use config::Config;
 use error::{Error, ErrorKind, Result};
-use human_panic::metadata;
 use log::{Highlight, Paint};
 
 pub mod args;
