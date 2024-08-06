@@ -2,10 +2,28 @@
 name = "gritty"
 version = "0.8.1"
 edition = "2021"
+description = "A command line tool to manage your remote repositories on GitHub, GitLab and Gitea remotes"
+repository = "https://github.com/benpueschel/gritty"
+authors = ["Ben Püschel"]
+readme = "README.md"
+license = "MIT"
+categories = ["command-line-utilities"]
+keywords = [
+	"git",
+	"github",
+	"gitlab",
+	"gitea",
+	"cli",
+	"command-line",
+	"version-control",
+	"remote",
+	"repository",
+	"management",
+]
 
 [features]
-default = [ "keyring" ]
-keyring = [ "dep:keyring" ]
+default = ["keyring"]
+keyring = ["dep:keyring"]
 
 [dependencies]
 async-trait = "0.1.80"
