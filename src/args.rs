@@ -2,8 +2,9 @@ use std::env;
 
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
-    Parser, Subcommand,
+    Parser, Subcommand, ValueEnum,
 };
+use serde::Serialize;
 
 fn styles() -> Styles {
     match env::var("NO_COLOR") {
@@ -43,6 +44,14 @@ or ~/.config/gritty/config.toml if not specified.\
     pub config: Option<String>,
 }
 
+#[derive(Default, Debug, Clone, Copy, ValueEnum, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum OutputFormat {
+    #[default]
+    Human,
+    Json,
+}
+
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Clone(Clone),
@@ -77,6 +86,17 @@ pub struct List {
     pub private: bool,
     #[arg(short, long, help = "Show forks")]
     pub forks: bool,
+    #[arg(
+        long,
+        help = "Change the output format to the specified value (can be 'json')",
+        long_help = "\
+Change the output format to the specified value.
+This option is useful for parsing the output of gritty, such as in a script or another
+tool integrating with gritty.
+Note that the 'create-config' and 'auth' subcommands do not respect this option.
+Currently, the only supported format is 'json'."
+    )]
+    pub format: Option<OutputFormat>,
 }
 
 #[derive(Debug, Clone, Parser)]
@@ -117,6 +137,17 @@ Ignored if --clone is specified.
     pub name: String,
     #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
     pub remote: String,
+    #[arg(
+        long,
+        help = "Change the output format to the specified value (can be 'json')",
+        long_help = "\
+Change the output format to the specified value.
+This option is useful for parsing the output of gritty, such as in a script or another
+tool integrating with gritty.
+Note that the 'create-config' and 'auth' subcommands do not respect this option.
+Currently, the only supported format is 'json'."
+    )]
+    pub format: Option<OutputFormat>,
 }
 #[derive(Debug, Clone, Parser)]
 #[command(about = "Delete a repository on a remote")]

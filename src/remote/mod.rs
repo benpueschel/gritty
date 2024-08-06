@@ -48,7 +48,7 @@ pub struct RemoteConfig {
     pub auth: Auth,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Repository {
     pub name: String,
     pub description: Option<String>,
@@ -60,7 +60,7 @@ pub struct Repository {
     pub last_commits: Vec<Commit>,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Commit {
     pub sha: String,
     pub message: String,

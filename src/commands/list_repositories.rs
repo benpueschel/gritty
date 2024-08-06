@@ -1,18 +1,21 @@
-use crate::args::List;
+use crate::args::{List, OutputFormat};
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{self, Highlight, Paint};
-use crate::remote::ListReposInfo;
+use crate::remote::{ListReposInfo, Repository};
 use chrono::{DateTime, Local};
 
 use super::load_remote;
 
 pub async fn list_repositories(args: List, config: &Config) -> Result<()> {
     let remote = &args.remote;
-    println!(
-        "Listing repositories on remote {}...",
-        remote.paint(Highlight::Remote)
-    );
+    let format = args.format.unwrap_or_default();
+    if let OutputFormat::Human = format {
+        println!(
+            "Listing repositories on remote {}...",
+            remote.paint(Highlight::Remote)
+        );
+    }
 
     let remote = load_remote(remote, config).await?;
     let list_info = ListReposInfo {
@@ -20,6 +23,14 @@ pub async fn list_repositories(args: List, config: &Config) -> Result<()> {
         forks: args.forks,
     };
     let repos = remote.list_repos(list_info).await?;
+    match format {
+        OutputFormat::Human => print_human(args, repos),
+        OutputFormat::Json => println!("{}", serde_json::to_string_pretty(&repos)?),
+    }
+    Ok(())
+}
+
+fn print_human(args: List, repos: Vec<Repository>) {
     if args.private {
         println!("* denotes private repositories");
     }
@@ -59,5 +70,4 @@ pub async fn list_repositories(args: List, config: &Config) -> Result<()> {
         }
         println!();
     }
-    Ok(())
 }

@@ -1,4 +1,4 @@
-use crate::args::Create;
+use crate::args::{Create, OutputFormat};
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
@@ -17,9 +17,13 @@ pub async fn create_repository(args: Create, config: &Config) -> Result<()> {
         license,
         init,
         remote,
+        format,
     } = args;
+    let format = format.unwrap_or_default();
     let remote = load_remote(&remote, config).await?;
-    println!("Creating repository {}...", name.paint(Highlight::Repo));
+    if let OutputFormat::Human = format {
+        println!("Creating repository {}...", name.paint(Highlight::Repo));
+    }
     let info = RepoCreateInfo {
         name: name.clone(),
         description,
@@ -28,13 +32,16 @@ pub async fn create_repository(args: Create, config: &Config) -> Result<()> {
         private,
     };
     let repo = remote.create_repo(info).await?;
-    println!("Repository created at: {}", repo.clone_url.paint(Highlight::Url));
+    if let OutputFormat::Human = format {
+        println!("Repository created at: {}", repo.clone_url.paint(Highlight::Url));
+    }
     if clone {
         remote.clone_repo(&name, &name, recursive).await?;
     } else if add_remote {
-        // TODO: remove this? Getting the repo info after just creating it seems redundant.
-        let repo = remote.get_repo_info(&name).await?;
-        remote.add_remote(&name, repo.default_branch).await?;
+        remote.add_remote(&name, repo.default_branch.clone()).await?;
+    }
+    if let OutputFormat::Json = format {
+        println!("{}", serde_json::to_string_pretty(&repo)?);
     }
     Ok(())
 }
