@@ -227,7 +227,7 @@ impl Default for Config {
             #[cfg(feature = "keyring")]
             secrets: Secrets::Keyring,
             #[cfg(not(feature = "keyring"))]
-            secrets: Secrets::SecretsFile(format!("{xdg_config}/gritty/secrets.toml")),
+            secrets: Secrets::SecretsFile { file: format!("{xdg_config}/gritty/secrets.toml") },
         }
     }
 }
