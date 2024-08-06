@@ -2,6 +2,7 @@ use std::{
     collections::HashMap,
     fmt::{self, Display},
     io::{IsTerminal, Write},
+    path::PathBuf,
 };
 
 use ansi_term::Style;
@@ -55,6 +56,17 @@ impl Paint for String {
 impl Paint for &str {
     fn paint(&self, highlight: Highlight) -> StyledString {
         StyledString(self.to_string(), highlight)
+    }
+}
+impl Paint for PathBuf {
+    fn paint(&self, highlight: Highlight) -> StyledString {
+        // Windows paths use backslashes, so we need to replace any forward slashes
+        #[cfg(target_os = "windows")]
+        let str = self.to_string_lossy().to_string().replace('/', "\\");
+
+        #[cfg(not(target_os = "windows"))]
+        let str = self.to_string_lossy().to_string();
+        StyledString(str, highlight)
     }
 }
 

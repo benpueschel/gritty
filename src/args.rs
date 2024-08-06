@@ -38,7 +38,7 @@ If not provided, the config will be searched for in the following directories:
 - $HOME/.gritty.toml                  (~/.gritty.toml)
 
 On Windows, the following directories will be searched:
-- %LOCALAPPDATA%/gritty/config.toml        (C:\\Users\\<user>\\AppData\\Local\\gritty\\config.toml)
+- %LOCALAPPDATA%\\gritty\\config.toml        (C:\\Users\\<user>\\AppData\\Local\\gritty\\config.toml)
 - %LOCALAPPDATA%\\.gritty.toml            (C:\\Users\\<user>\\AppData\\Local\\.gritty.toml)
 
 If the config file does not exist, it will be created in the specified location,

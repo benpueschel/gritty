@@ -1,5 +1,12 @@
-use crate::error::{Error, Result};
-use std::{collections::BTreeMap, env, fs, path::Path};
+use crate::{
+    error::{Error, Result},
+    log::{Highlight, Paint},
+};
+use std::{
+    collections::BTreeMap,
+    env, fs,
+    path::{Path, PathBuf},
+};
 
 #[cfg(feature = "keyring")]
 use keyring::Entry;
@@ -38,7 +45,7 @@ pub struct Config {
     pub secrets: Secrets,
     pub colors: Option<ConfigColorMap>,
     #[serde(skip)]
-    pub path: String,
+    pub path: PathBuf,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -74,7 +81,7 @@ impl Config {
     pub fn save_default(path: &Option<String>) -> Result<()> {
         let mut config = Config::default();
         if let Some(path) = path {
-            config.path.clone_from(path);
+            config.path = path.into();
         }
         config.save()
     }
@@ -82,7 +89,7 @@ impl Config {
         let toml = toml::to_string(self)?;
         fs::create_dir_all(Path::new(&self.path).parent().unwrap())?;
         fs::write(&self.path, toml)?;
-        println!("Saved config to {}.", &self.path);
+        println!("Saved config to {}.", &self.path.paint(Highlight::Path));
         Ok(())
     }
     pub fn load_from_file(path: Option<String>) -> Result<Self> {
@@ -106,7 +113,7 @@ impl Config {
         };
         let contents = fs::read_to_string(&path)?;
         let mut config: Config = toml::from_str(&contents)?;
-        config.path = path;
+        config.path = path.into();
         Ok(config)
     }
 
@@ -135,7 +142,7 @@ impl Config {
         match &mut self.secrets {
             #[cfg(feature = "keyring")]
             Secrets::Keyring => {
-                let entry = Entry::new(&self.path, name)?;
+                let entry = Entry::new(self.path.canonicalize()?.to_string_lossy().as_ref(), name)?;
                 entry.set_password(token)?;
                 Ok(())
             }
@@ -216,7 +223,7 @@ impl Config {
             Secrets::Keyring => {
                 // we get a unique secret id by combining the config path and the remote name.
                 // This is mainly to allow users to use multiple configs without conflicts.
-                let entry = Entry::new(&self.path, name)?;
+                let entry = Entry::new(self.path.canonicalize()?.to_string_lossy().as_ref(), name)?;
                 if let Ok(token) = entry.get_password() {
                     return Ok(Auth::Token { token });
                 }
@@ -237,7 +244,7 @@ impl Default for Config {
     fn default() -> Self {
         let config_dir = get_config_dir();
         Self {
-            path: format!("{config_dir}/gritty/config.toml"),
+            path: format!("{config_dir}/gritty/config.toml").into(),
             remotes: BTreeMap::new(),
             colors: None,
             #[cfg(feature = "keyring")]
