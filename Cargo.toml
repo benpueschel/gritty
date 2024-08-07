@@ -42,3 +42,8 @@ gritty-clap = { path = "gritty-clap" }
 gitlab = "0.1701.0"
 urlencoding = "2.1.3"
 human-panic = "2.0.1"
+
+[build-dependencies]
+clap = { version = "4.5.8", features = ["derive", "deprecated"] }
+clap_mangen = "0.2.23"
+gritty-clap = { path = "gritty-clap" }
