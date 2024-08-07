@@ -99,7 +99,7 @@ echo "$(cat $SHA256) *$ARCHIVE" | shasum -ca 256
 if [ $? -ne 0 ]; then exit 1; fi
 
 # find the gritty binary in the archive
-BINARY=$(tar ztf gritty-v0.8.0-x86_64-unknown-linux-gnu.tar.gz | grep '/gritty')
+BINARY=$(tar ztf "$ARCHIVE" | grep '/gritty')
 
 # extract the binary from the archive and don't expand into a folder, instead
 # extract the binary directly into the current directory (./gritty)
