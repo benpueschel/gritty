@@ -1,4 +1,4 @@
-use crate::args::Clone;
+use gritty_clap::Clone;
 use crate::error::Result;
 use crate::config::Config;
 

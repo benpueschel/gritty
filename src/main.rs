@@ -1,12 +1,11 @@
 use std::fmt::Display;
 
-use args::{Args, Commands};
+use gritty_clap::{Args, Commands};
 use clap::Parser;
 use config::Config;
 use error::{Error, ErrorKind, Result};
 use log::{Highlight, Paint};
 
-pub mod args;
 pub mod commands;
 pub mod config;
 pub mod error;

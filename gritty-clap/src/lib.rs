@@ -4,7 +4,6 @@ use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
     Parser, Subcommand, ValueEnum,
 };
-use serde::Serialize;
 
 fn styles() -> Styles {
     match env::var("NO_COLOR") {
@@ -48,8 +47,8 @@ or ~/.config/gritty/config.toml if not specified.\
     pub config: Option<String>,
 }
 
-#[derive(Default, Debug, Clone, Copy, ValueEnum, Serialize)]
-#[serde(rename_all = "lowercase")]
+#[derive(Default, Debug, Clone, Copy, ValueEnum)]
+#[value(rename_all = "lowercase")]
 pub enum OutputFormat {
     #[default]
     Human,

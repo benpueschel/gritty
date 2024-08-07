@@ -1,4 +1,4 @@
-use crate::args::Delete;
+use gritty_clap::Delete;
 use crate::error::{Error, Result};
 use crate::log::{self, Highlight, Paint};
 use crate::remote::Repository;

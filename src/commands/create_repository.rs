@@ -1,4 +1,4 @@
-use crate::args::{Create, OutputFormat};
+use gritty_clap::{Create, OutputFormat};
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};

@@ -1028,6 +1028,7 @@ dependencies = [
  "chrono",
  "clap",
  "gitlab",
+ "gritty-clap",
  "human-panic",
  "keyring",
  "octocrab",
@@ -1038,6 +1039,13 @@ dependencies = [
  "tokio",
  "toml",
  "urlencoding",
+]
+
+[[package]]
+name = "gritty-clap"
+version = "0.1.0"
+dependencies = [
+ "clap",
 ]
 
 [[package]]

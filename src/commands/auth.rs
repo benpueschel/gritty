@@ -1,4 +1,4 @@
-use crate::args::Auth;
+use gritty_clap::Auth;
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};

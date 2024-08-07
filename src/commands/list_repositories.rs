@@ -1,4 +1,4 @@
-use crate::args::{List, OutputFormat};
+use gritty_clap::{List, OutputFormat};
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{self, Highlight, Paint};
