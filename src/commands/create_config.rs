@@ -115,7 +115,7 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
     }
     print!(
         "Enter the name of the remote ({}): ",
-        "github/gitea".paint(Highlight::Remote)
+        "github/gitea/gitlab".paint(Highlight::Remote)
     );
     // we need to flush stdout, this is the cleanest way to do it
     log::print("");
@@ -126,9 +126,10 @@ fn ask_for_remote() -> Result<(String, GitRemoteConfig, Option<AuthConfig>)> {
     let provider = match provider.to_lowercase().as_str() {
         "github" => remote::Provider::GitHub,
         "gitea" => remote::Provider::Gitea,
+        "gitlab" => remote::Provider::GitLab,
         _ => {
             return Err(Error::other(
-                "Remote provider must be either 'github' or 'gitea'.",
+                "Remote provider must be either 'github', 'gitea' or 'gitlab'.",
             ));
         }
     };
