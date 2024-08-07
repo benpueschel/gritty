@@ -14,7 +14,7 @@ pub use list::List;
 
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
-    Parser, Subcommand, ValueEnum,
+    crate_version, Parser, Subcommand, ValueEnum,
 };
 
 fn styles() -> Styles {
@@ -31,6 +31,7 @@ fn styles() -> Styles {
 #[derive(Debug, Clone, Parser)]
 #[command(
     name = "gritty",
+    version = crate_version!(),
     about = "A tool to manage remote git repositories.",
     arg_required_else_help = true,
     styles = styles()
