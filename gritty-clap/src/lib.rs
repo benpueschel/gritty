@@ -1,5 +1,17 @@
 use std::env;
 
+mod auth;
+mod clone;
+mod create;
+mod delete;
+mod list;
+
+pub use auth::Auth;
+pub use clone::Clone;
+pub use create::Create;
+pub use delete::Delete;
+pub use list::List;
+
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
     Parser, Subcommand, ValueEnum,
@@ -67,108 +79,4 @@ pub enum Commands {
     CreateConfig,
     #[command(about = "List all configured remotes")]
     ListRemotes,
-}
-
-#[derive(Debug, Clone, Parser)]
-#[command(about = "Clone a repository from a remote")]
-pub struct Clone {
-    #[arg(help = "Name of the repository")]
-    pub name: String,
-    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-    pub remote: String,
-    #[arg(short, long, help = "Initialize and clone all submodules")]
-    pub recursive: bool,
-}
-
-#[derive(Debug, Clone, Parser)]
-#[command(about = "List repositories on a remote")]
-pub struct List {
-    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-    pub remote: String,
-    #[arg(short, long, help = "Show private repositories")]
-    pub private: bool,
-    #[arg(short, long, help = "Show forks")]
-    pub forks: bool,
-    #[arg(
-        long,
-        help = "Change the output format to the specified value (can be 'json')",
-        long_help = "\
-Change the output format to the specified value.
-This option is useful for parsing the output of gritty, such as in a script or another
-tool integrating with gritty.
-Note that the 'create-config' and 'auth' subcommands do not respect this option.
-Currently, the only supported format is 'json'."
-    )]
-    pub format: Option<OutputFormat>,
-}
-
-#[derive(Debug, Clone, Parser)]
-#[command(about = "Create a repository on a remote")]
-pub struct Create {
-    #[arg(short, long, help = "Create a private repository")]
-    pub private: bool,
-    #[arg(short, long, help = "Clone the repository after creation")]
-    pub clone: bool,
-    #[arg(
-        short,
-        long,
-        help = "Initialize and clone all submodules. Only valid with --clone"
-    )]
-    pub recursive: bool,
-    #[arg(
-        short,
-        long,
-        help = "Add the remote to the local git repository as 'origin'. Ignored if --clone is specified",
-        long_help = "Add the remote to the local git repository as 'origin'.
-If the current directory is not a git repository, it will be initialized as one.
-Ignored if --clone is specified.
-"
-    )]
-    pub add_remote: bool,
-    #[arg(short, long, help = "Description of the repository")]
-    pub description: Option<String>,
-    #[arg(short, long, help = "Initialize the repository with a README.md")]
-    pub init: bool,
-    #[arg(
-        short,
-        long,
-        help = concat!("License to use for the repository (ex: 'MIT'). ",
-        "If not provided, or --init is not specified, no license will be addeed.")
-        )]
-    pub license: Option<String>,
-    #[arg(help = "Name of the repository")]
-    pub name: String,
-    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-    pub remote: String,
-    #[arg(
-        long,
-        help = "Change the output format to the specified value (can be 'json')",
-        long_help = "\
-Change the output format to the specified value.
-This option is useful for parsing the output of gritty, such as in a script or another
-tool integrating with gritty.
-Note that the 'create-config' and 'auth' subcommands do not respect this option.
-Currently, the only supported format is 'json'."
-    )]
-    pub format: Option<OutputFormat>,
-}
-#[derive(Debug, Clone, Parser)]
-#[command(about = "Delete a repository on a remote")]
-pub struct Delete {
-    #[arg(help = "Name of the repository")]
-    pub name: String,
-    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-    pub remote: String,
-    #[arg(
-        short,
-        long,
-        help = "Force deletion without confirmation. Use with caution!"
-    )]
-    pub force: bool,
-}
-#[derive(Debug, Clone, Parser)]
-#[command(about = "Authenticate with a remote")]
-pub struct Auth {
-    #[arg(help = "Name of the remote as defined in the config (ex: 'github')")]
-    pub remote: String,
 }
