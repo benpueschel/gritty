@@ -1031,7 +1031,7 @@ dependencies = [
 
 [[package]]
 name = "gritty"
-version = "0.8.1"
+version = "1.0.0"
 dependencies = [
  "ansi_term",
  "async-trait",
@@ -1054,7 +1054,7 @@ dependencies = [
 
 [[package]]
 name = "gritty-clap"
-version = "0.8.1"
+version = "1.0.0"
 dependencies = [
  "clap",
 ]
