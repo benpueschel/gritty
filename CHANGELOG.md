@@ -4,6 +4,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.0] - 2024-08-07
+### :boom: BREAKING CHANGES
+- due to [`018f00f`](https://github.com/benpueschel/gritty/commit/018f00ffbb0ad47202cb7873e46045995b1b4738) - simplify secrets config *(commit by [@benpueschel](https://github.com/benpueschel))*:
+
+  Old configurations will break. Users will need to  
+  change the `secrets` section of their configuration:  
+  ```toml  
+  [secrets]  
+  type = "Keyring"  
+  ```  
+  Replaces the old `secrets = "Keyring" to use the system keyring to store  
+  secrets.  
+  ```toml  
+  [secrets]  
+  type = "SecretsFile"  
+  file = "path/to/file.toml"  
+  ```  
+  Replaces the old way to store secrets in a separate plaintext secrets  
+  file.  
+  ```toml  
+  [secrets]  
+  type = "Plaintext"  
+  [secrets.your_remote]  
+  token = "token"  
+  [secrets.remote]  
+  username = "user"  
+  password = "password"  
+  ```  
+  Replaces the old way to store secrets inline. Instead of the old  
+  `[secrets.Plaintext.<provider>`, the config now directly uses  
+  `[secrets.<provider>`, with a section to denote the type to use  
+  (`secrets.type`).
+
+- due to [`41cc53f`](https://github.com/benpueschel/gritty/commit/41cc53f3fbfcfd525591ee3f9526353686f67712) - use PathBuf for config path *(commit by [@benpueschel](https://github.com/benpueschel))*:
+
+  The System keyring now uses a canonical path to store  
+  credentials. This may break credential storage. If you encounter the  
+  error message `Could not find auth for remote <remote_name>`, you will  
+  need to call `gritty auth <remote_name>` and supply a new token.
+
+
+### :sparkles: New Features
+- [`435a202`](https://github.com/benpueschel/gritty/commit/435a202307b39872eb2b74ce321ac7d68feae88d) - add script to pull breaking changes *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`ee84498`](https://github.com/benpueschel/gritty/commit/ee84498830b3515228031e83ef23b9f6633c9067) - nice panic handler *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`b828443`](https://github.com/benpueschel/gritty/commit/b8284436c9493f45fe512235abebb4efe1ad0828) - include issue url when panicking *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`8044fe8`](https://github.com/benpueschel/gritty/commit/8044fe8968a20818800e4c16d3fe5039feee2710) - **remote**: return full repo upon creation *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`f9959b4`](https://github.com/benpueschel/gritty/commit/f9959b4846c5988bed8c7c569558bd6c99a8ee17) - add format option to create/list commands *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`4e94c08`](https://github.com/benpueschel/gritty/commit/4e94c08e9155104581f7e27510edfb3eb469a672) - windows support? *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`41cc53f`](https://github.com/benpueschel/gritty/commit/41cc53f3fbfcfd525591ee3f9526353686f67712) - use PathBuf for config path *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`34e0a27`](https://github.com/benpueschel/gritty/commit/34e0a27e6a571eec0a560c5c0bebb8aee6e2b93a) - print version with -V *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :bug: Bug Fixes
+- [`77fed2f`](https://github.com/benpueschel/gritty/commit/77fed2fb2c23658adccba3c15a6e726e19b52b0d) - **breaking.sh**: typo in help overview *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`2f1420d`](https://github.com/benpueschel/gritty/commit/2f1420df1f67573a23766d60dc32b836ebc8d4aa) - error when compiling without keyring feature *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`c63ed29`](https://github.com/benpueschel/gritty/commit/c63ed299c9e6630f4ebbcacec606c218fc0f7db1) - correct pre-color loading error handling *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`fbd0c25`](https://github.com/benpueschel/gritty/commit/fbd0c25d3c13cbd493e3b515fe8892c920a44e6b) - correct archive file name *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`2e659f6`](https://github.com/benpueschel/gritty/commit/2e659f6a863f221356c139c5c06cf02c68af4105) - add gitlab remote on `gritty create-config` *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :recycle: Refactors
+- [`018f00f`](https://github.com/benpueschel/gritty/commit/018f00ffbb0ad47202cb7873e46045995b1b4738) - **config**: simplify secrets config *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`c97317c`](https://github.com/benpueschel/gritty/commit/c97317ca8bd0b7825f36ab55228980753dfe0cd4) - use BTreeMap for config *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`ab6dceb`](https://github.com/benpueschel/gritty/commit/ab6dcebb91b1a53fb9414171a80f32dc30b8fd1d) - allow non-trailing commas in map macro *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`a8c7775`](https://github.com/benpueschel/gritty/commit/a8c7775b5ca53235270a860df15657e11b8c22a8) - remove unused import *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`a8edce0`](https://github.com/benpueschel/gritty/commit/a8edce0158dd65acd9c8aa5536d4ef751899de36) - move cli arguments to separate crate *(commit by [@benpueschel](https://github.com/benpueschel))*
+- [`946ee70`](https://github.com/benpueschel/gritty/commit/946ee706f9c26e2924af2cf7452d101c10d0a459) - split subcommands into separate modules *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+### :white_check_mark: Tests
+- [`11772b2`](https://github.com/benpueschel/gritty/commit/11772b25d566fc998caf15e3b5202972eed3be2e) - **config**: add basic tests *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v0.8.1] - 2024-07-30
 ### :bug: Bug Fixes
 - [`82ee9e9`](https://github.com/benpueschel/gritty/commit/82ee9e9dac2dcd49970d60a2f4a59ac08dcf5908) - load default colors on create-config command *(commit by [@benpueschel](https://github.com/benpueschel))*
@@ -183,3 +253,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.7.0]: https://github.com/benpueschel/gritty/compare/v0.6.0...v0.7.0
 [v0.8.0]: https://github.com/benpueschel/gritty/compare/v0.7.0...v0.8.0
 [v0.8.1]: https://github.com/benpueschel/gritty/compare/v0.8.0...v0.8.1
+[v1.0.0]: https://github.com/benpueschel/gritty/compare/v0.8.1...v1.0.0
