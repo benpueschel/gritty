@@ -1,5 +1,8 @@
 # gritty
 
+![CI Build Status](https://github.com/benpueschel/gritty/actions/workflows/rust.yml/badge.svg)
+![Rust Report Card](https://rust-reportcard.xuri.me/badge/github.com/benpueschel/gritty)
+
 Gritty is a command line tool to manage your remote repositories on GitHub,
 GitLab and Gitea remotes, written in Rust.
 
