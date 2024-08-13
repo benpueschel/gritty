@@ -1,8 +1,7 @@
-use gritty_clap::Clone;
-use crate::error::Result;
+use crate::commands::load_remote;
 use crate::config::Config;
-
-use super::load_remote;
+use crate::error::Result;
+use gritty_clap::repo::Clone;
 
 pub async fn clone_repository(args: Clone, config: &Config) -> Result<()> {
     let remote = load_remote(&args.remote, config).await?;

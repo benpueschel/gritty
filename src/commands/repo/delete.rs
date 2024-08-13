@@ -1,10 +1,10 @@
-use gritty_clap::Delete;
+use gritty_clap::repo::Delete;
 use crate::error::{Error, Result};
 use crate::log::{self, Highlight, Paint};
 use crate::remote::Repository;
 use crate::config::Config;
 
-use super::{get_input, load_remote};
+use crate::commands::{get_input, load_remote};
 
 pub async fn delete_repository(args: Delete, config: &Config) -> Result<()> {
     let Delete {

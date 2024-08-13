@@ -55,10 +55,7 @@ async fn execute_command(args: Args) -> Result<()> {
     // Execute the sub-command
     match args.subcommand {
         Commands::ListRemotes => commands::list_remotes(&config).await,
-        Commands::Clone(args) => commands::clone_repository(args, &config).await,
-        Commands::List(args) => commands::list_repositories(args, &config).await,
-        Commands::Create(args) => commands::create_repository(args, &config).await,
-        Commands::Delete(args) => commands::delete_repository(args, &config).await,
+        Commands::Repo(repo) => commands::repo(repo, &config).await,
         Commands::Auth(args) => commands::auth(args, &mut config).await,
         Commands::CreateConfig => unreachable!(),
     }

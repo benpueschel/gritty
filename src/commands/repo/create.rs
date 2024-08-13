@@ -1,10 +1,10 @@
-use gritty_clap::{Create, OutputFormat};
+use gritty_clap::{repo::Create, OutputFormat};
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
 use crate::remote::RepoCreateInfo;
 
-use super::load_remote;
+use crate::commands::load_remote;
 
 pub async fn create_repository(args: Create, config: &Config) -> Result<()> {
     let Create {

@@ -4,26 +4,17 @@ use crate::config::Config;
 use crate::error::Result;
 use crate::remote::{self, Remote};
 
+mod repo;
+pub use repo::repo;
+
 mod auth;
 pub use auth::auth;
 
 mod create_config;
 pub use create_config::create_config;
 
-mod create_repository;
-pub use create_repository::create_repository;
-
-mod clone_repository;
-pub use clone_repository::clone_repository;
-
-mod list_repositories;
-pub use list_repositories::list_repositories;
-
 mod list_remotes;
 pub use list_remotes::list_remotes;
-
-mod delete_repository;
-pub use delete_repository::delete_repository;
 
 async fn load_remote(remote_name: &str, config: &Config) -> Result<Box<dyn Remote>> {
     let provider = config.get_remote_provider(remote_name)?;

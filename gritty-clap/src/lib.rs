@@ -1,16 +1,10 @@
 use std::env;
 
-mod auth;
-mod clone;
-mod create;
-mod delete;
-mod list;
+pub mod repo;
+pub mod auth;
 
-pub use auth::Auth;
-pub use clone::Clone;
-pub use create::Create;
-pub use delete::Delete;
-pub use list::List;
+use repo::Repo;
+use auth::Auth;
 
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
@@ -72,11 +66,8 @@ pub enum OutputFormat {
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
-    Clone(Clone),
-    List(List),
-    Create(Create),
-    Delete(Delete),
     Auth(Auth),
+    Repo(Repo),
 
     #[command(about = "Interactively configure gritty")]
     CreateConfig,
