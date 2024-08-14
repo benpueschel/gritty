@@ -54,7 +54,7 @@ async fn execute_command(args: Args) -> Result<()> {
 
     // Execute the sub-command
     match args.subcommand {
-        Commands::ListRemotes => commands::list_remotes(&config).await,
+        Commands::Remote(remote) => commands::remote(remote, &config).await,
         Commands::Repo(repo) => commands::repo(repo, &config).await,
         Commands::Auth(args) => commands::auth(args, &mut config).await,
         Commands::CreateConfig => unreachable!(),

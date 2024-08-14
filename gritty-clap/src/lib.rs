@@ -1,10 +1,12 @@
 use std::env;
 
+pub mod remote;
 pub mod repo;
 pub mod auth;
 
 use repo::Repo;
 use auth::Auth;
+use remote::Remote;
 
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
@@ -68,9 +70,8 @@ pub enum OutputFormat {
 pub enum Commands {
     Auth(Auth),
     Repo(Repo),
+    Remote(Remote),
 
     #[command(about = "Interactively configure gritty")]
     CreateConfig,
-    #[command(about = "List all configured remotes")]
-    ListRemotes,
 }
