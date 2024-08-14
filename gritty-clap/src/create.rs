@@ -44,8 +44,8 @@ If not provided, or --init is not specified, no license will be addeed."
     #[arg(
         help = "Name of the repository",
         long_help = "\
-Name of the repository to clone.
-The repository must be owned by the authenticated user."
+Name of the repository to create.
+The repository name must be unique within the remote."
     )]
     pub name: String,
     #[arg(

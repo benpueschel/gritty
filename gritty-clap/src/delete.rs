@@ -6,7 +6,7 @@ pub struct Delete {
     #[arg(
         help = "Name of the repository",
         long_help = "\
-Name of the repository to clone.
+Name of the repository to delete.
 The repository must be owned by the authenticated user."
     )]
     pub name: String,
