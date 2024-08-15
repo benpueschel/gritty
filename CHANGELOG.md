@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.0.1] - 2024-08-15
+### :bug: Bug Fixes
+- [`a6c9544`](https://github.com/benpueschel/gritty/commit/a6c954456431593c535331e03efcfb4b097c1a82) - correct help for repo names in `gritty help` *(commit by [@benpueschel](https://github.com/benpueschel))*
+
+
 ## [v1.0.0] - 2024-08-07
 ### :boom: BREAKING CHANGES
 - due to [`018f00f`](https://github.com/benpueschel/gritty/commit/018f00ffbb0ad47202cb7873e46045995b1b4738) - simplify secrets config *(commit by [@benpueschel](https://github.com/benpueschel))*:
@@ -254,3 +259,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v0.8.0]: https://github.com/benpueschel/gritty/compare/v0.7.0...v0.8.0
 [v0.8.1]: https://github.com/benpueschel/gritty/compare/v0.8.0...v0.8.1
 [v1.0.0]: https://github.com/benpueschel/gritty/compare/v0.8.1...v1.0.0
+[v1.0.1]: https://github.com/benpueschel/gritty/compare/v1.0.0...v1.0.1
