@@ -3,7 +3,7 @@ use clap::Parser;
 use crate::OutputFormat;
 
 #[derive(Debug, Clone, Parser)]
-#[command(about = "List repositories on a remote")]
+#[command(about = "List repositories on a remote", aliases = &["ls"])]
 pub struct List {
     #[arg(
         help = "Name of the remote as defined in the config (ex: 'github')",

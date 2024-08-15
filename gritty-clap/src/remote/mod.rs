@@ -8,6 +8,6 @@ pub struct Remote {
 }
 #[derive(Debug, Clone, Subcommand)]
 pub enum RemoteCommands {
-    #[command(about = "List all configured remotes")]
+    #[command(about = "List all configured remotes", aliases = &["ls"])]
     List,
 }

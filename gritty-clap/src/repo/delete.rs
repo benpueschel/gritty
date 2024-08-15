@@ -1,7 +1,7 @@
 use clap::Parser;
 
 #[derive(Debug, Clone, Parser)]
-#[command(about = "Delete a repository on a remote")]
+#[command(about = "Delete a repository on a remote", aliases = &["rm"])]
 pub struct Delete {
     #[arg(
         help = "Name of the repository",
