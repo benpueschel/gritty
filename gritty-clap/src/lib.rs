@@ -53,6 +53,24 @@ pub struct Args {
     /// If the config file does not exist, it will be created in the specified location,
     /// or ~/.config/gritty/config.toml if not specified.
     pub config: Option<String>,
+
+    #[arg(short, long, default_value = "auto")]
+    /// Whether to use color output.
+    pub color: Color,
+}
+
+#[derive(Default, Debug, Clone, Copy, ValueEnum)]
+#[value(rename_all = "lowercase")]
+pub enum Color {
+    #[default]
+    /// Use color output when possible.
+    /// If the output is not a TTY, or the `NO_COLOR` environment variable is set,
+    /// color will be disabled.
+    Auto,
+    /// Force color output.
+    Always,
+    /// Disable color output.
+    Never,
 }
 
 #[derive(Default, Debug, Clone, Copy, ValueEnum)]

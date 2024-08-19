@@ -12,6 +12,7 @@ use crate::config::{colors::ConfigColorMap, Config};
 use crate::error::Result;
 
 static STYLES: OnceCell<HashMap<Highlight, Style>> = OnceCell::const_new();
+pub static COLOR_MODE: OnceCell<gritty_clap::Color> = OnceCell::const_new();
 
 pub fn load_default_colors() -> Result<()> {
     let map = ConfigColorMap::default().parse_highlights()?;
@@ -34,8 +35,14 @@ pub fn leftpad(s: &str, width: usize) -> String {
 }
 
 pub fn is_color() -> bool {
-    // only colorize if NO_COLOR is not set and stdout is a tty
-    std::env::var("NO_COLOR").is_err() && std::io::stdout().is_terminal()
+    match COLOR_MODE.get().expect("Color mode not set") {
+        gritty_clap::Color::Auto => {
+            // only colorize if NO_COLOR is not set and stdout is a tty
+            std::env::var("NO_COLOR").is_err() && std::io::stdout().is_terminal()
+        }
+        gritty_clap::Color::Always => true,
+        gritty_clap::Color::Never => false,
+    }
 }
 
 pub struct StyledString(pub String, pub Highlight);

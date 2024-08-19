@@ -72,6 +72,7 @@ async fn main() -> Result<()> {
 
     // Parse command line arguments
     let args = Args::parse();
+    log::COLOR_MODE.set(args.color).unwrap();
 
     let result = execute_command(args).await;
 
