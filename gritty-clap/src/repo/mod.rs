@@ -11,11 +11,13 @@ pub use delete::Delete;
 pub use list::List;
 
 #[derive(Debug, Clone, Parser)]
-#[command(about = "Repository operations")]
+#[command()]
+/// Manage repositories on a remote.
 pub struct Repo {
     #[command(subcommand)]
     pub subcommand: RepoCommands,
 }
+
 #[derive(Debug, Clone, Subcommand)]
 pub enum RepoCommands {
     Clone(Clone),
