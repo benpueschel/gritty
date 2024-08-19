@@ -3,7 +3,7 @@ use clap::Parser;
 use crate::OutputFormat;
 
 #[derive(Debug, Clone, Parser)]
-#[command(about = "Create a repository on a remote")]
+#[command(about = "Create a repository on a remote", aliases = &["new"])]
 pub struct Create {
     #[arg(short, long, help = "Create a private repository")]
     pub private: bool,
