@@ -28,7 +28,18 @@ fn styles() -> Styles {
 #[command(
     name = "gritty",
     version = crate_version!(),
-    about = "A tool to manage remote git repositories.",
+    about = r#"
+
+            _ _   _
+           (_) | | |
+  __ _ _ __ _| |_| |_ _   _
+ / _` | '__| | __| __| | | |
+| (_| | |  | | |_| |_| |_| |
+ \__, |_|  |_|\__|\__|\__, |
+  __/ |                __/ |
+ |___/                |___/
+
+ Manage your remote repositories with ease"#,
     arg_required_else_help = true,
     styles = styles()
 )]
