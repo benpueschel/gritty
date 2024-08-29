@@ -84,6 +84,21 @@ pub struct RepoCreateInfo {
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RepoForkOption {
+    /// The owner of the repository to fork.
+    pub owner: String,
+    /// The name of the repository to fork.
+    pub repo: String,
+    /// The name of the fork.
+    pub name: Option<String>,
+    /// Organization name, if forking into an organization.
+    /// If not provided, the fork will be created in the user's account.
+    pub organization: Option<String>,
+    /// Only clone the default branch.
+    pub default_branch_only: Option<bool>,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ListReposInfo {
     /// Whether to include private repositories in the list.
     pub private: bool,
@@ -101,8 +116,11 @@ pub trait Remote: Sync {
         Self: Sized;
 
     /// Create a new repository on the remote.
-    /// Returns the URL of the new repository.
+    /// Returns the new repository.
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository>;
+    /// Fork a repository.
+    /// Returns the new newly-created fork.
+    async fn create_fork(&self, options: RepoForkOption) -> Result<Repository>;
     /// List all repositories.
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>>;
     /// Get the information of a repository.

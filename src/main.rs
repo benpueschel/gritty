@@ -1,9 +1,9 @@
 use std::fmt::Display;
 
-use gritty_clap::{Args, Commands};
 use clap::Parser;
 use config::Config;
 use error::{Error, ErrorKind, Result};
+use gritty_clap::{Args, Commands};
 use log::{Highlight, Paint};
 
 pub mod commands;

@@ -1,7 +1,7 @@
-use gritty_clap::auth::Auth;
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
+use gritty_clap::auth::Auth;
 use std::io::{stdout, Write};
 
 use super::get_input;

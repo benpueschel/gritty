@@ -1,4 +1,6 @@
-use super::{Auth, ListReposInfo, Remote, RemoteConfig, RepoCreateInfo, Repository};
+use super::{
+    Auth, ListReposInfo, Remote, RemoteConfig, RepoCreateInfo, RepoForkOption, Repository,
+};
 use crate::{
     error::{Error, ErrorKind, Result},
     remote::COMMIT_COUNT,
@@ -10,18 +12,19 @@ use gl::{
     api::{
         self,
         common::VisibilityLevel,
+        endpoint_prelude::Method,
         projects::{
             self,
             repository::commits::{Commits, CommitsBuilderError},
             CreateProject, CreateProjectBuilderError, DeleteProjectBuilderError,
             ProjectBuilderError, Projects, ProjectsBuilderError,
         },
-        ApiError, AsyncQuery, Pagination,
+        ApiError, AsyncQuery, Endpoint, Pagination,
     },
     RestError,
 };
 use serde::{de::IgnoredAny, Deserialize};
-use std::{error::Error as StdError, str::FromStr};
+use std::{borrow::Cow, error::Error as StdError, str::FromStr};
 
 pub struct GitlabRemote {
     config: RemoteConfig,
@@ -188,6 +191,41 @@ impl Remote for GitlabRemote {
             .build()?;
 
         let project: Project = project.query_async(&self.client).await?;
+        self.get_project_info(project).await
+    }
+    async fn create_fork(&self, options: RepoForkOption) -> Result<Repository> {
+        #[derive(Debug, Deserialize)]
+        #[allow(dead_code)]
+        struct ForkEndpoint {
+            #[serde(skip)]
+            id: String,
+            /// The name of the fork.
+            name: Option<String>,
+            /// The path of the fork.
+            namespace_path: Option<String>,
+        }
+        impl Endpoint for ForkEndpoint {
+            /// The HTTP method to use for the endpoint.
+            fn method(&self) -> Method {
+                Method::POST
+            }
+            /// The path to the endpoint.
+            fn endpoint(&self) -> Cow<'static, str> {
+                format!("/projects/{}/fork", self.id).into()
+            }
+        }
+        let path = options.repo.replace(' ', "-").to_lowercase();
+        let encoded_path = format!(
+            "{}/{}",
+            urlencoding::encode(&options.owner),
+            urlencoding::encode(&path)
+        );
+        let endpoint = ForkEndpoint {
+            id: encoded_path,
+            name: options.name,
+            namespace_path: options.organization,
+        };
+        let project = endpoint.query_async(&self.client).await?;
         self.get_project_info(project).await
     }
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {

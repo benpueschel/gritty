@@ -4,7 +4,7 @@ use crate::error::{Error, ErrorKind, Result};
 use async_trait::async_trait;
 use teatime::{
     error::{TeatimeError, TeatimeErrorKind},
-    Client, CreateRepoOption, GetCommitsOption,
+    Client, CreateForkOption, CreateRepoOption, GetCommitsOption,
 };
 
 use super::*;
@@ -57,6 +57,18 @@ impl Remote for GiteaRemote {
         };
         let repo = self.client.user_create_repository(&cr).await?;
         self.get_repo_info(repo).await
+    }
+
+    async fn create_fork(&self, options: RepoForkOption) -> Result<Repository> {
+        let option = CreateForkOption {
+            name: options.name,
+            organization: options.organization,
+        };
+        let fork = self
+            .client
+            .fork_repository(options.owner, options.repo, &option)
+            .await?;
+        self.get_repo_info(fork).await
     }
 
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {

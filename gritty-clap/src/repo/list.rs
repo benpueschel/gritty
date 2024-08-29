@@ -25,7 +25,7 @@ pub struct List {
     ///
     /// This option is useful for parsing the output of gritty, such as in a script or another
     /// tool integrating with gritty.
-
+    ///
     /// When using the 'json' format, gritty will output information about the repositories in JSON."
     pub format: Option<OutputFormat>,
 }

@@ -11,7 +11,9 @@ use octocrab::{
 };
 use serde::{Deserialize, Serialize};
 
-use super::{Commit, ListReposInfo, Remote, RemoteConfig, RepoCreateInfo, Repository};
+use super::{
+    Commit, ListReposInfo, Remote, RemoteConfig, RepoCreateInfo, RepoForkOption, Repository,
+};
 
 pub struct GitHubRemote {
     config: RemoteConfig,
@@ -101,6 +103,34 @@ impl Remote for GitHubRemote {
         let repo: octocrab::models::Repository = self.crab.post("/user/repos", Some(&body)).await?;
         let base = self.crab.repos(self.config.username.clone(), req.name);
         Self::get_repo_info(self.config.username.clone(), base, repo).await
+    }
+
+    async fn create_fork(&self, options: RepoForkOption) -> Result<Repository> {
+        // NOTE: this is a workaround for the incomplete octocrab API for forking repositories.
+        // I submitted a PR to add the missing fields to octocrab (#682),
+        // but it hasn't been merged yet.
+
+        #[derive(Serialize, Deserialize)]
+        struct Request {
+            organization: Option<String>,
+            name: Option<String>,
+            default_branch_only: Option<bool>,
+        }
+        let body = Request {
+            organization: options.organization,
+            name: options.name,
+            default_branch_only: options.default_branch_only,
+        };
+        let owner = options.owner;
+        let repo = options.repo;
+
+        let fork: octocrab::models::Repository = self
+            .crab
+            .post(format!("/repos/{owner}/{repo}/forks"), Some(&body))
+            .await?;
+
+        let base = self.crab.repos(owner.to_string(), repo.to_string());
+        Self::get_repo_info(self.config.username.clone(), base, fork).await
     }
 
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {
