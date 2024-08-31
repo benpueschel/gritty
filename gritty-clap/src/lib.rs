@@ -47,7 +47,7 @@ pub struct Args {
     #[command(subcommand)]
     pub subcommand: Commands,
 
-    #[arg(short = 'C', long)]
+    #[arg(short = 'C', long, global = true)]
     ///Path to the configuration file.
     ///
     /// If not provided, the config will be searched for in the following directories:
@@ -65,7 +65,7 @@ pub struct Args {
     /// or ~/.config/gritty/config.toml if not specified.
     pub config: Option<String>,
 
-    #[arg(short, long, default_value = "auto")]
+    #[arg(long, default_value = "auto", global = true)]
     /// Whether to use color output.
     pub color: Color,
 }
