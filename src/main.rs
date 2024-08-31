@@ -58,6 +58,7 @@ async fn execute_command(args: Args) -> Result<()> {
         Commands::Repo(repo) => commands::repo(repo, &config).await,
         Commands::Auth(args) => commands::auth(args, &mut config).await,
         Commands::CreateConfig => unreachable!(),
+        Commands::Completions(completions) => commands::completions(completions).await,
     }
 }
 

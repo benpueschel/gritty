@@ -16,6 +16,9 @@ pub use auth::auth;
 mod create_config;
 pub use create_config::create_config;
 
+mod completions;
+pub use completions::completions;
+
 async fn load_remote(remote_name: &str, config: &Config) -> Result<Box<dyn Remote>> {
     let provider = config.get_remote_provider(remote_name)?;
     let remote_config = config.get_remote_config(remote_name)?;

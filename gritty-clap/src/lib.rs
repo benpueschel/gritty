@@ -3,10 +3,12 @@ use std::env;
 pub mod auth;
 pub mod remote;
 pub mod repo;
+pub mod completions;
 
 use auth::Auth;
 use remote::Remote;
 use repo::Repo;
+use completions::Completions;
 
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
@@ -57,9 +59,9 @@ pub struct Args {
     ///
     /// On Windows, the following directories will be searched:
     ///
-    /// - %LOCALAPPDATA%\\gritty\\config.toml   (C:\\Users\\<user>\\AppData\\Local\\gritty\\config.toml)
+    /// - %LOCALAPPDATA%\gritty\config.toml   (C:\Users\<user>\AppData\Local\gritty\config.toml)
     ///
-    /// - %LOCALAPPDATA%\\.gritty.toml          (C:\\Users\\<user>\\AppData\\Local\\.gritty.toml)
+    /// - %LOCALAPPDATA%\.gritty.toml          (C:\Users\<user>\AppData\Local\.gritty.toml)
     ///
     /// If the config file does not exist, it will be created in the specified location,
     /// or ~/.config/gritty/config.toml if not specified.
@@ -99,6 +101,8 @@ pub enum Commands {
     Auth(Auth),
     Repo(Repo),
     Remote(Remote),
+
+    Completions(Completions),
 
     #[command()]
     /// Interactively configure gritty.
