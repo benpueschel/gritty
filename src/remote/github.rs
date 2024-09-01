@@ -59,7 +59,7 @@ impl From<octocrab::Error> for Error {
 
 #[async_trait]
 impl Remote for GitHubRemote {
-    async fn new(config: &RemoteConfig) -> Self {
+    async fn new(config: &RemoteConfig) -> Result<Self> {
         let mut crab = Octocrab::builder();
 
         use super::Auth::*;
@@ -68,15 +68,34 @@ impl Remote for GitHubRemote {
             Token { token } => crab.personal_token(token),
         };
 
-        let crab = crab.build().expect("Failed to create Octocrab instance");
-        Self {
+        let crab = crab.build()?;
+
+        Ok(Self {
             crab,
             config: config.clone(), // TODO: remove clone
-        }
+        })
     }
 
     fn get_config(&self) -> &RemoteConfig {
         &self.config
+    }
+
+    #[rustfmt::skip]
+    // Skip formatting because it wants to wrap the `if let Err` block
+    async fn check_auth(&self) -> Result<bool> {
+        use octocrab::models::UserProfile;
+        let none: Option<&bool> = None;
+        let res: octocrab::Result<UserProfile> = self.crab.get("/user", none).await;
+
+        if let Err(err) = res {
+            if let octocrab::Error::GitHub { source, backtrace: _, } = &err {
+                if source.status_code.as_u16() == 401 {
+                    return Ok(false);
+                }
+            }
+            return Err(err.into());
+        }
+        Ok(true)
     }
 
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository> {

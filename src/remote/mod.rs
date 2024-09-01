@@ -111,10 +111,12 @@ pub static COMMIT_COUNT: u8 = 25;
 #[async_trait]
 pub trait Remote: Sync {
     /// Create a new remote with the given configuration.
-    async fn new(config: &RemoteConfig) -> Self
+    async fn new(config: &RemoteConfig) -> Result<Self>
     where
         Self: Sized;
 
+    /// Check if the remote is authenticated.
+    async fn check_auth(&self) -> Result<bool>;
     /// Create a new repository on the remote.
     /// Returns the new repository.
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository>;
@@ -196,11 +198,11 @@ pub trait Remote: Sync {
     }
 }
 
-pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Box<dyn Remote> {
+pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Result<Box<dyn Remote>> {
     use Provider::*;
-    match provider {
-        GitHub => Box::new(github::GitHubRemote::new(config).await),
-        Gitea => Box::new(gitea::GiteaRemote::new(config).await),
-        GitLab => Box::new(gitlab::GitlabRemote::new(config).await),
-    }
+    Ok(match provider {
+        GitHub => Box::new(github::GitHubRemote::new(config).await?),
+        Gitea => Box::new(gitea::GiteaRemote::new(config).await?),
+        GitLab => Box::new(gitlab::GitlabRemote::new(config).await?),
+    })
 }

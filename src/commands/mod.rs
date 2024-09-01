@@ -22,7 +22,7 @@ pub use completions::completions;
 async fn load_remote(remote_name: &str, config: &Config) -> Result<Box<dyn Remote>> {
     let provider = config.get_remote_provider(remote_name)?;
     let remote_config = config.get_remote_config(remote_name)?;
-    Ok(create_remote(&remote_config, provider).await)
+    create_remote(&remote_config, provider).await
 }
 
 fn get_input() -> Result<String> {

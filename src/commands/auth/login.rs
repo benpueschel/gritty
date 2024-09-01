@@ -1,13 +1,13 @@
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
-use gritty_clap::auth::Auth;
+use gritty_clap::auth::Login;
 use std::io::{stdout, Write};
 
-use super::get_input;
+use crate::commands::get_input;
 
-pub async fn auth(args: Auth, config: &mut Config) -> Result<()> {
-    let Auth { remote } = &args;
+pub async fn login(args: Login, config: &mut Config) -> Result<()> {
+    let Login { remote } = &args;
     print!(
         "Enter your {} for remote {} (leave blank to use a token): ",
         "username".paint(Highlight::Username),

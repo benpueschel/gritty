@@ -32,7 +32,7 @@ impl From<TeatimeError> for Error {
 
 #[async_trait]
 impl Remote for GiteaRemote {
-    async fn new(config: &RemoteConfig) -> Self {
+    async fn new(config: &RemoteConfig) -> Result<Self> {
         let auth = match config.auth.clone() {
             Auth::Token { token } => teatime::Auth::Token(token),
             Auth::Basic { username, password } => teatime::Auth::Basic(username, password),
@@ -40,10 +40,21 @@ impl Remote for GiteaRemote {
 
         let client = Client::new(config.url.clone(), auth);
 
-        Self {
+        Ok(Self {
             config: config.clone(),
             client,
+        })
+    }
+
+    async fn check_auth(&self) -> Result<bool> {
+        if let Err(err) = self.client.get_authenticated_user().await {
+            match err.status_code.as_u16() {
+                401 | 403 => return Ok(false),
+                _ => {}
+            }
+            return Err(err.into());
         }
+        Ok(true)
     }
 
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository> {

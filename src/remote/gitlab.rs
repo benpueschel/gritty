@@ -8,6 +8,7 @@ use crate::{
 use ::gitlab as gl;
 use async_trait::async_trait;
 use chrono::DateTime;
+use gitlab::{api::users::CurrentUser, GitlabError};
 use gl::{
     api::{
         self,
@@ -59,7 +60,17 @@ impl<E: StdError + Send + Sync + 'static> From<ApiError<E>> for Error {
                 )),
                 None => Error::other("Requested endpoint moved permanently"),
             },
-            ApiError::Gitlab { msg } => Error::other(msg),
+            ApiError::Gitlab { msg } => {
+                // NOTE: For some asinine reason, the gitlab crate decides to check auth when
+                // building the client, and then doesn't even manage to return the correct error
+                // kind (THEY HAVE AN AUTH ERROR KIND, WHY NOT USE IT?). This is literally the only
+                // data the gitlab client returns, so we have to check for it here.
+                if msg == "401 Unauthorized" {
+                    Error::authentication(msg)
+                } else {
+                    Error::other(msg)
+                }
+            }
             ApiError::GitlabService { status, data: _ } => Error {
                 message: "Gitlab service error".to_string(),
                 kind: ErrorKind::Other,
@@ -79,6 +90,30 @@ impl<E: StdError + Send + Sync + 'static> From<ApiError<E>> for Error {
                 Error::other(format!("Unsupported URL base: {:?}", url_base))
             }
 
+            x => Error::other(x),
+        }
+    }
+}
+
+impl From<GitlabError> for Error {
+    fn from(value: GitlabError) -> Self {
+        match value {
+            GitlabError::UrlParse { source } => Error::serialization(source),
+            GitlabError::AuthError { source } => Error::authentication(source),
+            GitlabError::Communication { source } => Error::other(source),
+            GitlabError::Http { status } => Error::other(format!("HTTP error: {}", status)),
+            GitlabError::GraphQL { message } => Error::other(
+                message
+                    .iter()
+                    .map(|x| x.message.clone())
+                    .collect::<Vec<_>>()
+                    .join("\n"),
+            ),
+            GitlabError::NoResponse {} => Error::other("No response from server"),
+            GitlabError::DataType { source, typename } => Error::deserialization(format!(
+                "Failed to deserialize data of type {typename}: {source}"
+            )),
+            GitlabError::Api { source } => source.into(),
             x => Error::other(x),
         }
     }
@@ -161,19 +196,44 @@ impl From<RestError> for Error {
 
 #[async_trait]
 impl Remote for GitlabRemote {
-    async fn new(config: &RemoteConfig) -> Self {
+    async fn new(config: &RemoteConfig) -> Result<Self> {
         let token = match &config.auth {
             Auth::Token { token } => token,
-            _ => panic!("auth must be a token for Gitlab"),
+            _ => {
+                return Err(Error::other(
+                    "Only token authentication is supported for Gitlab",
+                ))
+            }
         };
         let client = gl::GitlabBuilder::new(config.url.clone().replace("https://", ""), token)
             .build_async()
-            .await
-            .expect("Failed to create Gitlab client");
-        Self {
+            .await?;
+        Ok(Self {
             config: config.clone(),
             client,
+        })
+    }
+    #[allow(dead_code)]
+    async fn check_auth(&self) -> Result<bool> {
+        #[derive(Deserialize)]
+        struct User {
+            pub id: u64,
         }
+        let endpoint = CurrentUser::builder()
+            .build()
+            .expect("building user should always work");
+        let _: User = match endpoint.query_async(&self.client).await {
+            Ok(x) => x,
+            Err(err) => {
+                if let ApiError::GitlabService { status, data: _ } = &err {
+                    if *status == 401 {
+                        return Ok(false);
+                    }
+                }
+                return Err(Error::other(format!("Failed to check auth: {}", err)));
+            }
+        };
+        Ok(true)
     }
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository> {
         let visibility = match create_info.private {
