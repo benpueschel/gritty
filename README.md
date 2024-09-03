@@ -21,6 +21,41 @@ Now you can use gritty to manage your repositories!
 See the [Usage](#usage) and [Examples](#Examples) sections for more information
 on the available commands.
 
+## Shell Completion
+
+Gritty can generate shell completions for Bash, Zsh, Fish, and PowerShell.
+To generate completions for your shell, run one of the following commands:
+
+For **bash**:
+```bash
+dir="${XDG_CONFIG_HOME:-"$HOME/.config"}/bash_completion"
+# or dir="/usr/share/bash-completion/completions" if you want to install system-wide
+mkdir -p "$dir"
+gritty completions bash > "$dir/gritty.bash"
+```
+
+For **zsh**:
+```bash
+dir="$HOME/.zsh-complete"
+# or dir="/usr/share/zsh/site-functions" if you want to install system-wide
+mkdir -p "$dir"
+gritty completions bash > "$dir/_gritty"
+```
+
+For **fish**:
+```bash
+dir="${XDG_CONFIG_HOME:-"$HOME/.config"}/fish/completions"
+# or dir="/usr/share/bash-completion/completions" if you want to install system-wide
+mkdir -p "$dir"
+gritty completions fish > "$dir/gritty.fish"
+```
+
+For **PowerShell**:
+```powershell
+gritty completions power-shell > _gritty.ps1
+```
+And then add `. _gritty.ps1` to your PowerShell profile.
+
 # Installation
 
 ## Precompiled Binaries
@@ -42,6 +77,16 @@ To install a specific version, you can pass the version tag (e.g. `v0.8.0`) as a
 ```bash
 ./install.sh -v v0.8.0
 ```
+
+### Cargo install
+
+Gritty is also available on [crates.io](https://crates.io/crates/gritty), so you can install it using `cargo`:
+```bash
+cargo install gritty
+```
+
+This will install the latest version of gritty into your `~/.cargo/bin` directory.
+Make sure this directory is in your PATH to use the `gritty` command.
 
 ### Manual Installation
 
@@ -77,12 +122,14 @@ You can then edit this file to add your remotes and access tokens.
 
 Gritty currently supports the following subcommands:
 - `gritty create-config`: interactively create a configuration file.
-- `gritty auth [remote]`: authenticate with the specified remote.
-- `gritty clone [repo] [remote]`: clone a repository from the specified remote.
-- `gritty create [repo] [remote]`: create a new repository on the specified remote.
-- `gritty delete [repo] [remote]`: delete a repository from the specified remote.
-- `gritty list [remote]`: list all repositories on the specified remote.
-- `gritty list-remotes`: list all remotes in the configuration file.
+- `gritty auth login [remote]`: authenticate with the specified remote.
+- `gritty auth status`: show the authentication status for all remotes.
+- `gritty repo clone [repo] [remote]`: clone a repository from the specified remote.
+- `gritty repo fork [owner] [repo] [remote]`: fork a repository from the specified remote.
+- `gritty repo create [repo] [remote]`: create a new repository on the specified remote.
+- `gritty repo delete [repo] [remote]`: delete a repository from the specified remote.
+- `gritty repo list [remote]`: list all repositories on the specified remote.
+- `gritty remote list`: list all remotes in the configuration file.
 
 To see the available options for a subcommand, run:
 ```bash
@@ -118,7 +165,7 @@ right away.
 
 After creating your configuration file, you can authenticate with a remote using:
 ```bash
-gritty auth [remote]
+gritty auth login [remote]
 ```
 This command will prompt you for your username and password. Leave the username
 blank to use an access token (which you should definitely do because gritty doesn't
@@ -221,16 +268,16 @@ The `inverse` option will swap the text and background colors.
 
 To create a public repository on GitHub:
 ```bash
-gritty create my-repo github
+gritty repo create my-repo github
 ```
 
 To create a private repository:
 ```bash
-gritty create my-private-repo github --private
+gritty repo create my-private-repo github --private
 ```
 or use the shorthand:
 ```bash
-gritty create -p my-private-repo github
+gritty repo new -p my-private-repo github
 ```
 
 Example output:
@@ -239,7 +286,7 @@ Example output:
 
 To list all repositories on Gitea:
 ```bash
-gritty list gitea
+gritty repo list gitea
 ```
 
 Example output:
@@ -248,7 +295,7 @@ Example output:
 
 To delete a repository from a remote:
 ```bash
-gritty delete my-repo my-awesome-remote
+gritty repo rm my-repo my-awesome-remote
 ```
 This will prompt you for confirmation and show you the last commit before deleting.
 
