@@ -8,18 +8,7 @@ authors = ["Ben Püschel"]
 readme = "README.md"
 license = "MIT"
 categories = ["command-line-utilities"]
-keywords = [
-	"git",
-	"github",
-	"gitlab",
-	"gitea",
-	"cli",
-	"command-line",
-	"version-control",
-	"remote",
-	"repository",
-	"management",
-]
+keywords = ["git", "github", "gitlab", "gitea", "cli"]
 
 [features]
 default = ["keyring"]
