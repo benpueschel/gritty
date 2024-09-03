@@ -1,11 +1,13 @@
+use std::{env, path::Path};
+
 use clap::CommandFactory;
 
-static MAN_DIR: &str = "man";
 use gritty_clap::Args;
 
 fn main() {
+    let out_dir = env::var("OUT_DIR").expect("OUT_DIR not set");
+    let man_dir = Path::new(&out_dir).join("man");
     // Generate gritty manpages on build
-    let _ = std::fs::remove_dir_all(MAN_DIR);
-    std::fs::create_dir_all(MAN_DIR).expect("Failed to create man dir");
-    clap_mangen::generate_to(Args::command(), MAN_DIR).expect("Failed to generate manpages");
+    std::fs::create_dir_all(&man_dir).expect("Failed to create man dir");
+    clap_mangen::generate_to(Args::command(), &man_dir).expect("Failed to generate manpages");
 }
