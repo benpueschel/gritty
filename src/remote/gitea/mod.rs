@@ -2,9 +2,9 @@ use std::str::FromStr;
 
 use crate::error::{Error, ErrorKind, Result};
 use async_trait::async_trait;
-use teatime::{
+use gitea_sdk::{
     error::{TeatimeError, TeatimeErrorKind},
-    Client, CreateRepoOption, GetCommitsOption,
+    Client,
 };
 
 use super::*;
@@ -32,42 +32,68 @@ impl From<TeatimeError> for Error {
 
 #[async_trait]
 impl Remote for GiteaRemote {
-    async fn new(config: &RemoteConfig) -> Self {
+    async fn new(config: &RemoteConfig) -> Result<Self> {
         let auth = match config.auth.clone() {
-            Auth::Token { token } => teatime::Auth::Token(token),
-            Auth::Basic { username, password } => teatime::Auth::Basic(username, password),
+            Auth::Token { token } => gitea_sdk::Auth::Token(token),
+            Auth::Basic { username, password } => gitea_sdk::Auth::Basic(username, password),
         };
 
         let client = Client::new(config.url.clone(), auth);
 
-        Self {
+        Ok(Self {
             config: config.clone(),
             client,
+        })
+    }
+
+    async fn check_auth(&self) -> Result<bool> {
+        if let Err(err) = self.client.user().current().send(&self.client).await {
+            match err.status_code.as_u16() {
+                401 | 403 => return Ok(false),
+                _ => {}
+            }
+            return Err(err.into());
         }
+        Ok(true)
     }
 
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository> {
-        let cr = CreateRepoOption {
-            auto_init: create_info.init,
-            license: create_info.license.unwrap_or_default(),
-            name: create_info.name,
-            description: create_info.description.unwrap_or_default(),
-            private: create_info.private,
-            ..Default::default()
-        };
-        let repo = self.client.user_create_repository(&cr).await?;
+        let repo = self
+            .client
+            .user()
+            .create_repo(create_info.name)
+            .auto_init(create_info.init)
+            .description(create_info.description.unwrap_or_default())
+            .license(create_info.license.unwrap_or_default())
+            .private(create_info.private)
+            .send(&self.client)
+            .await?;
         self.get_repo_info(repo).await
     }
 
+    async fn create_fork(&self, options: RepoForkOption) -> Result<Repository> {
+        let mut fork = self.client.repos(options.owner, options.repo).create_fork();
+        if let Some(name) = options.name.clone() {
+            fork = fork.name(name);
+        }
+        if let Some(org) = options.organization.clone() {
+            fork = fork.organization(org);
+        }
+        let fork = fork.send(&self.client).await?;
+        self.get_repo_info(fork).await
+    }
+
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>> {
-        let owner = self.client.get_authenticated_user().await?;
-        let search_option = teatime::SearchRepositoriesOption {
-            private: Some(list_info.private),
-            uid: Some(owner.id),
-            limit: Some(100),
-            ..Default::default()
-        };
-        let repos = self.client.search_repositories(&search_option).await?;
+        let owner = self.client.user().current().send(&self.client).await?;
+        let repos = self
+            .client
+            .search()
+            .repos()
+            .private(list_info.private)
+            .uid(owner.id)
+            .limit(100)
+            .send(&self.client)
+            .await?;
         let mut futures = Vec::new();
         for repo in repos {
             // SAFETY: We are not moving `self` in the closure, self is guaranteed to be valid as
@@ -90,14 +116,21 @@ impl Remote for GiteaRemote {
 
     async fn get_repo_info(&self, name: &str) -> Result<Repository> {
         let owner = &self.config.username;
-        let repo = self.client.get_repository(owner, name).await?;
+        let repo = self
+            .client
+            .repos(owner, name)
+            .get()
+            .send(&self.client)
+            .await?;
         self.get_repo_info(repo).await
     }
 
     async fn delete_repo(&self, name: &str) -> Result<()> {
         Ok(self
             .client
-            .delete_repository(&self.config.username, name)
+            .repos(&self.config.username, name)
+            .delete()
+            .send(&self.client)
             .await?)
     }
 
@@ -107,19 +140,21 @@ impl Remote for GiteaRemote {
 }
 
 impl GiteaRemote {
-    async fn get_repo_info(&self, repo: teatime::Repository) -> Result<Repository> {
+    async fn get_repo_info(&self, repo: gitea_sdk::model::repos::Repository) -> Result<Repository> {
         let owner = &self.config.username;
         let name = &repo.name;
         // disable stats, verification, and files to speed up the request.
         // We only care about the commit messages.
-        let commit_option = GetCommitsOption {
-            stat: false,
-            verification: false,
-            files: false,
-            limit: Some(super::COMMIT_COUNT as i64),
-            ..Default::default()
-        };
-        let commits = self.client.get_commits(owner, name, &commit_option).await;
+        let commits = self
+            .client
+            .repos(owner, name)
+            .get_commits()
+            .stat(false)
+            .verification(false)
+            .files(false)
+            .limit(super::COMMIT_COUNT as i64)
+            .send(&self.client)
+            .await;
         let commits = match commits {
             Ok(x) => x,
             Err(err) => {

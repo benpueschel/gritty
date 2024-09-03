@@ -1,16 +1,14 @@
 use std::env;
 
-mod auth;
-mod clone;
-mod create;
-mod delete;
-mod list;
+pub mod auth;
+pub mod remote;
+pub mod repo;
+pub mod completions;
 
-pub use auth::Auth;
-pub use clone::Clone;
-pub use create::Create;
-pub use delete::Delete;
-pub use list::List;
+use auth::Auth;
+use remote::Remote;
+use repo::Repo;
+use completions::Completions;
 
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},
@@ -32,54 +30,81 @@ fn styles() -> Styles {
 #[command(
     name = "gritty",
     version = crate_version!(),
-    about = "A tool to manage remote git repositories.",
+    about = r#"
+
+            _ _   _
+           (_) | | |
+  __ _ _ __ _| |_| |_ _   _
+ / _` | '__| | __| __| | | |
+| (_| | |  | | |_| |_| |_| |
+ \__, |_|  |_|\__|\__|\__, |
+  __/ |                __/ |
+ |___/                |___/
+
+ Manage your remote repositories with ease"#,
     arg_required_else_help = true,
     styles = styles()
 )]
 pub struct Args {
     #[command(subcommand)]
     pub subcommand: Commands,
-    #[arg(
-        short = 'C',
-        long,
-        help = "Path to the configuration file",
-        long_help = "Path to the configuration file.
-\
-If not provided, the config will be searched for in the following directories:
 
-- $XDG_CONFIG_HOME/gritty/config.toml (~/.config/gritty/config.toml)
-- $HOME/.gritty.toml                  (~/.gritty.toml)
-
-On Windows, the following directories will be searched:
-
-- %LOCALAPPDATA%\\gritty\\config.toml   (C:\\Users\\<user>\\AppData\\Local\\gritty\\config.toml)
-- %LOCALAPPDATA%\\.gritty.toml          (C:\\Users\\<user>\\AppData\\Local\\.gritty.toml)
-
-If the config file does not exist, it will be created in the specified location,
-or ~/.config/gritty/config.toml if not specified.\
-"
-    )]
+    #[arg(short = 'C', long, global = true)]
+    ///Path to the configuration file.
+    ///
+    /// If not provided, the config will be searched for in the following directories:
+    ///
+    /// - $XDG_CONFIG_HOME/gritty/config.toml (~/.config/gritty/config.toml)
+    /// - $HOME/.gritty.toml                  (~/.gritty.toml)
+    ///
+    /// On Windows, the following directories will be searched:
+    ///
+    /// - %LOCALAPPDATA%\gritty\config.toml   (C:\Users\<user>\AppData\Local\gritty\config.toml)
+    ///
+    /// - %LOCALAPPDATA%\.gritty.toml          (C:\Users\<user>\AppData\Local\.gritty.toml)
+    ///
+    /// If the config file does not exist, it will be created in the specified location,
+    /// or ~/.config/gritty/config.toml if not specified.
     pub config: Option<String>,
+
+    #[arg(long, default_value = "auto", global = true)]
+    /// Whether to use color output.
+    pub color: Color,
+}
+
+#[derive(Default, Debug, Clone, Copy, ValueEnum)]
+#[value(rename_all = "lowercase")]
+pub enum Color {
+    #[default]
+    /// Use color output when possible.
+    /// If the output is not a TTY, or the `NO_COLOR` environment variable is set,
+    /// color will be disabled.
+    Auto,
+    /// Force color output.
+    Always,
+    /// Disable color output.
+    Never,
 }
 
 #[derive(Default, Debug, Clone, Copy, ValueEnum)]
 #[value(rename_all = "lowercase")]
 pub enum OutputFormat {
     #[default]
+    /// Output in human-readable format.
     Human,
+    /// Output in machine-readable JSON format.
     Json,
 }
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
-    Clone(Clone),
-    List(List),
-    Create(Create),
-    Delete(Delete),
     Auth(Auth),
+    Repo(Repo),
+    Remote(Remote),
 
-    #[command(about = "Interactively configure gritty")]
+    Completions(Completions),
+
+    #[command()]
+    /// Interactively configure gritty.
     CreateConfig,
-    #[command(about = "List all configured remotes")]
-    ListRemotes,
 }

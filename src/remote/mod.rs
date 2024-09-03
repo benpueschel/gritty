@@ -1,6 +1,80 @@
 //! The remote module provides an interface for interacting with remote repositories.
-//! To acquire a remote, use the [create_remote] function.
-//! The [Remote] trait provides a common interface for interacting with remotes.
+//!
+//! To acquire a remote, use the [create_remote] function, which returns a remote for the given
+//! [Provider]. Support for the following providers is built-in:
+//! - [github::GitHubRemote]
+//! - [gitlab::GitlabRemote]
+//! - [gitea::GiteaRemote]
+//!
+//! The [Remote] trait provides a common interface for interacting with remotes:
+//! ```
+//! # async fn run() {
+//! use gritty::remote::{self, Remote, RemoteConfig, Provider, Auth, CloneProtocol};
+//! use gritty::remote::github::GitHubRemote;
+//!
+//! let config = RemoteConfig {
+//!     username: "octocat".to_string(),
+//!     clone_protocol: CloneProtocol::HTTPS,
+//!     url: "https://github.com".to_string(),
+//!     auth: Auth::Token { token: "your-gh-token".to_string() },
+//! };
+//!
+//! let remote = remote::create_remote(&config, Provider::GitHub).await.unwrap();
+//! # }
+//! ```
+//!
+//! The [remote::Remote] trait provides methods for interacting with repositories:
+//! ```
+//! # async fn run() {
+//! # use gritty::remote::{
+//!       self, Remote, RemoteConfig, Provider, Auth, CloneProtocol,
+//!       RepoCreateInfo, ListReposInfo, RepoForkOption,
+//!   };
+//! # use gritty::remote::github::GitHubRemote;
+//! # let config = RemoteConfig {
+//! #     username: "octocat".to_string(),
+//! #     clone_protocol: CloneProtocol::HTTPS,
+//! #     url: "https://github.com".to_string(),
+//! #     auth: Auth::Token { token: "your-gh-token".to_string() },
+//! # };
+//! # let remote = remote::create_remote(&config, Provider::GitHub).await.unwrap();
+//!
+//! // Check if we're authenticated
+//! let auth = remote.check_auth().await.unwrap();
+//! if !auth {
+//!     println!("We're not authenticated :(");
+//!     return;
+//! }
+//!
+//! // Get information about octocat/hello-world
+//! let repo = remote.get_repo_info("hello-world").await.unwrap();
+//!
+//! // Create a new repository
+//! let repo_create_info = RepoCreateInfo {
+//!     name: "a-new-repo".to_string(),
+//!     description: Some("A new repository for testing".to_string()),
+//!     license: Some("MIT".to_string()),
+//!     private: false,
+//!     init: false,
+//! };
+//! let new_repo = remote.create_repo(repo_create_info).await.unwrap();
+//!
+//! // List all repositories, including private ones
+//! let list_repos_info = ListReposInfo {
+//!     private: true, // Include private repositories
+//!     forks: false, // Exclude forked repositories
+//! };
+//! let private_repos = remote.list_repos(list_repos_info).await.unwrap();
+//!
+//! // Fork octocat/hello-world to the authenticated user
+//! let repo_fork_info = RepoForkOption {
+//!     owner: "octocat".to_string(),
+//!     repo: "hello-world".to_string(),
+//!     ..Default::default()
+//! };
+//! let forked_repo = remote.create_fork(repo_fork_info).await.unwrap();
+//! # }
+//! ```
 
 use std::fmt::Debug;
 
@@ -84,6 +158,21 @@ pub struct RepoCreateInfo {
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub struct RepoForkOption {
+    /// The owner of the repository to fork.
+    pub owner: String,
+    /// The name of the repository to fork.
+    pub repo: String,
+    /// The name of the fork.
+    pub name: Option<String>,
+    /// Organization name, if forking into an organization.
+    /// If not provided, the fork will be created in the user's account.
+    pub organization: Option<String>,
+    /// Only clone the default branch.
+    pub default_branch_only: Option<bool>,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ListReposInfo {
     /// Whether to include private repositories in the list.
     pub private: bool,
@@ -96,13 +185,18 @@ pub static COMMIT_COUNT: u8 = 25;
 #[async_trait]
 pub trait Remote: Sync {
     /// Create a new remote with the given configuration.
-    async fn new(config: &RemoteConfig) -> Self
+    async fn new(config: &RemoteConfig) -> Result<Self>
     where
         Self: Sized;
 
+    /// Check if the remote is authenticated.
+    async fn check_auth(&self) -> Result<bool>;
     /// Create a new repository on the remote.
-    /// Returns the URL of the new repository.
+    /// Returns the new repository.
     async fn create_repo(&self, create_info: RepoCreateInfo) -> Result<Repository>;
+    /// Fork a repository.
+    /// Returns the new newly-created fork.
+    async fn create_fork(&self, options: RepoForkOption) -> Result<Repository>;
     /// List all repositories.
     async fn list_repos(&self, list_info: ListReposInfo) -> Result<Vec<Repository>>;
     /// Get the information of a repository.
@@ -178,11 +272,11 @@ pub trait Remote: Sync {
     }
 }
 
-pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Box<dyn Remote> {
+pub async fn create_remote(config: &RemoteConfig, provider: Provider) -> Result<Box<dyn Remote>> {
     use Provider::*;
-    match provider {
-        GitHub => Box::new(github::GitHubRemote::new(config).await),
-        Gitea => Box::new(gitea::GiteaRemote::new(config).await),
-        GitLab => Box::new(gitlab::GitlabRemote::new(config).await),
-    }
+    Ok(match provider {
+        GitHub => Box::new(github::GitHubRemote::new(config).await?),
+        Gitea => Box::new(gitea::GiteaRemote::new(config).await?),
+        GitLab => Box::new(gitlab::GitlabRemote::new(config).await?),
+    })
 }

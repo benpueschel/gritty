@@ -1,6 +1,6 @@
+use crate::config::Config;
 use crate::error::Result;
 use crate::log::{self, Highlight, Paint};
-use crate::config::Config;
 
 pub async fn list_remotes(config: &Config) -> Result<()> {
     println!("Configured remotes:");

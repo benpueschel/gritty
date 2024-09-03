@@ -20,11 +20,11 @@ pub mod colors;
 
 pub fn get_config_dir() -> String {
     #[cfg(target_os = "windows")]
-    return env::var("LOCALAPPDATA").unwrap();
+    return env::var("LOCALAPPDATA").expect("Could not find LOCALAPPDATA environment variable");
 
     #[cfg(not(target_os = "windows"))]
     return {
-        let home = env::var("HOME").unwrap();
+        let home = env::var("HOME").expect("Could not find HOME environment variable");
         env::var("XDG_CONFIG_HOME").unwrap_or(format!("{home}/.config"))
     };
 }

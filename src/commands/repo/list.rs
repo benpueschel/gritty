@@ -1,11 +1,11 @@
-use gritty_clap::{List, OutputFormat};
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{self, Highlight, Paint};
 use crate::remote::{ListReposInfo, Repository};
 use chrono::{DateTime, Local};
+use gritty_clap::{repo::List, OutputFormat};
 
-use super::load_remote;
+use crate::commands::load_remote;
 
 pub async fn list_repositories(args: List, config: &Config) -> Result<()> {
     let remote = &args.remote;
