@@ -969,6 +969,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40ecd4077b5ae9fd2e9e169b102c6c330d0605168eb0e8bf79952b256dbefffd"
 
 [[package]]
+name = "gitea-sdk"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd66ef235300852ccee737657f0a87c1ed1f791508439e22cb18a210e13993db"
+dependencies = [
+ "base64 0.22.1",
+ "build-it",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "teatime-macros",
+]
+
+[[package]]
 name = "gitlab"
 version = "0.1701.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1054,7 +1069,7 @@ dependencies = [
 
 [[package]]
 name = "gritty"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "ansi_term",
  "async-trait",
@@ -1062,6 +1077,7 @@ dependencies = [
  "clap",
  "clap_complete",
  "clap_mangen",
+ "gitea-sdk",
  "gitlab",
  "gritty-clap",
  "human-panic",
@@ -1070,7 +1086,6 @@ dependencies = [
  "rpassword",
  "serde",
  "serde_json",
- "teatime",
  "tokio",
  "toml",
  "urlencoding",
@@ -1078,7 +1093,7 @@ dependencies = [
 
 [[package]]
 name = "gritty-clap"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "clap",
 ]
@@ -2626,23 +2641,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "teatime"
-version = "0.2.0"
-source = "git+https://github.com/benpueschel/teatime.git#af4e7b5111d9738edf5f469b5ce19b4d3bf295c9"
-dependencies = [
- "base64 0.22.1",
- "build-it",
- "reqwest",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "teatime-macros",
-]
-
-[[package]]
 name = "teatime-macros"
 version = "0.1.0"
-source = "git+https://github.com/benpueschel/teatime.git#af4e7b5111d9738edf5f469b5ce19b4d3bf295c9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03b67c18b2c263eb4761f733a80d83bbd686824025f8fa4db62bfa42d4649e71"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -1,0 +1,6 @@
+[workspace]
+changelog_config = "cliff.toml" # use a custom git-cliff configuration
+pr_labels = ["release"] # add the `release` label to the release Pull Request
+semver_check = true # enable API breaking changes checks
+release_always = false # always create a release Pull Request
+publish = true # publish the release to the registry

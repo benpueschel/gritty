@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use crate::error::{Error, ErrorKind, Result};
 use async_trait::async_trait;
-use teatime::{
+use gitea_sdk::{
     error::{TeatimeError, TeatimeErrorKind},
     Client,
 };
@@ -34,8 +34,8 @@ impl From<TeatimeError> for Error {
 impl Remote for GiteaRemote {
     async fn new(config: &RemoteConfig) -> Result<Self> {
         let auth = match config.auth.clone() {
-            Auth::Token { token } => teatime::Auth::Token(token),
-            Auth::Basic { username, password } => teatime::Auth::Basic(username, password),
+            Auth::Token { token } => gitea_sdk::Auth::Token(token),
+            Auth::Basic { username, password } => gitea_sdk::Auth::Basic(username, password),
         };
 
         let client = Client::new(config.url.clone(), auth);
@@ -140,7 +140,7 @@ impl Remote for GiteaRemote {
 }
 
 impl GiteaRemote {
-    async fn get_repo_info(&self, repo: teatime::model::repos::Repository) -> Result<Repository> {
+    async fn get_repo_info(&self, repo: gitea_sdk::model::repos::Repository) -> Result<Repository> {
         let owner = &self.config.username;
         let name = &repo.name;
         // disable stats, verification, and files to speed up the request.

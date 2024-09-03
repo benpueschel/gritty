@@ -1,44 +1,13 @@
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  release:
+    types: [published]
 
 permissions:
   contents: write
-  pull-requests: write
 
-name: Create release and publish binaries
+name: Publish binaries on release
 
 jobs:
-  generate-changelog:
-    name: Generate changelog
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Generate changelog
-        id: changelog
-        uses: requarks/changelog-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
-          excludeTypes: "chore,build,docs,other,style,ci"
-
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: false
-          make_latest: false
-          body: ${{ steps.changelog.outputs.changes }}
-
-      - name: Commit CHANGELOG.md
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          branch: main
-          commit_message: "chore(main): release ${{ github.ref_name }}"
-          file_pattern: CHANGELOG.md
-
   build-and-package:
     name: Build and package binaries
     strategy:
@@ -57,21 +26,18 @@ jobs:
           target: ${{ matrix.target }}
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2
-
-      - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
-
-      - name: Package
-        shell: bash
+      - name: Run sccache
+        uses: mozilla-actions/sccache-action@v0.0.5
+      - name: Build and upload binaries
+        uses: taiki-e/upload-rust-binary-action@v1
         env:
-          NAME: gritty
-          TARGET: ${{ matrix.target }}
-        run: .github/scripts/package.sh
-
-      - name: Upload artifacts
-        uses: softprops/action-gh-release@v2
+          SCCACHE_GHA_ENABLED: "true"
+          RUSTC_WRAPPER: "sccache"
         with:
-          draft: false
-          make_latest: true
-          files: "gritty*"
+          bin: gritty
+          include: README.md,CHANGELOG.md,LICENSE
+          checksum: sha256
+          target: ${{ matrix.target }}
+          tar: all
+          zip: windows
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -11,9 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: Swatinem/rust-cache@v2
+    - name: Run sccache
+      uses: mozilla-actions/sccache-action@v0.0.5
     - name: Build
       run: cargo build --verbose
+      env:
+        SCCACHE_GHA_ENABLED: "true"
+        RUSTC_WRAPPER: "sccache"
     - name: Run tests
       run: cargo test --verbose
-
+      env:
+        SCCACHE_GHA_ENABLED: "true"
+        RUSTC_WRAPPER: "sccache"
