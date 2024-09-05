@@ -130,6 +130,7 @@ Gritty currently supports the following subcommands:
 - `gritty repo delete [repo] [remote]`: delete a repository from the specified remote.
 - `gritty repo list [remote]`: list all repositories on the specified remote.
 - `gritty remote list`: list all remotes in the configuration file.
+- `gritty remote add [remote]`: add a new remote to the configuration file.
 
 To see the available options for a subcommand, run:
 ```bash
