@@ -1,4 +1,4 @@
-use gritty_clap::remote::{Remote, RemoteCommands};
+use crate::args::remote::{Remote, RemoteCommands};
 
 use crate::config::Config;
 use crate::error::Result;

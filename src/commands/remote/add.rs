@@ -1,10 +1,12 @@
-use gritty_clap::remote::add::Add;
+use crate::remote::CloneProtocol;
+
+use crate::args::remote::add::Add;
 
 use crate::commands::get_input;
 use crate::config::{Config, GitRemoteConfig};
 use crate::error::{Error, Result};
 use crate::log::{Highlight, Paint};
-use crate::remote::{CloneProtocol, Provider};
+use crate::remote::Provider;
 
 pub async fn add_remote(args: Add, config: &mut Config) -> Result<()> {
     if config.remotes.contains_key(&args.name) {
@@ -20,14 +22,16 @@ pub async fn add_remote(args: Add, config: &mut Config) -> Result<()> {
             "provider".paint(Highlight::Special),
             "github/gitea/gitlab".paint(Highlight::Special)
         );
-        Ok(get_input()?.as_str().into())
+        match get_input()?.as_str() {
+            "github" => Ok(Provider::GitHub),
+            "gitea" => Ok(Provider::Gitea),
+            "gitlab" => Ok(Provider::GitLab),
+            other => Err(Error::other(format!(
+                "Unknown provider: {}",
+                other.paint(Highlight::Special)
+            ))),
+        }
     })?;
-
-    let provider = match provider {
-        gritty_clap::remote::add::Provider::GitHub => Provider::GitHub,
-        gritty_clap::remote::add::Provider::Gitea => Provider::Gitea,
-        gritty_clap::remote::add::Provider::GitLab => Provider::GitLab,
-    };
 
     let username = args.username.map(Result::Ok).unwrap_or_else(|| {
         print!(
@@ -43,13 +47,15 @@ pub async fn add_remote(args: Add, config: &mut Config) -> Result<()> {
             "clone protocol".paint(Highlight::Protocol),
             "ssh/https".paint(Highlight::Protocol)
         );
-        Ok(get_input()?.as_str().into())
+        match get_input()?.as_str() {
+            "ssh" => Ok(CloneProtocol::SSH),
+            "https" => Ok(CloneProtocol::HTTPS),
+            other => Err(Error::other(format!(
+                "Unknown clone protocol: {}",
+                other.paint(Highlight::Protocol)
+            ))),
+        }
     })?;
-
-    let clone_protocol = match clone_protocol {
-        gritty_clap::remote::add::CloneProtocol::Https => CloneProtocol::HTTPS,
-        gritty_clap::remote::add::CloneProtocol::Ssh => CloneProtocol::SSH,
-    };
 
     let url = args.url.map(Result::Ok).unwrap_or_else(|| {
         print!("Enter the {} for the remote: ", "URL".paint(Highlight::Url));

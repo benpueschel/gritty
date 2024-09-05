@@ -1,4 +1,4 @@
-use gritty_clap::repo::{Repo, RepoCommands};
+use crate::args::repo::{Repo, RepoCommands};
 
 use crate::{config::Config, error::Result};
 

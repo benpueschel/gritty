@@ -26,14 +26,8 @@ toml = "0.8.14"
 keyring = { version = "2.3.3", optional = true }
 rpassword = "7.3.1"
 ansi_term = "0.12.1"
-clap = { version = "4.5.8", features = ["derive", "deprecated", "color"] }
-gritty-clap = { version = "2.1.0", path = "gritty-clap" }
+clap = { version = "4.5.8", features = ["derive", "deprecated", "color", "cargo"] }
 gitlab = "0.1701.0"
 urlencoding = "2.1.3"
 human-panic = "2.0.1"
 clap_complete = "4.5.24"
-
-[build-dependencies]
-clap = { version = "4.5.8", features = ["derive", "deprecated"] }
-clap_mangen = "0.2.23"
-gritty-clap = { version = "2.1.0", path = "gritty-clap" }

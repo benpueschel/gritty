@@ -3,9 +3,10 @@ use std::fmt::Display;
 use clap::Parser;
 use config::Config;
 use error::{Error, ErrorKind, Result};
-use gritty_clap::{Args, Commands};
+use crate::args::{Args, Commands};
 use log::{Highlight, Paint};
 
+pub mod args;
 pub mod commands;
 pub mod config;
 pub mod error;

@@ -80,6 +80,7 @@ use std::fmt::Debug;
 
 use crate::error::{Error, Result};
 
+use clap::ValueEnum;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -91,7 +92,7 @@ pub mod gitlab;
 /// The supported providers for remotes.
 /// Each provider has its own implementation of the [Remote] trait.
 /// The [create_remote] function will return a remote for the given provider.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ValueEnum)]
 pub enum Provider {
     GitHub,
     GitLab,
@@ -106,7 +107,7 @@ pub enum Auth {
     Token { token: String },
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ValueEnum)]
 pub enum CloneProtocol {
     #[serde(rename = "ssh")]
     SSH,

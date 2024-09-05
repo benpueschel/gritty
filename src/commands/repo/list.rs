@@ -3,7 +3,7 @@ use crate::error::Result;
 use crate::log::{self, Highlight, Paint};
 use crate::remote::{ListReposInfo, Repository};
 use chrono::{DateTime, Local};
-use gritty_clap::{repo::List, OutputFormat};
+use crate::args::{repo::List, OutputFormat};
 
 use crate::commands::load_remote;
 

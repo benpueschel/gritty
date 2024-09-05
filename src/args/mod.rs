@@ -1,14 +1,14 @@
 use std::env;
 
 pub mod auth;
+pub mod completions;
 pub mod remote;
 pub mod repo;
-pub mod completions;
 
 use auth::Auth;
+use completions::Completions;
 use remote::Remote;
 use repo::Repo;
-use completions::Completions;
 
 use clap::{
     builder::styling::{AnsiColor, Effects, Styles},

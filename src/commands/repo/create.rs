@@ -2,7 +2,7 @@ use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
 use crate::remote::RepoCreateInfo;
-use gritty_clap::{repo::Create, OutputFormat};
+use crate::args::{repo::Create, OutputFormat};
 
 use crate::commands::load_remote;
 

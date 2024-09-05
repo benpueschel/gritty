@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use crate::OutputFormat;
+use crate::args::OutputFormat;
 
 #[derive(Debug, Clone, Parser)]
 #[command(about = "List repositories on a remote", aliases = &["ls"])]

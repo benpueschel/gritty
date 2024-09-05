@@ -1,4 +1,4 @@
-use gritty_clap::auth::{Auth, AuthCommands};
+use crate::args::auth::{Auth, AuthCommands};
 
 use crate::config::Config;
 use crate::error::Result;

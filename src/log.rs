@@ -8,11 +8,11 @@ use std::{
 use ansi_term::Style;
 use tokio::sync::OnceCell;
 
-use crate::config::{colors::ConfigColorMap, Config};
+use crate::{args, config::{colors::ConfigColorMap, Config}};
 use crate::error::Result;
 
 static STYLES: OnceCell<HashMap<Highlight, Style>> = OnceCell::const_new();
-pub static COLOR_MODE: OnceCell<gritty_clap::Color> = OnceCell::const_new();
+pub static COLOR_MODE: OnceCell<args::Color> = OnceCell::const_new();
 
 pub fn load_default_colors() -> Result<()> {
     let map = ConfigColorMap::default().parse_highlights()?;
@@ -36,12 +36,12 @@ pub fn leftpad(s: &str, width: usize) -> String {
 
 pub fn is_color() -> bool {
     match COLOR_MODE.get().expect("Color mode not set") {
-        gritty_clap::Color::Auto => {
+        args::Color::Auto => {
             // only colorize if NO_COLOR is not set and stdout is a tty
             std::env::var("NO_COLOR").is_err() && std::io::stdout().is_terminal()
         }
-        gritty_clap::Color::Always => true,
-        gritty_clap::Color::Never => false,
+        args::Color::Always => true,
+        args::Color::Never => false,
     }
 }
 

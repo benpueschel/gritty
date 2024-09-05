@@ -2,7 +2,7 @@ use crate::config::Config;
 use crate::error::{Error, Result};
 use crate::log::{self, Highlight, Paint};
 use crate::remote::Repository;
-use gritty_clap::repo::Delete;
+use crate::args::repo::Delete;
 
 use crate::commands::{get_input, load_remote};
 
