@@ -17,7 +17,7 @@ keyring = ["dep:keyring"]
 [dependencies]
 async-trait = "0.1.80"
 chrono = "0.4.38"
-gitea-sdk = { version = "0.2.0" }
+gitea-sdk = { version = "0.3.0" }
 octocrab = "0.38.0"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.120"
