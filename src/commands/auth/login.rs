@@ -1,7 +1,7 @@
+use crate::args::auth::Login;
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
-use crate::args::auth::Login;
 use std::io::{stdout, Write};
 
 use crate::commands::get_input;

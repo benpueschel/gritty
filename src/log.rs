@@ -8,8 +8,11 @@ use std::{
 use ansi_term::Style;
 use tokio::sync::OnceCell;
 
-use crate::{args, config::{colors::ConfigColorMap, Config}};
 use crate::error::Result;
+use crate::{
+    args,
+    config::{colors::ConfigColorMap, Config},
+};
 
 static STYLES: OnceCell<HashMap<Highlight, Style>> = OnceCell::const_new();
 pub static COLOR_MODE: OnceCell<args::Color> = OnceCell::const_new();

@@ -1,8 +1,8 @@
+use crate::args::{repo::Create, OutputFormat};
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
 use crate::remote::RepoCreateInfo;
-use crate::args::{repo::Create, OutputFormat};
 
 use crate::commands::load_remote;
 

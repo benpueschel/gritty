@@ -1,5 +1,5 @@
-use clap::Parser;
 use crate::remote::{CloneProtocol, Provider};
+use clap::Parser;
 
 #[derive(Debug, Clone, Parser)]
 #[command(aliases = &["new", "create"])]

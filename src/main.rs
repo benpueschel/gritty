@@ -1,9 +1,9 @@
 use std::fmt::Display;
 
+use crate::args::{Args, Commands};
 use clap::Parser;
 use config::Config;
 use error::{Error, ErrorKind, Result};
-use crate::args::{Args, Commands};
 use log::{Highlight, Paint};
 
 pub mod args;

@@ -1,7 +1,7 @@
+use crate::args::repo::Clone;
 use crate::commands::load_remote;
 use crate::config::Config;
 use crate::error::Result;
-use crate::args::repo::Clone;
 
 pub async fn clone_repository(args: Clone, config: &Config) -> Result<()> {
     let remote = load_remote(&args.remote, config).await?;

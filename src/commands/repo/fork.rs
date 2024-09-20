@@ -1,9 +1,9 @@
+use crate::args::{repo::Fork, OutputFormat};
 use crate::commands::load_remote;
 use crate::config::Config;
 use crate::error::Result;
 use crate::log::{Highlight, Paint};
 use crate::remote::RepoForkOption;
-use crate::args::{repo::Fork, OutputFormat};
 
 pub async fn fork_repository(args: Fork, config: &Config) -> Result<()> {
     let Fork {

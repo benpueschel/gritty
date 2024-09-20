@@ -80,9 +80,9 @@ use std::fmt::Debug;
 
 use crate::error::{Error, Result};
 
-use clap::ValueEnum;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 
 pub mod gitea;

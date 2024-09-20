@@ -3,8 +3,8 @@ use crate::args::remote::{Remote, RemoteCommands};
 use crate::config::Config;
 use crate::error::Result;
 
-pub mod list;
 pub mod add;
+pub mod list;
 
 pub use list::list_remotes;
 
