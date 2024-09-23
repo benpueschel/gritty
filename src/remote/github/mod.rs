@@ -1,11 +1,7 @@
 use crate::error::{Error, ErrorKind, Result};
 use async_trait::async_trait;
-use chrono::DateTime;
 use octocrab::{
-    models::{
-        self,
-        repos::{CommitAuthor, GitUserTime},
-    },
+    models::{self, repos::CommitAuthor},
     repos::RepoHandler,
     Octocrab,
 };
@@ -125,30 +121,23 @@ impl Remote for GitHubRemote {
     }
 
     async fn create_fork(&self, options: RepoForkOption) -> Result<Repository> {
-        // NOTE: this is a workaround for the incomplete octocrab API for forking repositories.
-        // I submitted a PR to add the missing fields to octocrab (#682),
-        // but it hasn't been merged yet.
-
-        #[derive(Serialize, Deserialize)]
-        struct Request {
-            organization: Option<String>,
-            name: Option<String>,
-            default_branch_only: Option<bool>,
-        }
-        let body = Request {
-            organization: options.organization,
-            name: options.name,
-            default_branch_only: options.default_branch_only,
-        };
         let owner = options.owner;
         let repo = options.repo;
 
-        let fork: octocrab::models::Repository = self
-            .crab
-            .post(format!("/repos/{owner}/{repo}/forks"), Some(&body))
-            .await?;
+        let fork = self.crab.repos(owner.clone(), repo.clone());
+        let mut fork = fork.create_fork();
+        if let Some(organization) = &options.organization {
+            fork = fork.organization(organization);
+        }
+        if let Some(name) = &options.name {
+            fork = fork.name(name);
+        }
+        if let Some(default_branch_only) = options.default_branch_only {
+            fork = fork.default_branch_only(default_branch_only);
+        }
+        let fork = fork.send().await?;
 
-        let base = self.crab.repos(owner.to_string(), repo.to_string());
+        let base = self.crab.repos(owner.clone(), repo.clone());
         Self::get_repo_info(self.config.username.clone(), base, fork).await
     }
 
@@ -261,19 +250,15 @@ impl GitHubRemote {
             .items
             .into_iter()
             .map(|c| {
-                let author = c.commit.author.unwrap_or(GitUserTime {
-                    date: Some(DateTime::default()),
-                    username: None,
-                    user: CommitAuthor {
-                        date: None,
-                        name: "unknown".to_string(),
-                        email: "unknown".to_string(),
-                    },
+                let author = c.commit.author.unwrap_or(CommitAuthor {
+                    name: "unknown".to_string(),
+                    email: "unknown".to_string(),
+                    date: None,
                 });
                 Commit {
                     sha: c.sha,
                     message: c.commit.message,
-                    author: author.user.name,
+                    author: author.name,
                     date: author.date.unwrap_or_default(),
                 }
             })
