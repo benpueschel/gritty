@@ -39,7 +39,7 @@ For **zsh**:
 dir="$HOME/.zsh-complete"
 # or dir="/usr/share/zsh/site-functions" if you want to install system-wide
 mkdir -p "$dir"
-gritty completions bash > "$dir/_gritty"
+gritty completions zsh > "$dir/_gritty"
 ```
 
 For **fish**:
