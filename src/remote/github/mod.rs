@@ -49,6 +49,7 @@ impl From<octocrab::Error> for Error {
             Json { source, backtrace } => source.into_inner().into(),
             JWT { source, backtrace } => Error::other(source),
             Other { source, backtrace } => Error::other(source),
+            _ => Error::other("unknown error"),
         }
     }
 }
