@@ -21,7 +21,7 @@ gitea-sdk = { version = "0.5.0" }
 octocrab = "0.42.1"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.120"
-tokio = { version = "1.38.0", features = ["full", "macros"] }
+tokio = { version = "1.43.1", features = ["full", "macros"] }
 toml = "0.8.14"
 keyring = { version = "2.3.3", optional = true }
 rpassword = "7.3.1"
