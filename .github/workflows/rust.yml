@@ -21,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Run sccache
-      uses: mozilla-actions/sccache-action@v0.0.5
+      uses: mozilla-actions/sccache-action@v0.0.9
     - name: Build
       run: cargo build --verbose
       env:

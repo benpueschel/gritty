@@ -32,13 +32,8 @@ jobs:
           target: ${{ matrix.target }}
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Run sccache
-        uses: mozilla-actions/sccache-action@v0.0.5
       - name: Build and upload binaries
         uses: taiki-e/upload-rust-binary-action@v1
-        env:
-          SCCACHE_GHA_ENABLED: "true"
-          RUSTC_WRAPPER: "sccache"
         with:
           bin: gritty
           include: README.md,CHANGELOG.md,LICENSE
