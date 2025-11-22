@@ -30,10 +30,9 @@ impl<E: StdError + Send + Sync + 'static> From<ApiError<E>> for Error {
                 // building the client, and then doesn't even manage to return the correct error
                 // kind (THEY HAVE AN AUTH ERROR KIND, WHY NOT USE IT?). This is literally the only
                 // data the gitlab client returns, so we have to check for it here.
-                if msg == "401 Unauthorized" {
-                    Error::authentication(msg)
-                } else {
-                    Error::other(msg)
+                match msg.as_str() {
+                    "401 Unauthorized" | "invalid_token" => Error::authentication(msg),
+                    _ => Error::other(msg),
                 }
             }
             ApiError::GitlabService { status, data: _ } => Error {
