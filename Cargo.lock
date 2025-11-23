@@ -1075,7 +1075,7 @@ dependencies = [
 
 [[package]]
 name = "gritty"
-version = "2.2.3"
+version = "2.2.4"
 dependencies = [
  "ansi_term",
  "async-trait",
