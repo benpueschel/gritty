@@ -7,6 +7,14 @@
 #
 
 PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+
+if [ "$ARCH" == "amd64" ]; then
+	ARCH="x86_64"
+elif [ "$ARCH" == "arm64" ]; then
+	ARCH="aarch64"
+fi
+
 VERSION="latest"
 
 # check if sudo is installed
@@ -40,6 +48,7 @@ print_help() {
 	echo "  -h, --help        Show this help message and exit"
 	echo "  -v, --version     Set the gritty version to download (default: latest)"
 	echo "  -p, --platform    Specify the platform to download for (default: $PLATFORM)"
+	echo "  -a, --arch        Specify the architecture to download for (default: $ARCH)"
 }
 
 while getopts ":h:p:v:" opt; do
@@ -54,6 +63,9 @@ while getopts ":h:p:v:" opt; do
 		v)
 			VERSION=$OPTARG
 			;;
+		a)
+			ARCH=$OPTARG
+			;;
 		\?)
 			>&2 echo "Invalid option: -$OPTARG" >&2
 			print_help
@@ -67,7 +79,7 @@ while getopts ":h:p:v:" opt; do
 	esac
 done
 
-echo "Downloading gritty-$VERSION for $PLATFORM..."
+echo "Downloading gritty-$VERSION for $ARCH-$PLATFORM..."
 
 # get the latest release's asset url endpoint
 if [ "$VERSION" == "latest" ]; then
@@ -77,7 +89,7 @@ else
 fi
 
 # get all assets matching the platform
-ASSETS=$(curl -s "$ASSETS_URL" | jq -c ".[] | select ( .name | contains(\"$PLATFORM\"))")
+ASSETS=$(curl -s "$ASSETS_URL" | jq -c ".[] | select ( .name | contains(\"$PLATFORM\") and contains(\"$ARCH\") )")
 
 # get all download urls
 ASSET_URLS=$(echo $ASSETS | jq -r '.browser_download_url')
@@ -94,16 +106,17 @@ SHA256=$(echo $ASSETS | jq -rc 'select(.name | endswith(".sha256")) | .name')
 
 # check the sha256 hash against the archive file
 echo "Checking sha256 hash for $ARCHIVE..."
-echo "$(cat $SHA256) *$ARCHIVE" | shasum -ca 256
+
+cat $SHA256 | shasum -ca 256
 
 if [ $? -ne 0 ]; then exit 1; fi
 
 # find the gritty binary in the archive
-BINARY=$(tar ztf "$ARCHIVE" | grep '/gritty')
+BINARY=$(tar ztf "$ARCHIVE" | grep 'gritty')
 
 # extract the binary from the archive and don't expand into a folder, instead
 # extract the binary directly into the current directory (./gritty)
-tar -xzf "$ARCHIVE" "$BINARY" --strip-components=1
+tar --strip-components=1 -xzf "$ARCHIVE" "$BINARY"
 
 # make the binary executable
 chmod +x gritty
