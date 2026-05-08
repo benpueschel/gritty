@@ -24,7 +24,7 @@ serde_json = "1.0.120"
 tokio = { version = "1.43.1", features = ["full", "macros"] }
 toml = "0.8.14"
 keyring = { version = "2.3.3", optional = true }
-rpassword = "7.3.1"
+rpassword = "7.5.0"
 ansi_term = "0.12.1"
 clap = { version = "4.5.8", features = [
 	"derive",
