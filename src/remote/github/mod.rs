@@ -1,14 +1,30 @@
-use crate::error::{Error, ErrorKind, Result};
+use crate::error::{
+    Error,
+    ErrorKind,
+    Result,
+};
 use async_trait::async_trait;
 use octocrab::{
-    models::{self, repos::CommitAuthor},
+    models::{
+        self,
+        repos::CommitAuthor,
+    },
     repos::RepoHandler,
     Octocrab,
 };
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 use super::{
-    Commit, ListReposInfo, Remote, RemoteConfig, RepoCreateInfo, RepoForkOption, Repository,
+    Commit,
+    ListReposInfo,
+    Remote,
+    RemoteConfig,
+    RepoCreateInfo,
+    RepoForkOption,
+    Repository,
 };
 
 pub struct GitHubRemote {
@@ -103,10 +119,6 @@ impl Remote for GitHubRemote {
             private: bool,
             license_template: Option<String>,
             auto_init: bool,
-        }
-        #[derive(Serialize, Deserialize)]
-        struct Response {
-            clone_url: String,
         }
         let req = Request {
             name: create_info.name,
@@ -253,7 +265,7 @@ impl GitHubRemote {
             .map(|c| {
                 let author = c.commit.author.unwrap_or(CommitAuthor {
                     name: "unknown".to_string(),
-                    email: "unknown".to_string(),
+                    email: None,
                     date: None,
                 });
                 Commit {

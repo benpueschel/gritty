@@ -1,14 +1,22 @@
-use crate::error::{Error, ErrorKind};
+use crate::error::{
+    Error,
+    ErrorKind,
+};
 use ::gitlab::{
     api::{
         projects::{
-            repository::commits::CommitsBuilderError, CreateProjectBuilderError,
-            DeleteProjectBuilderError, ProjectBuilderError, ProjectsBuilderError,
+            repository::commits::CommitsBuilderError,
+            CreateProjectBuilderError,
+            DeleteProjectBuilderError,
+            ProjectBuilderError,
+            ProjectsBuilderError,
         },
         ApiError,
     },
-    GitlabError, RestError,
+    GitlabError,
+    RestError,
 };
+use http::StatusCode;
 use std::error::Error as StdError;
 
 impl<E: StdError + Send + Sync + 'static> From<ApiError<E>> for Error {
@@ -25,6 +33,7 @@ impl<E: StdError + Send + Sync + 'static> From<ApiError<E>> for Error {
                 )),
                 None => Error::other("Requested endpoint moved permanently"),
             },
+            /*
             ApiError::Gitlab { msg } => {
                 // NOTE: For some asinine reason, the gitlab crate decides to check auth when
                 // building the client, and then doesn't even manage to return the correct error
@@ -35,15 +44,12 @@ impl<E: StdError + Send + Sync + 'static> From<ApiError<E>> for Error {
                     _ => Error::other(msg),
                 }
             }
+            */
             ApiError::GitlabService { status, data: _ } => Error {
                 message: "Gitlab service error".to_string(),
                 kind: ErrorKind::Other,
                 status: Some(status.into()),
             },
-            ApiError::GitlabObject { obj } => Error::other(format!("Gitlab object error: {obj}")),
-            ApiError::GitlabUnrecognized { obj } => {
-                Error::other(format!("Gitlab unrecognized object: {obj}"))
-            }
             ApiError::DataType { source, typename } => Error::deserialization(format!(
                 "Failed to deserialize data of type {typename}: {source}"
             )),
@@ -53,8 +59,46 @@ impl<E: StdError + Send + Sync + 'static> From<ApiError<E>> for Error {
             ApiError::UnsupportedUrlBase { url_base } => {
                 Error::other(format!("Unsupported URL base: {:?}", url_base))
             }
-
-            x => Error::other(x),
+            ApiError::GitlabWithStatus { status, msg } => {
+                // NOTE: For some asinine reason, the gitlab crate decides to check auth when
+                // building the client, and then doesn't even manage to return the correct error
+                // kind (THEY HAVE AN AUTH ERROR KIND, WHY NOT USE IT?). This is literally the only
+                // data the gitlab client returns, so we have to check for it here.
+                match status {
+                    StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN => {
+                        return Error {
+                            message: msg.to_string(),
+                            kind: ErrorKind::Authentication,
+                            status: Some(status.as_u16()),
+                        }
+                    }
+                    _ => Error {
+                        message: msg,
+                        kind: ErrorKind::Other,
+                        status: Some(status.as_u16()),
+                    },
+                }
+            }
+            ApiError::GitlabObjectWithStatus { status, obj } => Error::other(format!(
+                "Gitlab returned an object with status {}: {:?}",
+                status, obj
+            )),
+            ApiError::GitlabUnrecognizedWithStatus { status, obj } => Error::other(format!(
+                "Gitlab returned an unrecognized object with status {}: {:?}",
+                status, obj
+            )),
+            ApiError::GitlabRateLimited {
+                rl_limit: _,
+                rl_name: _,
+                rl_observed: _,
+                rl_remaining: _,
+                rl_reset: _,
+                retry_after,
+            } => Error::other(format!(
+                "Gitlab rate limited, retry_after={:?}",
+                retry_after
+            )),
+            _ => todo!(),
         }
     }
 }

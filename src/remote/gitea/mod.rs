@@ -21,6 +21,7 @@ impl From<TeatimeError> for Error {
             TeatimeErrorKind::HttpError => ErrorKind::Other,
             TeatimeErrorKind::SerializationError => ErrorKind::Serialization,
             TeatimeErrorKind::Other => ErrorKind::Other,
+			TeatimeErrorKind::ParseError => ErrorKind::Other,
         };
         Error {
             message: err.message,
